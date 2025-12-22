@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.20.0
+    hooks:
+      - id: markdownlint-cli2
+        args: ["--fix"]
+        files: '\.md$'
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: ["-d", "{extends: relaxed, rules: {line-length: {max: 140}}}"]
+        files: '\.(yml|yaml)$'
+
+  - repo: https://github.com/lycheeverse/lychee
+    rev: f03b1c9acbb0d5cee52899858d2296c390623cc1
+    hooks:
+      - id: lychee
+        args:
+          - --no-progress
+          - --accept
+          - 429,200
+          - --exclude
+          - http://localhost.*
+          - --exclude-path
+          - .npm-cache
+          - --max-concurrency
+          - "4"
+          - --retry-wait-time
+          - "2"
+          - --timeout
+          - "20"
+          - --cache
+        files: '\.md$'
