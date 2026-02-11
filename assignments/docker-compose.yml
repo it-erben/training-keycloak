@@ -13,7 +13,7 @@ services:
   # PostgreSQL Datenbank
   # ------------------------------------------
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     container_name: mustertech-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-keycloak}
