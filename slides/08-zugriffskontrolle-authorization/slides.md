@@ -107,6 +107,7 @@ section {
     font-size: 1.6rem;
 }
 </style>
+
 ## 5.1 Resource
 
 > "**WAS** wird geschützt?"
@@ -129,6 +130,7 @@ section {
     font-size: 1.6rem;
 }
 </style>
+
 ## 5.2 Authorization Scope
 
 > "**WAS** darf man mit der Resource tun?"
@@ -151,6 +153,7 @@ section {
     font-size: 1.6rem;
 }
 </style>
+
 ## 5.3 Policy
 
 > "**WER** darf es / **WANN** gilt es?"
@@ -172,6 +175,7 @@ section {
     font-size: 1.6rem;
 }
 </style>
+
 ## 5.4 JavaScript-basierte Policies
 
 Für Fälle, die mit Standard-Policies nicht abbildbar sind:
@@ -196,6 +200,7 @@ section {
     font-size: 1.6rem;
 }
 </style>
+
 ## 5.5 Permission
 
 > "**Die Verknüpfung** von Resource + Scope + Policy"
@@ -218,6 +223,7 @@ section {
     font-size: 1.4rem;
 }
 </style>
+
 ## 6. Decision Strategies
 
 Wenn **mehrere Policies** an einer Permission hängen - wie wird entschieden?
@@ -241,6 +247,7 @@ section {
     font-size: 1.6rem;
 }
 </style>
+
 ## 6.1 Praxisbeispiel: Dokumentenverwaltung
 
 **Szenario:** Vertrauliche Berichte sollen nur von Managern während der Arbeitszeit gelesen werden.
@@ -280,6 +287,7 @@ section {
     font-size: 1.4rem;
 }
 </style>
+
 ## 8. Evaluierung & Testing
 
 Der Tab **Authorization → Evaluate** ist ein mächtiges Debugging-Tool.
@@ -305,6 +313,7 @@ section {
     font-size: 1.6rem;
 }
 </style>
+
 ## 9. Wo wird autorisiert? Architekturvergleich
 
 | Ansatz | Beschreibung | Wann sinnvoll? |

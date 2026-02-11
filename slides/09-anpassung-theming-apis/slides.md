@@ -115,6 +115,7 @@ section {
     font-size: 1.6rem;
 }
 </style>
+
 ## 7. Authentifizierung an der API
 
 Um die Admin API zu nutzen, braucht man ein **Access Token** mit entsprechenden Rechten (z.B. `realm-admin` oder `manage-users`).
@@ -136,6 +137,7 @@ Um die Admin API zu nutzen, braucht man ein **Access Token** mit entsprechenden 
 ![h:450](./images/api_auth_flow.drawio.svg)
 
 ---
+
 ## 7.1 Der Java Admin Client
 
 Keycloak bietet eine offizielle Java-Bibliothek, die REST-Calls kapselt.
