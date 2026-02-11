@@ -1,5 +1,6 @@
 # ============================================
-# Keycloak Demo - Modul 02: Protokoll-Standards
+# Keycloak Demo - Modul 04: Clients &
+#   Benutzerverwaltung
 # ============================================
 # Separate Instanz auf Port 9090, damit kein
 # Konflikt mit den Übungen (Port 8080) entsteht.

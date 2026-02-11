@@ -1,5 +1,6 @@
 # ============================================
-# Keycloak Demo - Modul 02: Protokoll-Standards
+# Keycloak Demo - Modul 03: Installation &
+#   Grundkonfiguration
 # ============================================
 # Separate Instanz auf Port 9090, damit kein
 # Konflikt mit den Übungen (Port 8080) entsteht.
@@ -36,7 +37,7 @@ services:
   demo-keycloak:
     image: quay.io/keycloak/keycloak:26.0
     container_name: demo-keycloak
-    command: start-dev --import-realm
+    command: start-dev
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -47,8 +48,6 @@ services:
       KC_HOSTNAME: http://localhost:9090
     ports:
       - "9090:8080"
-    volumes:
-      - ./realm-demo.json:/opt/keycloak/data/import/realm-demo.json:ro
     depends_on:
       demo-postgres:
         condition: service_healthy

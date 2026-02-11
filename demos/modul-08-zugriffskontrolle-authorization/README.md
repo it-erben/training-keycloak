@@ -1,6 +1,6 @@
-# Live-Demo: Modul 08 — Zugriffskontrolle & Authorization Services
+# Live-Demo: Modul 08 -- Zugriffskontrolle & Authorization Services
 
-Authorization Services mit **Time Policy** und **Aggregated Policy** zeigen — im Gegensatz zur Übung, die reine Role-Policies für `urlaubsantrag`/`admin-bereich` nutzt.
+Authorization Services mit **Time Policy** und **Aggregated Policy** zeigen -- im Gegensatz zur Übung, die reine Role-Policies für `urlaubsantrag`/`admin-bereich` nutzt.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -11,18 +11,34 @@ Authorization Services mit **Time Policy** und **Aggregated Policy** zeigen — 
 
 ## Voraussetzungen
 
-- Keycloak läuft (Realm **mustertech** existiert)
-- Admin-Konsole erreichbar unter <http://localhost:8080>
-- Mindestens ein User mit der Rolle `manager` vorhanden (z.B. max.admin aus Modul 04)
-- Mindestens ein User **ohne** Manager-Rolle (z.B. hans.mueller)
+- Docker / Podman (Container-Runtime)
+
+## Setup
+
+```bash
+# 1. Keycloak + Postgres starten (Port 9090)
+docker compose up -d
+
+# 2. Warten bis Keycloak bereit ist (~30 s)
+docker compose logs -f demo-keycloak
+# -> "Keycloak ... started in ..." abwarten, dann Ctrl+C
+```
+
+Keycloak Admin-Konsole: <http://localhost:9090> (admin / admin)
+
+Der Realm **mustertech** wird automatisch importiert mit:
+
+- Realm Role `manager`
+- User `max.admin` (hat Rolle `manager`, Passwort: `demo1234`)
+- User `hans.mueller` (keine Manager-Rolle, Passwort: `demo1234`)
 
 ---
 
 ## Demo 1: Authorization Services aktivieren
 
-### Schritt 1 — Confidential Client erstellen
+### Schritt 1 -- Confidential Client erstellen
 
-1. Navigiere zu **Clients** → **Create client**
+1. Navigiere zu **Clients** -> **Create client**
 2. Konfiguriere:
 
 | Feld | Wert |
@@ -34,17 +50,17 @@ Authorization Services mit **Time Policy** und **Aggregated Policy** zeigen — 
 4. Aktiviere:
    - **Client authentication:** ON
    - **Authorization:** ON
-5. Klicke auf **Next** → **Save**
+5. Klicke auf **Next** -> **Save**
 
-### Schritt 2 — Authorization Tab erkunden
+### Schritt 2 -- Authorization Tab erkunden
 
 Nach dem Speichern erscheint der Tab **Authorization** mit:
 
-- **Resources** — Was wird geschützt?
-- **Scopes** — Was darf man tun?
-- **Policies** — Wer darf es / wann?
-- **Permissions** — Die Verknüpfung
-- **Evaluate** — Test-Tool
+- **Resources** -- Was wird geschützt?
+- **Scopes** -- Was darf man tun?
+- **Policies** -- Wer darf es / wann?
+- **Permissions** -- Die Verknüpfung
+- **Evaluate** -- Test-Tool
 
 > **Zeigen:** Authorization Services sind nur für Confidential Clients verfügbar. Der Tab erscheint erst nach dem Aktivieren.
 
@@ -52,9 +68,9 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 
 ## Demo 2: Resource und Policies erstellen
 
-### Schritt 1 — Resource "Sensitive Data" erstellen
+### Schritt 1 -- Resource "Sensitive Data" erstellen
 
-1. **Authorization** → **Resources** → **Create resource**
+1. **Authorization** -> **Resources** -> **Create resource**
 2. Konfiguriere:
 
 | Feld | Wert |
@@ -66,25 +82,35 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 
 3. Klicke auf **Save**
 
-### Schritt 2 — Time Policy "Working Hours" erstellen
+### Schritt 2 -- Time Policy "Working Hours" erstellen
 
-1. **Authorization** → **Policies** → **Create policy** → **Time**
+1. **Authorization** -> **Policies** -> **Create policy** -> **Time**
 2. Konfiguriere:
 
 | Feld | Wert |
 | :--- | :--- |
 | Name | `Working Hours` |
-| Not before hour | `8` |
-| Not on or after hour | `17` |
+| Repeat | **Repeat** |
+| Month | `1` bis `12` |
+| Day | `1` bis `31` |
+| Hour | `8` bis `17` |
+| Minute | `0` bis `59` |
+| Start time | `2025-01-01` / `0:00` |
+| Expire time | `2099-12-31` / `23:59` |
 | Logic | Positive |
 
 3. Klicke auf **Save**
 
-> **Zeigen:** Die Time Policy prüft die aktuelle Uhrzeit. Außerhalb von 8-17 Uhr liefert sie DENY. Das ist etwas, das mit reinem RBAC nicht möglich wäre.
+> **Zeigen:** Die Time Policy kombiniert zwei Ebenen:
+>
+> - **Start/Expire time** -- der Gesamtzeitraum, in dem die Policy aktiv ist (Pflichtfelder). Z.B. "Externer Berater darf nur bis 31.03. zugreifen."
+> - **Repeat-Felder** (Hour, Day, Month, Minute) -- wiederkehrende Einschränkungen innerhalb dieses Zeitraums. Z.B. "nur Mo-Fr 8-17 Uhr."
+>
+> Für unsere Demo setzen wir den Gesamtzeitraum bewusst weit (2025-2099) und schränken nur die Stunden ein. Das ermöglicht dynamische zeitliche Regeln, die mit reinem RBAC nicht möglich wären.
 
-### Schritt 3 — Role Policy "Is Manager" erstellen
+### Schritt 3 -- Role Policy "Is Manager" erstellen
 
-1. **Authorization** → **Policies** → **Create policy** → **Role**
+1. **Authorization** -> **Policies** -> **Create policy** -> **Role**
 2. Konfiguriere:
 
 | Feld | Wert |
@@ -95,9 +121,9 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 
 3. Klicke auf **Save**
 
-### Schritt 4 — Aggregated Policy erstellen
+### Schritt 4 -- Aggregated Policy erstellen
 
-1. **Authorization** → **Policies** → **Create policy** → **Aggregated**
+1. **Authorization** -> **Policies** -> **Create policy** -> **Aggregated**
 2. Konfiguriere:
 
 | Feld | Wert |
@@ -120,9 +146,9 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 
 ## Demo 3: Permission erstellen
 
-### Schritt 1 — Resource-Based Permission
+### Schritt 1 -- Resource-Based Permission
 
-1. **Authorization** → **Permissions** → **Create permission** → **Resource-based**
+1. **Authorization** -> **Permissions** -> **Create permission** -> **Resource-based**
 2. Konfiguriere:
 
 | Feld | Wert |
@@ -140,9 +166,9 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 
 ## Demo 4: Evaluate testen
 
-### Schritt 1 — Evaluate als Manager
+### Schritt 1 -- Evaluate als Manager
 
-1. **Authorization** → **Evaluate**
+1. **Authorization** -> **Evaluate**
 2. Konfiguriere:
 
 | Feld | Wert |
@@ -157,36 +183,38 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 - Falls zwischen 8-17 Uhr: **PERMIT**
 - Falls außerhalb: **DENY**
 
-### Schritt 2 — Evaluate als normaler User
+### Schritt 2 -- Evaluate als normaler User
 
 1. Ändere den User auf `hans.mueller` (kein Manager)
 2. Klicke auf **Evaluate**
 
-**Erwartetes Ergebnis:** **DENY** — unabhängig von der Uhrzeit.
+**Erwartetes Ergebnis:** **DENY** -- unabhängig von der Uhrzeit.
 
-### Schritt 3 — Policy-Details anzeigen
+### Schritt 3 -- Policy-Details anzeigen
 
 1. Klicke auf das Ergebnis, um die Details zu sehen
 2. Keycloak zeigt, welche Policy PERMIT und welche DENY geliefert hat
 
-> **Zeigen:** Das Evaluate-Tool ist essenziell für Debugging. Man sieht exakt, welche Policy den Zugriff blockiert — ohne Code schreiben zu müssen.
+> **Zeigen:** Das Evaluate-Tool ist essenziell für Debugging. Man sieht exakt, welche Policy den Zugriff blockiert -- ohne Code schreiben zu müssen.
 
-### Schritt 4 — Time Policy anpassen (Optional)
+### Schritt 4 -- Time Policy anpassen (Optional)
 
 Falls die Demo außerhalb der Arbeitszeit stattfindet:
 
 1. Öffne die Policy **Working Hours**
 2. Ändere die Uhrzeiten, sodass die aktuelle Uhrzeit eingeschlossen ist
-3. Speichere und evaluiere erneut → jetzt PERMIT für Manager
+3. Speichere und evaluiere erneut -> jetzt PERMIT für Manager
 
 **Diskussionspunkte:**
 
 - Wie integriert eine API das in der Praxis? (UMA-Ticket-Grant, RPT)
-- Kann man Policies ohne Neustart der App ändern? (Ja — zentral in Keycloak)
+- Kann man Policies ohne Neustart der App ändern? (Ja -- zentral in Keycloak)
 - Wann RBAC, wann ABAC? (RBAC für 80% der Fälle, ABAC für dynamische Regeln)
 
 ---
 
 ## Aufräumen
 
-1. Client **demo-api** löschen (**Clients** → **demo-api** → **Action** → **Delete**)
+```bash
+docker compose down -v
+```

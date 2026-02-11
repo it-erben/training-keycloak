@@ -1,10 +1,11 @@
 # ============================================
-# Keycloak Demo - Modul 02: Protokoll-Standards
+# Keycloak Demo - Modul 07: Identity Provider
 # ============================================
-# Separate Instanz auf Port 9090, damit kein
-# Konflikt mit den Übungen (Port 8080) entsteht.
+# Separate Instanz auf Port 9090 + Gitea auf
+# Port 3000 als externer Identity Provider.
 #
 # Starten:   docker compose up -d
+# Setup:     bash setup.sh
 # Stoppen:   docker compose down
 # Logs:      docker compose logs -f demo-keycloak
 # Reset:     docker compose down -v && docker compose up -d
@@ -62,6 +63,25 @@ services:
       - demo-network
 
   # ------------------------------------------
+  # Gitea (externer Identity Provider)
+  # ------------------------------------------
+  demo-gitea:
+    image: gitea/gitea:1.22-rootless
+    container_name: demo-gitea
+    environment:
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__server__ROOT_URL: http://localhost:3000
+      GITEA__server__HTTP_PORT: 3000
+      GITEA__security__INSTALL_LOCK: "true"
+      GITEA__service__DISABLE_REGISTRATION: "false"
+    ports:
+      - "3000:3000"
+    volumes:
+      - demo_gitea_data:/var/lib/gitea
+    networks:
+      - demo-network
+
+  # ------------------------------------------
   # Einmalig: SSL-Pflicht im master-Realm
   # deaktivieren (nötig wenn Docker die
   # Host-IP nicht als localhost durchreicht)
@@ -87,6 +107,8 @@ services:
 volumes:
   demo_postgres_data:
     name: demo-postgres-data
+  demo_gitea_data:
+    name: demo-gitea-data
 
 networks:
   demo-network:

@@ -41,14 +41,11 @@ Ein **Client** ist eine Anwendung, die Keycloak zur Authentifizierung/Autorisier
 Keycloak (OIDC) unterscheidet Sicherheitsstufen:
 
 1. **Public:**
-   - Kann kein Secret sicher speichern (z.B. SPA, Mobile App).
-   - Nutzt PKCE für Sicherheit.
+    - Kann kein Secret sicher speichern (z.B. SPA, Mobile App).
+    - Nutzt PKCE für Sicherheit.
 2. **Confidential:**
-   - Server-seitige App (z.B. Java/PHP/Node.js Backend).
-   - Besitzt ein **Client Secret**, mit dem es sich authentifiziert.
-3. **Bearer-only:**
-   - (Veraltet, heute meist "Confidential" ohne Login-Flow).
-   - Nur für REST Services, die Tokens validieren, aber nie User einloggen.
+    - Server-seitige App (z.B. Java/PHP/Node.js Backend).
+    - Besitzt ein **Client Secret**, mit dem es sich authentifiziert.
 
 ---
 
@@ -57,7 +54,6 @@ Keycloak (OIDC) unterscheidet Sicherheitsstufen:
 Im Tab *Capability config* des Clients:
 
 - **Standard Flow:** Der klassische Redirect (Browser -> Keycloak -> Browser). Für fast alle Apps.
-- **Implicit Flow:** Veraltet! (Unsicher, nicht nutzen).
 - **Direct Access Grants:** User/Passwort direkt an Keycloak senden (REST). Nur für Legacy/CLI!
 - **Service Accounts Roles:** Erlaubt "Client Credentials Grant" (siehe nächster Abschnitt).
 
@@ -69,7 +65,8 @@ Wenn sich eine **Maschine** (kein Mensch) einloggen muss.
 
 - Aktivieren: *Service Accounts Enabled = ON* (nur bei Confidential Clients).
 - Ablauf: Client sendet ID + Secret an Token-Endpoint -> erhält Access Token.
-- **Berechtigungen:** Tab *Service Account Roles* im Client-Menü. Hier werden dem "Roboter" Rollen zugewiesen.
+- **Berechtigungen:** Tab *Service Account Roles* im Client-Menü. Hier werden der "Maschinenidentität" Rollen
+  zugewiesen.
 
 > **Anwendungsfall:** Cronjobs, Backend-Services, CI/CD-Pipelines.
 
@@ -92,10 +89,10 @@ Wie kommen Daten in das Token (JWT)?
 - Menü: *Client → Client Scopes → Dedicated Scope → Mappers*.
 - Keycloak fügt Standard-Claims hinzu (`sub`, `iss`, `email`...).
 - **Custom Mapper:**
-  - *Type:* "User Attribute".
-  - *User Attribute:* `department`.
-  - *Token Claim Name:* `custom_data.department`.
-  - *Add to access token:* ON.
+    - *Type:* "User Attribute".
+    - *User Attribute:* `department`.
+    - *Token Claim Name:* `custom_data.department`.
+    - *Add to access token:* ON.
 
 > **Ergebnis:** Das Frontend/API kann das Department direkt aus dem Token lesen, ohne DB-Query.
 
@@ -133,7 +130,8 @@ Ein User in Keycloak ist mehr als nur `username` und `password`.
 - **Enabled:** Grundvoraussetzung für Login.
 - **Email Verified:** Wichtig für "Forgot Password" Flows.
 - **Required User Actions:** Eine Queue von Aufgaben.
-  - *Beispiel:* Admin setzt Passwort zurück -> Fügt Action `UPDATE_PASSWORD` hinzu -> User loggt sich ein -> Muss sofort neues Passwort setzen.
+    - *Beispiel:* Admin setzt Passwort zurück -> Fügt Action `UPDATE_PASSWORD` hinzu -> User loggt sich ein -> Muss
+      sofort neues Passwort setzen.
 
 ---
 
@@ -171,7 +169,7 @@ Rollen sind **Permission Tokens** (Berechtigungsmarken).
 
 ---
 
-## 7. Gruppen & Vererbung
+## 7. Gruppen und Vererbung
 
 Gruppen dienen der **Organisation** und der **effizienten Zuweisung**.
 
@@ -180,9 +178,9 @@ User → Mitglied in Gruppe → Hat zugeordnete Rollen → Zugriff.
 
 ---
 
-## 7. Gruppen & Vererbung: Beispiel
+## 7. Gruppen und Vererbung: Beispiel
 
-![w:800](images/groups_inheritance.drawio.svg)
+![h:450](images/groups_inheritance.drawio.svg)
 
 ---
 
