@@ -66,7 +66,7 @@ services:
   # Gitea (externer Identity Provider)
   # ------------------------------------------
   demo-gitea:
-    image: gitea/gitea:1.22-rootless
+    image: gitea/gitea:1.25-rootless
     container_name: demo-gitea
     environment:
       GITEA__database__DB_TYPE: sqlite3
