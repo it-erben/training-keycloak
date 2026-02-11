@@ -14,7 +14,7 @@ services:
   # PostgreSQL Datenbank
   # ------------------------------------------
   demo-postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     container_name: demo-postgres
     environment:
       POSTGRES_DB: keycloak
