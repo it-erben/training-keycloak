@@ -112,3 +112,9 @@ Temporary Items
 .lycheecache
 .npm-cache
 .pre-commit-cache
+.claude
+assignments/.env
+node_modules
+
+# Draw.io backup files
+*.drawio.svg.bkp
