@@ -35,7 +35,7 @@ services:
   # Keycloak Identity Provider
   # ------------------------------------------
   demo-keycloak:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.5
     container_name: demo-keycloak
     command: start-dev --import-realm
     environment:
@@ -87,7 +87,7 @@ services:
   # Host-IP nicht als localhost durchreicht)
   # ------------------------------------------
   demo-setup:
-    image: quay.io/keycloak/keycloak:26.0
+    image: quay.io/keycloak/keycloak:26.5
     container_name: demo-setup
     depends_on:
       demo-keycloak:
