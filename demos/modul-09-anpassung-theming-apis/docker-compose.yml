@@ -1,5 +1,6 @@
 # ============================================
-# Keycloak Demo - Modul 02: Protokoll-Standards
+# Keycloak Demo - Modul 09: Anpassung,
+#   Theming & APIs
 # ============================================
 # Separate Instanz auf Port 9090, damit kein
 # Konflikt mit den Übungen (Port 8080) entsteht.
@@ -49,6 +50,7 @@ services:
       - "9090:8080"
     volumes:
       - ./realm-demo.json:/opt/keycloak/data/import/realm-demo.json:ro
+      - ./themes/mustertech:/opt/keycloak/themes/mustertech:ro
     depends_on:
       demo-postgres:
         condition: service_healthy

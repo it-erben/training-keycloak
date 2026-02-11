@@ -137,11 +137,3 @@ Ein **Client** ist eine Anwendung, die Keycloak nutzt.
 
 - Hast du Container-Technologien bei dir in der Firma im Einsatz oder hostet ihr direkt auf VMs?
 - Welche Datenbanken, Backend-Technologien und Frontends nutzt du in deiner Firma typischerweise?
-
----
-
-## Übung
-
-1. Starte Keycloak (Docker oder lokal).
-2. Logge dich als Admin ein.
-3. Erstelle einen Realm `demo-realm`.

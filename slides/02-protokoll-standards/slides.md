@@ -179,7 +179,21 @@ Keycloak (und alle OIDC-Provider) veröffentlichen ihre Konfiguration:
 
 ---
 
-## 3.4 OIDC Scopes & Claims
+## 3.4 Was ist ein Scope?
+
+Ein **Scope** definiert, **welche Benutzerdaten** ein Client beim Authorization Server anfordern darf.
+
+- Der Client schickt die gewünschten Scopes im **Authorization Request** mit
+- Der User sieht im **Consent-Dialog**, welche Daten freigegeben werden
+- Nach Zustimmung enthält das **Token** nur die Claims der genehmigten Scopes
+
+---
+
+![h:500](images/scope_concept.drawio.svg)
+
+---
+
+## 3.5 OIDC Standard-Scopes
 
 | Scope | Claims im Token |
 | :--- | :--- |
