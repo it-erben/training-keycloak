@@ -1,0 +1,20 @@
+{
+  "name": "admin-cli",
+  "version": "1.0.0",
+  "description": "Mustertech Admin CLI mit Device Flow",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "readline-sync": "^1.4.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/readline-sync": "^1.4.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
+  }
+}

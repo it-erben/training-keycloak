@@ -3,8 +3,8 @@ repos:
     rev: v0.20.0
     hooks:
       - id: markdownlint-cli2
-        args: ["--fix"]
         files: '\.md$'
+        exclude: 'node_modules/'
 
   - repo: https://github.com/adrienverge/yamllint
     rev: v1.35.1
@@ -12,6 +12,7 @@ repos:
       - id: yamllint
         args: ["-d", "{extends: relaxed, rules: {line-length: {max: 140}}}"]
         files: '\.(yml|yaml)$'
+        exclude: 'node_modules/'
 
   - repo: https://github.com/lycheeverse/lychee
     rev: f03b1c9acbb0d5cee52899858d2296c390623cc1
@@ -25,6 +26,8 @@ repos:
           - http://localhost.*
           - --exclude-path
           - .npm-cache
+          - --exclude-path
+          - book
           - --max-concurrency
           - "4"
           - --retry-wait-time
@@ -33,3 +36,4 @@ repos:
           - "20"
           - --cache
         files: '\.md$'
+        exclude: '(node_modules/|book/)'
