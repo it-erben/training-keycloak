@@ -1,0 +1,188 @@
+{
+  "info": {
+    "name": "Keycloak Modul 02 - Demos",
+    "description": "Live-Demos für Modul 02: Protokoll-Standards.\n\n- **Demo 1:** OIDC Discovery & Authorization Code Flow mit PKCE\n- **Demo 2:** Client Credentials Flow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "keycloak_url",
+      "value": "http://localhost:9090",
+      "type": "string"
+    },
+    {
+      "key": "realm",
+      "value": "demo",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Demo 1 - Authorization Code Flow (PKCE)",
+      "description": "OIDC Authorization Code Flow mit PKCE für einen Public Client (demo-spa).",
+      "item": [
+        {
+          "name": "Discovery Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{keycloak_url}}/realms/{{realm}}/.well-known/openid-configuration",
+              "host": ["{{keycloak_url}}"],
+              "path": ["realms", "{{realm}}", ".well-known", "openid-configuration"]
+            },
+            "description": "Ruft die OIDC Discovery-Konfiguration ab. Hier sieht man alle Endpoints, unterstützte Scopes, Grant-Types und Signaturalgorithmen."
+          },
+          "response": []
+        },
+        {
+          "name": "Token Exchange (Auth Code + PKCE)",
+          "request": {
+            "auth": {
+              "type": "oauth2",
+              "oauth2": [
+                { "key": "authUrl", "value": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/auth", "type": "string" },
+                { "key": "accessTokenUrl", "value": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token", "type": "string" },
+                { "key": "clientId", "value": "demo-spa", "type": "string" },
+                { "key": "scope", "value": "openid profile email", "type": "string" },
+                { "key": "useBrowser", "value": true, "type": "boolean" },
+                { "key": "grant_type", "value": "authorization_code_with_pkce", "type": "string" },
+                { "key": "challengeAlgorithm", "value": "S256", "type": "string" },
+                { "key": "redirect_uri", "value": "https://oauth.pstmn.io/v1/callback", "type": "string" },
+                { "key": "tokenName", "value": "demo_spa_token", "type": "string" },
+                { "key": "addTokenTo", "value": "header", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "authorization_code", "type": "text" },
+                { "key": "client_id", "value": "demo-spa", "type": "text" },
+                { "key": "redirect_uri", "value": "https://oauth.pstmn.io/v1/callback", "type": "text" },
+                { "key": "code", "value": "{{auth_code}}", "type": "text", "description": "Authorization Code aus dem Browser-Redirect" },
+                { "key": "code_verifier", "value": "{{code_verifier}}", "type": "text", "description": "PKCE Code Verifier (passend zum Code Challenge)" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token",
+              "host": ["{{keycloak_url}}"],
+              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+            },
+            "description": "Tauscht den Authorization Code gegen Tokens ein.\n\n**Variante A (empfohlen):** Den OAuth-2.0-Tab von Postman nutzen — dort ist alles vorkonfiguriert. Klicke auf \"Get New Access Token\".\n\n**Variante B (manuell):** Auth-URL im Browser aufrufen, Code kopieren, hier eintragen und absenden."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "",
+                  "    // Access Token dekodieren",
+                  "    if (body.access_token) {",
+                  "        const parts = body.access_token.split('.');",
+                  "        const payload = JSON.parse(atob(parts[1]));",
+                  "        console.log('=== ACCESS TOKEN (decoded) ===');",
+                  "        console.log(JSON.stringify(payload, null, 2));",
+                  "    }",
+                  "",
+                  "    // ID Token dekodieren",
+                  "    if (body.id_token) {",
+                  "        const parts = body.id_token.split('.');",
+                  "        const payload = JSON.parse(atob(parts[1]));",
+                  "        console.log('=== ID TOKEN (decoded) ===');",
+                  "        console.log(JSON.stringify(payload, null, 2));",
+                  "    }",
+                  "",
+                  "    // Zusammenfassung",
+                  "    console.log('=== TOKEN-TYPEN ===');",
+                  "    console.log('access_token:', body.access_token ? 'vorhanden' : 'FEHLT');",
+                  "    console.log('id_token:', body.id_token ? 'vorhanden' : 'FEHLT');",
+                  "    console.log('refresh_token:', body.refresh_token ? 'vorhanden' : 'FEHLT');",
+                  "    console.log('token_type:', body.token_type);",
+                  "    console.log('expires_in:', body.expires_in, 'Sekunden');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Demo 2 - Client Credentials Flow",
+      "description": "Client Credentials Flow für einen Confidential Client (demo-service). Kein User involviert — nur Machine-to-Machine.",
+      "item": [
+        {
+          "name": "Client Credentials Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "client_credentials", "type": "text" },
+                { "key": "client_id", "value": "demo-service", "type": "text" },
+                { "key": "client_secret", "value": "demo-service-secret", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak_url}}/realms/{{realm}}/protocol/openid-connect/token",
+              "host": ["{{keycloak_url}}"],
+              "path": ["realms", "{{realm}}", "protocol", "openid-connect", "token"]
+            },
+            "description": "Fordert ein Access Token per Client Credentials an.\n\nBeachte im Vergleich zu Demo 1:\n- **Kein** id_token (keine Authentifizierung eines Users)\n- **Kein** refresh_token\n- Im JWT: `sub` ist der Service Account, nicht ein User"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "",
+                  "    // Access Token dekodieren",
+                  "    if (body.access_token) {",
+                  "        const parts = body.access_token.split('.');",
+                  "        const payload = JSON.parse(atob(parts[1]));",
+                  "        console.log('=== ACCESS TOKEN (decoded) ===');",
+                  "        console.log(JSON.stringify(payload, null, 2));",
+                  "        console.log('');",
+                  "        console.log('Hinweis: \"sub\" ist der Service Account, kein User!');",
+                  "        console.log('preferred_username:', payload.preferred_username);",
+                  "    }",
+                  "",
+                  "    // Zusammenfassung — Vergleich mit Demo 1",
+                  "    console.log('');",
+                  "    console.log('=== TOKEN-TYPEN (Vergleich mit Demo 1) ===');",
+                  "    console.log('access_token:', body.access_token ? 'vorhanden' : 'FEHLT');",
+                  "    console.log('id_token:', body.id_token ? 'vorhanden' : 'FEHLT (erwartet!)');",
+                  "    console.log('refresh_token:', body.refresh_token ? 'vorhanden' : 'FEHLT (erwartet!)');",
+                  "    console.log('token_type:', body.token_type);",
+                  "    console.log('expires_in:', body.expires_in, 'Sekunden');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    }
+  ]
+}
