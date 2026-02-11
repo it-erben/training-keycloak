@@ -1,0 +1,80 @@
+/* Mustertech GmbH – Corporate Design für Keycloak 26 (PatternFly v5) */
+
+/* ========== Globale Farben (PF5 Custom Properties) ========== */
+:root {
+  --pf-v5-global--primary-color--100: #1a5276;
+  --pf-v5-global--primary-color--200: #0e3a54;
+  --pf-v5-global--link--Color: #1a5276;
+  --pf-v5-global--link--Color--hover: #0e3a54;
+}
+
+/* ========== Hintergrund ========== */
+.login-pf body {
+  background: url("../img/bg.png") no-repeat center center fixed !important;
+  background-size: cover !important;
+}
+
+/* ========== Header / Branding ========== */
+#kc-header {
+  padding-top: 2rem;
+}
+
+#kc-header-wrapper {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  padding: 1rem 0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ========== Login-Container ========== */
+#kc-login {
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.pf-v5-c-login__main {
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  border-top: 4px solid #1a5276;
+}
+
+/* ========== Login-Header ========== */
+.pf-v5-c-login__main-header .pf-v5-c-title {
+  color: #1a5276;
+}
+
+/* ========== Buttons ========== */
+.pf-v5-c-button.pf-m-primary {
+  background-color: #1a5276;
+  border-color: #1a5276;
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+.pf-v5-c-button.pf-m-primary:focus {
+  background-color: #0e3a54;
+  border-color: #0e3a54;
+}
+
+/* ========== Links ========== */
+.pf-v5-c-login__main-footer-links a,
+.pf-v5-c-form__helper-text a,
+a.pf-v5-c-button.pf-m-link {
+  color: #1a5276;
+}
+
+.pf-v5-c-login__main-footer-links a:hover,
+.pf-v5-c-form__helper-text a:hover,
+a.pf-v5-c-button.pf-m-link:hover {
+  color: #0e3a54;
+}
+
+/* ========== Footer ========== */
+#kc-footer,
+.pf-v5-c-login__footer {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+}
