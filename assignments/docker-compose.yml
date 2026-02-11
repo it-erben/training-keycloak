@@ -1,0 +1,168 @@
+# ============================================
+# Keycloak Schulung - Docker Compose
+# ============================================
+# Stand: Modul 09 - Client Management
+#
+# Starten:   docker compose up -d
+# Stoppen:   docker compose down
+# Logs:      docker compose logs -f keycloak
+# Reset:     docker compose down -v && docker compose up -d
+
+services:
+  # ------------------------------------------
+  # PostgreSQL Datenbank
+  # ------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: mustertech-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-keycloak}
+      POSTGRES_USER: ${POSTGRES_USER:-keycloak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_db_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-keycloak}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mustertech-network
+
+  # ------------------------------------------
+  # Keycloak Identity Provider
+  # ------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: mustertech-keycloak
+    command: start-dev
+    environment:
+      # Admin-Credentials
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+
+      # Datenbank
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-keycloak}
+      KC_DB_USERNAME: ${POSTGRES_USER:-keycloak}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_db_password}
+
+      # Hostname (für Entwicklung)
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+
+      # HTTP aktivieren (nur für Entwicklung!)
+      KC_HTTP_ENABLED: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - mustertech-network
+    volumes:
+      - ./services/keycloak/themes/mustertech:/opt/keycloak/themes/mustertech:ro
+
+  # ------------------------------------------
+  # Portal Frontend (React SPA)
+  # ------------------------------------------
+  portal-frontend:
+    build:
+      context: ./services/portal-frontend
+      dockerfile: Dockerfile
+    container_name: mustertech-portal
+    ports:
+      - "5173:80"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks:
+      - mustertech-network
+
+  # ------------------------------------------
+  # Portal API (Express Backend)
+  # ------------------------------------------
+  portal-api:
+    build:
+      context: ./services/portal-api
+      dockerfile: Dockerfile
+    container_name: mustertech-api
+    ports:
+      - "3001:3001"
+    environment:
+      - API_PORT=3001
+      - VITE_KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_PUBLIC_URL=http://localhost:8080
+      - VITE_KEYCLOAK_REALM=mustertech
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks:
+      - mustertech-network
+
+  # ------------------------------------------
+  # Mailpit (lokaler SMTP-Server für Entwicklung)
+  # ------------------------------------------
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mustertech-mailpit
+    ports:
+      - "8025:8025"   # Web-UI
+      - "1025:1025"   # SMTP
+    networks:
+      - mustertech-network
+
+  # ------------------------------------------
+  # Admin CLI (Device Flow)
+  # ------------------------------------------
+  admin-cli:
+    build:
+      context: ./services/admin-cli
+    container_name: mustertech-admin-cli
+    stdin_open: true
+    tty: true
+    environment:
+      - VITE_KEYCLOAK_URL=http://keycloak:8080
+      - VITE_KEYCLOAK_REALM=mustertech
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks:
+      - mustertech-network
+    profiles:
+      - cli
+
+  # ------------------------------------------
+  # Sync Service (Client Credentials)
+  # ------------------------------------------
+  sync-service:
+    build:
+      context: ./services/sync-service
+    container_name: mustertech-sync
+    environment:
+      - VITE_KEYCLOAK_URL=http://keycloak:8080
+      - VITE_KEYCLOAK_REALM=mustertech
+      - SYNC_SERVICE_CLIENT_SECRET=${SYNC_SERVICE_CLIENT_SECRET}
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    networks:
+      - mustertech-network
+    profiles:
+      - cli
+
+volumes:
+  postgres_data:
+    name: mustertech-postgres-data
+
+networks:
+  mustertech-network:
+    name: mustertech-network
