@@ -117,4 +117,7 @@ assignments/.env
 node_modules
 
 # Draw.io backup files
+*.drawio.bkp
+*.drawio.dtmp
 *.drawio.svg.bkp
+*.drawio.svg.dtmp

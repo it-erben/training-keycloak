@@ -111,14 +111,14 @@ Das Test-Script zeigt den dekodierten Token in der Postman Console.
 
 ### Schritt 3 — Vergleich mit Demo 1
 
-| | Demo 1 (Auth Code) | Demo 2 (Client Cred.) |
-| :--- | :--- | :--- |
-| access_token | ja | ja |
-| id_token | ja | **nein** |
-| refresh_token | ja | **nein** |
-| sub | User-ID (demo) | Service-Account-ID |
-| User-Claims | name, email, ... | keine |
-| Browser nötig? | ja | **nein** |
+|                | Demo 1 (Auth Code) | Demo 2 (Client Cred.) |
+|:---------------|:-------------------|:----------------------|
+| access_token   | ja                 | ja                    |
+| id_token       | ja                 | **nein**              |
+| refresh_token  | ja                 | **nein**              |
+| sub            | User-ID (demo)     | Service-Account-ID    |
+| User-Claims    | name, email, ...   | keine                 |
+| Browser nötig? | ja                 | **nein**              |
 
 **Diskussionspunkte:**
 

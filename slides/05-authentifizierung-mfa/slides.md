@@ -119,19 +119,6 @@ Ziel: User müssen zusätzlich zum Passwort einen **zweiten Faktor** eingeben.
 | **WebAuthn** | Hardware-Keys (YubiKey) oder Passkeys |
 | **SMS/Email** | Via Custom Authenticator (nicht built-in) |
 
----
-
-## 5. MFA: Conditional vs. Required
-
-![w:800](images/mfa_flow.drawio.svg)
-
----
-<style scoped>
-section {
-    font-size: 1.5rem;
-}
-</style>
-
 ## 5. WebAuthn / Passkeys
 
 **WebAuthn** ist der moderne Standard für passwortlose Authentifizierung.

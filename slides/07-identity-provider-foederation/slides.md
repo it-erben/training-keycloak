@@ -137,7 +137,7 @@ Häufiger Enterprise-Anwendungsfall:
 ---
 <style scoped>
 section {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
 }
 </style>
 
