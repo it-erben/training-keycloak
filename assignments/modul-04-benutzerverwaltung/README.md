@@ -53,10 +53,10 @@ Rollen definieren, was Benutzer tun dürfen. Wir erstellen drei Rollen für unse
 
 Erstelle analog zwei weitere Rollen:
 
-| Role name | Description |
-| :--- | :--- |
+| Role name | Description                                               |
+|:----------|:----------------------------------------------------------|
 | `manager` | Manager mit erweiterten Rechten (z.B. Urlaubsgenehmigung) |
-| `admin` | Administrator mit vollen Zugriffsrechten |
+| `admin`   | Administrator mit vollen Zugriffsrechten                  |
 
 ### Schritt 1.4: Rollen-Hierarchie einrichten (Composite Roles)
 
@@ -64,8 +64,7 @@ Manager sollten automatisch auch Mitarbeiter-Rechte haben. Wir machen `manager` 
 
 1. Klicke auf die Rolle **manager**
 2. Wechsle zum Tab **Associated roles**
-3. Drücke den Knopf **Assign roles**
-4. Wähle im Filter aus **Filter by realm roles**
+3. Drücke den Knopf **Assign role** -> **Realm roles**
 5. Aktiviere **mitarbeiter**
 6. Klicke auf **Assign**
 
@@ -110,10 +109,9 @@ Jede Gruppe soll automatisch bestimmte Rollen erhalten:
 
 1. Klicke auf **Entwicklung**
 2. Wechsle zum Tab **Role mapping**
-3. Klicke auf **Assign role**
-4. Klicke auf **Filter by realm roles**
-5. Wähle **mitarbeiter**
-6. Klicke auf **Assign**
+3. Klicke auf **Assign role** -> **Realm roles**
+4. Wähle **mitarbeiter**
+5. Klicke auf **Assign**
 
 **Gruppe "Vertrieb":**
 
