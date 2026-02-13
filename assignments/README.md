@@ -32,7 +32,7 @@ Diese Übungsserie begleitet dich durch die Keycloak-Schulung. Du baust schrittw
 |          ^                         |                          |
 |          |                         v                          |
 |   +--------------+          +--------------+                  |
-|   |  Admin-CLI   |          |  PostgreSQL  |                  |
+|   |Management-CLI|          |  PostgreSQL  |                  |
 |   | Device Flow  |          |  Port 5432   |                  |
 |   +--------------+          +--------------+                  |
 |                                                                |
@@ -81,7 +81,7 @@ assignments/
 +-- services/                          # Gemeinsame Anwendungen
 |   +-- portal-frontend/               # React SPA (OIDC + PKCE)
 |   +-- portal-api/                    # Express Backend (Token-Validierung)
-|   +-- admin-cli/                     # CLI-Tool (Device Flow)
+|   +-- management-cli/                # CLI-Tool (Device Flow)
 |   +-- sync-service/                  # Hintergrund-Service (Client Credentials)
 |   +-- keycloak/themes/mustertech/    # Custom Keycloak Theme
 +-- modul-03-installation/

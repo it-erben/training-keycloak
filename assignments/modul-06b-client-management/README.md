@@ -6,7 +6,7 @@ Am Ende dieser Übung hast du:
 
 - Die Portal-API als Confidential Client konfiguriert und deren Token-Validierung verstanden
 - Das Frontend mit der API verbunden
-- Das Admin-CLI mit Device Flow konfiguriert und getestet
+- Das Management-CLI mit Device Flow konfiguriert und getestet
 - Den Sync-Service mit Client Credentials konfiguriert und getestet
 
 **Geschätzte Dauer:** 50-60 Minuten
@@ -15,7 +15,18 @@ Am Ende dieser Übung hast du:
 
 ## Voraussetzungen
 
-- [ ] Modul 06a abgeschlossen (Portal-Frontend läuft)
+- Docker Desktop installiert und gestartet
+
+### Umgebung starten
+
+```bash
+cd assignments/modul-06b-client-management
+docker compose up -d
+```
+
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe [Troubleshooting](#container-name-konflikt).
+
+Warte bis alle Services bereit sind (~60 Sekunden). Der Realm "mustertech" wird automatisch importiert mit dem Portal-Frontend-Client und allen Konfigurationen aus den vorherigen Modulen.
 
 ---
 
@@ -53,7 +64,7 @@ rollenbasierte Endpunkte bereitstellt. Der Code liegt fertig unter `services/por
 
 Klicke auf **Save**.
 
-### Schritt 1.2: Code-Walkthrough - `services/portal-api/src/index.ts`
+### Schritt 1.2: Code-Walkthrough - `../services/portal-api/src/index.ts`
 
 Die API hat eine einzige Quelldatei. Schauen wir uns die wichtigsten Bausteine an.
 
@@ -132,55 +143,20 @@ app.get('/api/urlaubsantraege', validateToken, requireRole('mitarbeiter'), handl
 Express verarbeitet die Middlewares von links nach rechts: erst Token prüfen, dann Rolle
 prüfen, dann den eigentlichen Handler ausführen.
 
-### Schritt 1.3: docker-compose.yml erweitern
+### Schritt 1.3: Docker-Compose prüfen
 
-Füge in der `docker-compose.yml` nach dem `portal-frontend`-Service hinzu:
-
-```yaml
-  # ------------------------------------------
-  # Portal API (Express Backend)
-  # ------------------------------------------
-  portal-api:
-    build:
-      context: ./services/portal-api
-      dockerfile: Dockerfile
-    container_name: mustertech-api
-    ports:
-      - "3001:3001"
-    environment:
-      - API_PORT=3001
-      - VITE_KEYCLOAK_URL=http://keycloak:8080
-      - KEYCLOAK_PUBLIC_URL=http://localhost:8080
-      - VITE_KEYCLOAK_REALM=mustertech
-    depends_on:
-      keycloak:
-        condition: service_healthy
-    networks:
-      - mustertech-network
-```
+Betrachte den `assignment-api` Service in der `docker-compose.yml` dieses Verzeichnisses. Die Portal-API ist bereits konfiguriert und wird automatisch gebaut und gestartet.
 
 > **Hinweis:** Die API braucht zwei Keycloak-URLs:
 >
-> - `VITE_KEYCLOAK_URL=http://keycloak:8080` - Interne URL für JWKS-Abruf (Docker-Netzwerk)
+> - `VITE_KEYCLOAK_URL=http://assignment-keycloak:8080` - Interne URL für JWKS-Abruf (Docker-Netzwerk)
 > - `KEYCLOAK_PUBLIC_URL=http://localhost:8080` - Öffentliche URL für Issuer-Validierung
->
-> Das Token wird vom Browser via `localhost:8080` geholt, daher steht im `iss`-Claim
-> `http://localhost:8080/realms/mustertech`. Die API muss diesen Issuer beim Verifizieren
-> matchen, aber Keycloak intern über den Docker-Service-Namen erreichen.
-
-Starte die Services neu:
-
-```bash
-docker compose up --build -d
-```
 
 ### Schritt 1.4: API testen
 
-Prüfe zunächst den öffentlichen Health-Endpoint:
+Prüfe zunächst den öffentlichen Health-Endpoint im Browser:
 
-```bash
-curl http://localhost:3001/api/health
-```
+[http://localhost:3001/api/health](http://localhost:3001/api/health)
 
 **Erwartetes Ergebnis:** `{"status":"ok","timestamp":"..."}`
 
@@ -249,7 +225,7 @@ Im Portal-Frontend existiert bereits eine Komponente `ApiDemo.tsx`, die API-Aufr
 Access Token des eingeloggten Benutzers durchführt. Wir schauen uns den Code an und binden
 die Komponente ein.
 
-### Schritt 2.1: Code-Walkthrough - `services/portal-frontend/src/components/ApiDemo.tsx`
+### Schritt 2.1: Code-Walkthrough - `../services/portal-frontend/src/components/ApiDemo.tsx`
 
 Die Komponente stellt Buttons für jeden API-Endpunkt bereit und zeigt das Ergebnis an.
 
@@ -280,7 +256,7 @@ Die Komponente verwaltet drei States:
 
 ### Schritt 2.2: ApiDemo in App.tsx einbinden
 
-Öffne `services/portal-frontend/src/App.tsx` und füge oben den Import hinzu:
+Öffne `../services/portal-frontend/src/App.tsx` und füge oben den Import hinzu:
 
 ```tsx
 import { ApiDemo } from './components/ApiDemo';
@@ -298,7 +274,7 @@ Füge die Komponente im authentifizierten Bereich ein, nach der Token-Informatio
 ### Schritt 2.3: Frontend neu bauen und testen
 
 ```bash
-docker compose up --build -d portal-frontend
+docker compose up --build -d assignment-portal
 ```
 
 Öffne <http://localhost:5173> und melde dich an.
@@ -334,31 +310,31 @@ Melde dich ab und teste erneut:
 
 ---
 
-## Teil 3: Admin-CLI mit Device Flow
+## Teil 3: Management-CLI mit Device Flow
 
-Das Admin-CLI ist ein Kommandozeilen-Tool, das den **Device Flow** nutzt. Dieser Flow ist
+Das Management-CLI ist ein Kommandozeilen-Tool, das den **Device Flow** nutzt. Dieser Flow ist
 für Geräte ohne Browser gedacht (z.B. Smart TVs, CLI-Tools): Das Gerät zeigt einen Code an,
 den der Benutzer auf einem anderen Gerät im Browser eingibt.
 
-Der Code liegt unter `services/admin-cli/`.
+Der Code liegt unter `services/management-cli/`.
 
 ### Schritt 3.1: Client in Keycloak erstellen
 
 1. Admin-Konsole → **Clients** → **Create client**
 2. Konfiguration:
 
-| Feld | Wert |
-| :--- | :--- |
-| Client ID | `admin-cli` |
-| Client authentication | **OFF** (Public Client) |
-| Authentication flow | ☐ Standard flow, ☑ **OAuth 2.0 Device Authorization Grant** |
+| Feld                  | Wert                                                        |
+|:----------------------|:------------------------------------------------------------|
+| Client ID             | `management-cli`                                            |
+| Client authentication | **OFF** (Public Client)                                     |
+| Authentication flow   | ☐ Standard flow, ☑ **OAuth 2.0 Device Authorization Grant** |
 
-### Schritt 3.2: Code-Walkthrough - `services/admin-cli/src/index.ts`
+### Schritt 3.2: Code-Walkthrough - `../services/management-cli/src/index.ts`
 
-| Bibliothek | Zweck |
-| :--- | :--- |
-| **axios** | HTTP-Client für die Keycloak-API-Aufrufe |
-| **readline-sync** | Wartet auf Benutzereingabe im Terminal |
+| Bibliothek        | Zweck                                    |
+|:------------------|:-----------------------------------------|
+| **axios**         | HTTP-Client für die Keycloak-API-Aufrufe |
+| **readline-sync** | Wartet auf Benutzereingabe im Terminal   |
 
 #### Device Flow - Ablauf
 
@@ -402,32 +378,9 @@ Nach erfolgreicher Anmeldung werden die Tokens dekodiert (Base64). Benutzerinfos
 E-Mail) kommen aus dem **ID Token**, Rollen aus dem **Access Token** - entsprechend der
 Trennung zwischen Identität und Berechtigung.
 
-### Schritt 3.3: docker-compose.yml erweitern
+### Schritt 3.3: Docker-Compose prüfen
 
-Füge den Admin-CLI-Service hinzu. Durch `profiles: ["cli"]` startet er **nicht** bei
-`docker compose up`, sondern wird explizit aufgerufen:
-
-```yaml
-  # ------------------------------------------
-  # Admin CLI (Device Flow)
-  # ------------------------------------------
-  admin-cli:
-    build:
-      context: ./services/admin-cli
-    container_name: mustertech-admin-cli
-    stdin_open: true
-    tty: true
-    environment:
-      - VITE_KEYCLOAK_URL=http://keycloak:8080
-      - VITE_KEYCLOAK_REALM=mustertech
-    depends_on:
-      keycloak:
-        condition: service_healthy
-    networks:
-      - mustertech-network
-    profiles:
-      - cli
-```
+Betrachte den `assignment-management-cli` Service in der `docker-compose.yml`. Er ist mit `profiles: ["cli"]` konfiguriert und startet daher nicht automatisch bei `docker compose up`.
 
 > **Konzept: Docker Compose Profiles** - Services mit `profiles` werden bei `docker compose up`
 > ignoriert. Sie lassen sich gezielt mit `docker compose run --rm <service>` starten. Das ist
@@ -436,7 +389,7 @@ Füge den Admin-CLI-Service hinzu. Durch `profiles: ["cli"]` startet er **nicht*
 ### Schritt 3.4: CLI ausführen und testen
 
 ```bash
-docker compose run --rm admin-cli
+docker compose run --rm assignment-management-cli
 ```
 
 Das CLI zeigt eine URL und einen Code an. Öffne die URL im Browser, gib den Code
@@ -469,26 +422,23 @@ Der Service Account braucht die Berechtigung, Benutzer zu lesen:
 
 1. Gehe zu **Clients** → **sync-service** → Tab **Service account roles**
 2. Klicke auf **Assign role**
-3. Ändere den Filter auf **Filter by clients**
-4. Suche nach `realm-management`
+3. Klicke auf **Client roles**
+4. Suche nach `view-users`
 5. Wähle **view-users**
 6. Klicke auf **Assign**
 
-### Schritt 4.3: Client Secret in `.env` eintragen
+### Schritt 4.3: Client Secret konfigurieren
 
 1. Gehe zum Tab **Credentials** des `sync-service`-Clients
 2. Kopiere das **Client secret**
-3. Füge es in `assignments/.env` hinzu:
+3. Kopiere die Datei `.env.example` zu `.env` und trage dein Secret in die Datei ein.
 
-```env
-SYNC_SERVICE_CLIENT_SECRET=IHR_SECRET_HIER
+```bash 
+cp .env.example .env
+# Secret in die neue Datei eintragen!
 ```
 
-### Schritt 4.4: Code-Walkthrough - `services/sync-service/src/index.ts`
-
-| Bibliothek | Zweck |
-| :--- | :--- |
-| **axios** | HTTP-Client für die Keycloak-API-Aufrufe |
+### Schritt 4.4: Code-Walkthrough - `../services/sync-service/src/index.ts`
 
 #### Client Credentials Flow
 
@@ -521,37 +471,10 @@ const response = await axios.get(
 > werden Rollen zugewiesen (z.B. `view-users`), die bestimmen, welche Admin-APIs der
 > Service aufrufen darf.
 
-### Schritt 4.5: docker-compose.yml erweitern
-
-Füge den Sync-Service hinzu (ebenfalls mit `profiles: ["cli"]`):
-
-```yaml
-  # ------------------------------------------
-  # Sync Service (Client Credentials)
-  # ------------------------------------------
-  sync-service:
-    build:
-      context: ./services/sync-service
-    container_name: mustertech-sync
-    environment:
-      - VITE_KEYCLOAK_URL=http://keycloak:8080
-      - VITE_KEYCLOAK_REALM=mustertech
-      - SYNC_SERVICE_CLIENT_SECRET=${SYNC_SERVICE_CLIENT_SECRET}
-    depends_on:
-      keycloak:
-        condition: service_healthy
-    networks:
-      - mustertech-network
-    profiles:
-      - cli
-```
-
-Die Variable `${SYNC_SERVICE_CLIENT_SECRET}` wird automatisch aus der `.env`-Datei gelesen.
-
-### Schritt 4.6: Sync-Service ausführen und testen
+### Schritt 4.5: Sync-Service ausführen und testen
 
 ```bash
-docker compose run --rm sync-service
+docker compose run --rm assignment-sync
 ```
 
 **Erwartetes Ergebnis:**
@@ -584,28 +507,49 @@ Du hast erfolgreich:
 
 - [x] Portal-API mit Token-Validierung via JWKS konfiguriert
 - [x] Frontend-API-Integration mit Bearer Token verstanden und eingebunden
-- [x] Admin-CLI mit Device Flow getestet
+- [x] Management-CLI mit Device Flow getestet
 - [x] Sync-Service mit Client Credentials getestet
 - [x] Rollenbasierte Zugriffskontrolle über die API verifiziert
 
 **Client-Übersicht:**
 
-| Client | Typ | Flow | Zweck |
-| :--- | :--- | :--- | :--- |
-| portal-frontend | Public | Auth Code + PKCE | SPA im Browser |
-| portal-api | Confidential | Token-Validierung via JWKS | Backend-API |
-| admin-cli | Public | Device Flow | CLI ohne Browser |
-| sync-service | Confidential | Client Credentials | Machine-to-Machine |
+| Client          | Typ          | Flow                       | Zweck              |
+|:----------------|:-------------|:---------------------------|:-------------------|
+| portal-frontend | Public       | Auth Code + PKCE           | SPA im Browser     |
+| portal-api      | Confidential | Token-Validierung via JWKS | Backend-API        |
+| management-cli  | Public       | Device Flow                | CLI ohne Browser   |
+| sync-service    | Confidential | Client Credentials         | Machine-to-Machine |
 
 ---
 
 ## Troubleshooting
 
+### Container-Name-Konflikt
+
+**Symptom:** Beim Start erscheint ein Fehler wie:
+
+```
+Error response from daemon: Conflict. The container name "/assignment-postgres" is already
+in use by container "...". You have to remove (or rename) that container to be able to
+reuse that name.
+```
+
+**Ursache:** Die Container einer vorherigen Übung laufen noch oder wurden nicht vollständig entfernt.
+
+**Lösung:** Wechsle in das Verzeichnis der vorherigen Übung und räume dort auf:
+
+```bash
+cd assignments/<vorherige-uebung>
+docker compose down -v
+```
+
+Danach kannst du die aktuelle Übung normal starten.
+
 ### API gibt 401 zurück
 
 - Token abgelaufen? → Neu einloggen im Portal
 - JWKS-URL erreichbar? → `curl http://localhost:8080/realms/mustertech/protocol/openid-connect/certs`
-- Issuer stimmt? → Im Docker-Netzwerk ist die URL `http://keycloak:8080`, vom Browser aus
+- Issuer stimmt? → Im Docker-Netzwerk ist die URL `http://assignment-keycloak:8080`, vom Browser aus
   aber `http://localhost:8080`. Prüfe die `VITE_KEYCLOAK_URL` in der docker-compose.yml.
 
 ### API gibt 403 zurück
@@ -616,10 +560,10 @@ Du hast erfolgreich:
 ### Device Flow: "invalid_client"
 
 - Ist "OAuth 2.0 Device Authorization Grant" im Client aktiviert?
-- Client ID korrekt (`admin-cli`)?
+- Client ID korrekt (`management-cli`)?
 
 ### Client Credentials: "unauthorized_client"
 
 - Ist "Service accounts roles" im Client aktiviert?
-- Client Secret korrekt in `.env`?
+- Client Secret korrekt?
 - Wurde `view-users` dem Service Account zugewiesen?
