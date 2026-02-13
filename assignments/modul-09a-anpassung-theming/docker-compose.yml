@@ -1,4 +1,4 @@
-# Keycloak Schulung - Modul 08: Authorization
+# Keycloak Schulung - Modul 09a: Anpassung Theming
 #
 # Starten:   docker compose up -d
 # Stoppen:   docker compose down
@@ -25,7 +25,7 @@ services:
   assignment-keycloak:
     image: quay.io/keycloak/keycloak:26.5
     container_name: assignment-keycloak
-    command: start-dev --import-realm
+    command: start-dev --import-realm --spi-theme-cache-themes=false --spi-theme-static-max-age=-1
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -38,6 +38,7 @@ services:
       - "8080:8080"
     volumes:
       - ./realm-import.json:/opt/keycloak/data/import/realm-import.json:ro
+      - ../services/keycloak/themes/mustertech:/opt/keycloak/themes/mustertech:ro
     depends_on:
       assignment-postgres:
         condition: service_healthy
@@ -67,9 +68,6 @@ services:
         /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
         /opt/keycloak/bin/kcadm.sh update users/profile -r mustertech \
           -s unmanagedAttributePolicy=ADMIN_EDIT
-        ADMIN_USER_ID=$(/opt/keycloak/bin/kcadm.sh get users -r master -q username=admin --fields id --format csv --noquotes)
-        /opt/keycloak/bin/kcadm.sh update users/$${ADMIN_USER_ID} -r master \
-          -s 'email=admin@mustertech.de' -s 'emailVerified=true'
     networks:
       - assignment-network
 
@@ -86,22 +84,12 @@ services:
     networks:
       - assignment-network
 
-  assignment-api:
-    build:
-      context: ../services/portal-api
-      dockerfile: Dockerfile
-    container_name: assignment-api
+  assignment-mailpit:
+    image: axllent/mailpit:latest
+    container_name: assignment-mailpit
     ports:
-      - "3001:3001"
-    environment:
-      - API_PORT=3001
-      - VITE_KEYCLOAK_URL=http://assignment-keycloak:8080
-      - KEYCLOAK_PUBLIC_URL=http://localhost:8080
-      - VITE_KEYCLOAK_REALM=mustertech
-      - AUTHORIZATION_ENABLED=true
-    depends_on:
-      assignment-keycloak:
-        condition: service_healthy
+      - "8025:8025"
+      - "1025:1025"
     networks:
       - assignment-network
 
