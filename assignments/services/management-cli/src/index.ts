@@ -6,7 +6,7 @@ dotenv.config({ path: '../.env' });
 
 const KEYCLOAK_URL = process.env.VITE_KEYCLOAK_URL || 'http://localhost:8080';
 const REALM = process.env.VITE_KEYCLOAK_REALM || 'mustertech';
-const CLIENT_ID = 'admin-cli';
+const CLIENT_ID = 'management-cli';
 
 interface DeviceAuthResponse {
   device_code: string;

@@ -1,5 +1,5 @@
 {
-  "name": "admin-cli",
+  "name": "management-cli",
   "version": "1.0.0",
   "description": "Mustertech Admin CLI mit Device Flow",
   "main": "src/index.ts",
