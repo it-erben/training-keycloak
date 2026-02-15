@@ -11,13 +11,31 @@
   "resetPasswordAllowed": true,
   "editUsernameAllowed": false,
   "rememberMe": true,
-  "bruteForceProtected": false,
+  "bruteForceProtected": true,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "permanentLockout": false,
+  "passwordPolicy": "length(10) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1) and notUsername and notEmail",
   "defaultSignatureAlgorithm": "RS256",
   "accessTokenLifespan": 300,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,
   "accessCodeLifespan": 60,
   "accessCodeLifespanLogin": 1800,
+  "eventsEnabled": true,
+  "eventsExpiration": 604800,
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
+  "smtpServer": {
+    "host": "assignment-mailpit",
+    "port": "1025",
+    "from": "noreply@mustertech.de",
+    "fromDisplayName": "Mustertech GmbH"
+  },
   "browserFlow": "browser-mustertech",
   "roles": {
     "realm": [
@@ -275,7 +293,7 @@
       }
     },
     {
-      "clientId": "management-cli",
+      "clientId": "management-cli-app",
       "name": "Management CLI",
       "enabled": true,
       "publicClient": true,
@@ -312,7 +330,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "test1234",
+          "value": "Muster1234!",
           "temporary": false
         }
       ],
@@ -338,7 +356,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "test1234",
+          "value": "Muster1234!",
           "temporary": false
         }
       ],
@@ -364,7 +382,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "test1234",
+          "value": "Muster1234!",
           "temporary": false
         }
       ],

@@ -117,9 +117,9 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 
 ### Schritt 4.2: Policy für Manager
 
-| Feld | Wert                     |
-| :--- |:-------------------------|
-| Name | `Manager Policy`         |
+| Feld  | Wert                     |
+|:------|:-------------------------|
+| Name  | `Manager Policy`         |
 | Roles | Realm roles -> `manager` |
 | Logic | Positive                 |
 

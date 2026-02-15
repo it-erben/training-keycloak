@@ -18,6 +18,13 @@
   "ssoSessionMaxLifespan": 36000,
   "accessCodeLifespan": 60,
   "accessCodeLifespanLogin": 1800,
+  "eventsEnabled": true,
+  "smtpServer": {
+    "host": "assignment-mailpit",
+    "port": "1025",
+    "from": "noreply@mustertech.de",
+    "fromDisplayName": "Mustertech GmbH"
+  },
   "browserFlow": "browser-mustertech",
   "roles": {
     "realm": [
