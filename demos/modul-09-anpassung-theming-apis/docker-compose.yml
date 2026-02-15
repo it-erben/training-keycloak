@@ -37,7 +37,7 @@ services:
   demo-keycloak:
     image: quay.io/keycloak/keycloak:26.5
     container_name: demo-keycloak
-    command: start-dev --import-realm
+    command: start-dev --import-realm --spi-theme-cache-themes=false --spi-theme-static-max-age=-1
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
