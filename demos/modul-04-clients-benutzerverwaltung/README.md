@@ -86,10 +86,9 @@ Wir bündeln die beiden technischen Rollen in einer Business-Rolle.
 ### Schritt 2 -- Client Roles zuweisen
 
 1. Wechsle zum Tab **Associated roles**
-2. Klicke auf **Assign role**
-3. Wechsle den Filter auf **Filter by clients**
-4. Aktiviere **wiki-app editor** und **chat-app moderator**
-5. Klicke auf **Assign**
+2. Klicke auf **Assign role** -> **Realm roles**
+3. Aktiviere **wiki-app editor** und **chat-app moderator**
+4. Klicke auf **Assign**
 
 > **Zeigen:** Im Tab "Associated roles" sind jetzt beide Client Roles sichtbar. Ein User mit der Rolle "Team-Lead" bekommt automatisch beide technischen Rollen.
 

@@ -1,5 +1,6 @@
 import { useAuth } from 'react-oidc-context';
 import './App.css';
+import { ApiDemo } from './components/ApiDemo';
 
 function App() {
   const auth = useAuth();
@@ -75,6 +76,7 @@ function App() {
               </pre>
             </details>
           </section>
+            <ApiDemo />
         </main>
       </div>
     );
