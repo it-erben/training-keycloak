@@ -433,7 +433,7 @@ Der Service Account braucht die Berechtigung, Benutzer zu lesen:
 2. Kopiere das **Client secret**
 3. Kopiere die Datei `.env.example` zu `.env` und trage dein Secret in die Datei ein.
 
-```bash 
+```bash
 cp .env.example .env
 # Secret in die neue Datei eintragen!
 ```

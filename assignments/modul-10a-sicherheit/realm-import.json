@@ -18,6 +18,12 @@
   "ssoSessionMaxLifespan": 36000,
   "accessCodeLifespan": 60,
   "accessCodeLifespanLogin": 1800,
+  "smtpServer": {
+    "host": "assignment-mailpit",
+    "port": "1025",
+    "from": "noreply@mustertech.de",
+    "fromDisplayName": "Mustertech GmbH"
+  },
   "browserFlow": "browser-mustertech",
   "roles": {
     "realm": [
@@ -65,7 +71,8 @@
         }
       }
     ],
-    "client": {}
+    "client": {
+    }
   },
   "defaultRole": {
     "name": "default-roles-mustertech",
@@ -275,7 +282,7 @@
       }
     },
     {
-      "clientId": "management-cli",
+      "clientId": "management-cli-app",
       "name": "Management CLI",
       "enabled": true,
       "publicClient": true,

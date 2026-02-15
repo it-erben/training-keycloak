@@ -43,6 +43,7 @@ Unter Windows (PowerShell):
 ```
 
 Das Skript erstellt in Gitea:
+
 - Einen Admin-User `gitea-admin` (Passwort: `admin1234`)
 - Einen Test-User `alice` (Passwort: `demo1234`)
 - Eine OAuth2-Application mit der passenden Redirect URI für Keycloak

@@ -89,7 +89,7 @@ Die Anwendung nutzt folgende Technologien:
 |:-----------------------|:--------------------------------------------------------------------------------------|
 | **React**              | UI-Bibliothek - baut die Benutzeroberfläche aus wiederverwendbaren Komponenten auf    |
 | **TypeScript**         | Typisiertes JavaScript - hilft Fehler bereits beim Entwickeln zu erkennen             |
-| **Vite**               | Build-Tool & Entwicklungsserver - bündelt den Code für Produktion |
+| **Vite**               | Build-Tool & Entwicklungsserver - bündelt den Code für Produktion                     |
 | **oidc-client-ts**     | OIDC-Bibliothek - implementiert den Authorization Code Flow im Browser                |
 | **react-oidc-context** | React-Wrapper um `oidc-client-ts` - stellt Login-Status als React-Hook bereit         |
 

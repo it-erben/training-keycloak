@@ -333,12 +333,12 @@ Der Header-Text (`#kc-header-wrapper`) zeigt den Realm-Namen. Passe ihn an:
 
 2. Experimentiere mit weiteren Eigenschaften:
 
-| Eigenschaft | Beispielwert    | Effekt |
-| :--- |:----------------| :--- |
-| `font-size` | `2.5rem`        | Größerer Titel |
-| `text-transform` | `none`          | Keine Großbuchstaben |
-| `letter-spacing` | `0.1em`         | Weiter gesperrt |
-| `font-weight` | `400`           | Dünnere Schrift |
+| Eigenschaft      | Beispielwert | Effekt               |
+|:-----------------|:-------------|:---------------------|
+| `font-size`      | `2.5rem`     | Größerer Titel       |
+| `text-transform` | `none`       | Keine Großbuchstaben |
+| `letter-spacing` | `0.1em`      | Weiter gesperrt      |
+| `font-weight`    | `400`        | Dünnere Schrift      |
 
 ### Aufgabe 7.3: Login-Card stylen
 
