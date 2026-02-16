@@ -94,13 +94,11 @@ Wie kommen Daten in das Token (JWT)?
     - *Token Claim Name:* `custom_data.department`.
     - *Add to access token:* ON.
 
-> **Ergebnis:** Das Frontend/API kann das Department direkt aus dem Token lesen, ohne DB-Query.
+> **Ergebnis:** Der Client kann das Department direkt aus Token lesen, ohne DB-Query.
 
 ---
 
-## 3.2 Protocol Mapper: Visualisierung
-
-![w:950](images/protocol_mapper_flow.drawio.svg)
+![bg w:1100](images/protocol_mapper_flow.drawio.svg)
 
 ---
 
@@ -117,9 +115,7 @@ Ein User in Keycloak ist mehr als nur `username` und `password`.
 
 ---
 
-## 4. Realm-Komponenten: Überblick
-
-![w:950](images/realm_components.drawio.svg)
+![bg w:1050](images/realm_components.drawio.svg)
 
 ---
 
@@ -147,8 +143,6 @@ Keycloak unterstützt mehrere Credentials pro User gleichzeitig:
 
 ## 6. Rollenkonzepte (RBAC)
 
-Rollen sind **Permission Tokens** (Berechtigungsmarken).
-
 ### Realm Roles (Global)
 
 - Gelten für den gesamten Mandanten.
@@ -163,9 +157,7 @@ Rollen sind **Permission Tokens** (Berechtigungsmarken).
 
 ---
 
-## 6. Realm Roles vs. Client Roles
-
-![w:950](images/realm_vs_client_roles.drawio.svg)
+![bg w:950](images/realm_vs_client_roles.drawio.svg)
 
 ---
 
@@ -178,9 +170,7 @@ User → Mitglied in Gruppe → Hat zugeordnete Rollen → Zugriff.
 
 ---
 
-## 7. Gruppen und Vererbung: Beispiel
-
-![h:450](images/groups_inheritance.drawio.svg)
+![bg h:550](images/groups_inheritance.drawio.svg)
 
 ---
 
@@ -193,9 +183,7 @@ Wie vermeiden wir "Rollen-Explosion"? Durch **Composite Roles**.
 
 ---
 
-## 8. Composite Roles: Beispiel
-
-![w:800](images/composite_roles.drawio.svg)
+![bg w:1050](images/composite_roles.drawio.svg)
 
 ---
 

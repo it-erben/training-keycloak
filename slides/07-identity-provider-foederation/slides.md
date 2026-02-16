@@ -24,11 +24,7 @@ Nach diesem Modul kannst du:
 
 ---
 
-## 1. Federation vs. Brokering
-
-Zwei Wege, externe Benutzerquellen einzubinden:
-
-![width:850px](images/federation_vs_brokering.drawio.svg)
+![bg width:1050](images/federation_vs_brokering.drawio.svg)
 
 ---
 
@@ -62,9 +58,7 @@ Keycloak **vertraut** einem anderen Identity Provider.
 
 ---
 
-## 2. Exkurs: Was ist LDAP?
-
-![width:850px](images/ldap_basics.drawio.svg)
+![bg width:1100](images/ldap_basics.drawio.svg)
 
 ---
 <style scoped>
@@ -85,19 +79,11 @@ section {
 
 ---
 
-## 2.2 User Federation (LDAP/AD)
-
-Integration bestehender Verzeichnisse:
-
-![width:850px](images/ldap_integration.drawio.svg)
+![bg width:1050](images/ldap_integration.drawio.svg)
 
 ---
 
-## 3. Identity Brokering
-
-Keycloak als **Service Provider (SP)** gegenüber externem IdP:
-
-![width:800px](images/identity_brokering_flow.drawio.svg)
+![bg width:1050](images/identity_brokering_flow.drawio.svg)
 
 ---
 
@@ -160,11 +146,7 @@ Spezialfall von Identity Brokering für bekannte Anbieter:
 
 ---
 
-## 6. First Broker Login Flow
-
-Was passiert beim ersten Login über einen externen IdP?
-
-![width:800px](images/first_broker_login.drawio.svg)
+![bg width:1050](images/first_broker_login.drawio.svg)
 
 ---
 

@@ -37,7 +37,7 @@ Keycloak nutzt ein flexibles System, um zu definieren, wie Benutzer (oder Client
 
 ---
 
-## 2. Struktur und Komponenten
+## 1.1 Struktur und Komponenten
 
 Ein Flow ist ein Baum aus **Executions** und **Subflows**.
 
@@ -55,13 +55,11 @@ Gruppierung von Executions, um komplexe Logik (z.B. "Entweder Passwort ODER Kerb
 
 ---
 
-## 2. Struktur: Visualisierung
-
-![w:900](images/flow_structure.drawio.svg)
+![bg w:900](images/flow_structure.drawio.svg)
 
 ---
 
-## 2. Struktur: Requirements
+## 1.2 Struktur: Requirements
 
 Jeder Schritt hat eine Bedingung ("Requirement"):
 
@@ -74,7 +72,7 @@ Jeder Schritt hat eine Bedingung ("Requirement"):
 
 ---
 
-## 3. Standard-Flows im Überblick
+## 1.3 Standard-Flows im Überblick
 
 Keycloak liefert "Built-in" Flows mit (Menü: *Authentication*):
 
@@ -88,13 +86,11 @@ Keycloak liefert "Built-in" Flows mit (Menü: *Authentication*):
 
 ---
 
-## 3. Der Browser Flow im Detail
-
-![w:950](images/browser_flow.drawio.svg)
+![bg w:1050](images/browser_flow.drawio.svg)
 
 ---
 
-## 4. Customizing: Flows anpassen
+## 2. Customizing: Flows anpassen
 
 **Wichtige Regel:** Built-in Flows sollten nicht direkt editiert werden!
 
@@ -107,7 +103,7 @@ Keycloak liefert "Built-in" Flows mit (Menü: *Authentication*):
 
 ---
 
-## 5. Beispiel: Multi-Faktor-Authentifizierung (MFA)
+## 2.1 Multi-Faktor-Authentifizierung (MFA)
 
 Ziel: User müssen zusätzlich zum Passwort einen **zweiten Faktor** eingeben.
 
@@ -119,7 +115,9 @@ Ziel: User müssen zusätzlich zum Passwort einen **zweiten Faktor** eingeben.
 | **WebAuthn** | Hardware-Keys (YubiKey) oder Passkeys |
 | **SMS/Email** | Via Custom Authenticator (nicht built-in) |
 
-## 5. WebAuthn / Passkeys
+---
+
+## 2.2 WebAuthn / Passkeys
 
 **WebAuthn** ist der moderne Standard für passwortlose Authentifizierung.
 
@@ -135,11 +133,9 @@ Ziel: User müssen zusätzlich zum Passwort einen **zweiten Faktor** eingeben.
 2. "WebAuthn Authenticator" hinzufügen
 3. Requirement = Required oder Conditional
 
-> **Tipp:** Passkeys werden in modernen Browsern und Smartphones nativ unterstützt.
-
 ---
 
-## 6.1 Policies: Passwort
+## 2.3 Policies: Passwort
 
 Unter *Authentication → Policies → Password Policy*:
 
@@ -153,7 +149,7 @@ Unter *Authentication → Policies → Password Policy*:
 
 ---
 
-## 6.2 Policies: OTP
+## 2.4 Policies: OTP
 
 Unter *Authentication → Policies → OTP Policy*:
 

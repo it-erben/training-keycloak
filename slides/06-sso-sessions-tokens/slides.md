@@ -24,19 +24,15 @@ Nach diesem Modul kannst du:
 
 ---
 
-## 1. Wie funktioniert SSO?
-
-![width:900px](images/sso_flow.drawio.svg)
+![bg width:900px](images/sso_flow.drawio.svg)
 
 ---
 
-## 2. Session-Hierarchie
-
-![width:850px](images/session_hierarchy.drawio.svg)
+![bg width:850px](images/session_hierarchy.drawio.svg)
 
 ---
 
-## 2.1 User Session vs. Client Session
+## 1 User Session vs. Client Session
 
 | Session-Typ | Beschreibung | Lebenszyklus |
 | ----------- | ------------ | ------------ |
@@ -50,7 +46,7 @@ Nach diesem Modul kannst du:
 
 ---
 
-## 3. Timeouts & Lifetimes
+## 2 Timeouts & Lifetimes
 
 Wichtige Einstellungen (*Realm Settings → Sessions*):
 
@@ -65,7 +61,7 @@ Wichtige Einstellungen (*Realm Settings → Sessions*):
 
 ---
 
-## 3.1 Remember Me & Offline Sessions
+## 2.1 Remember Me & Offline Sessions
 
 **Remember Me:**
 
@@ -80,13 +76,11 @@ Wichtige Einstellungen (*Realm Settings → Sessions*):
 
 ---
 
-## 4. Token-Lifecycle
-
-![width:900px](images/token_lifecycle.drawio.svg)
+![bg width:1050px](images/token_lifecycle.drawio.svg)
 
 ---
 
-## 4.1 Access Token vs. Refresh Token
+## 3 Access Token vs. Refresh Token
 
 | Token | Lebensdauer | Verwendung |
 | ----- | ----------- | ---------- |
@@ -101,7 +95,7 @@ Wichtige Einstellungen (*Realm Settings → Sessions*):
 
 ---
 
-## 4.2 Refresh Token Rotation
+## 3.1 Refresh Token Rotation
 
 **Sicherheit durch Rotation:**
 
@@ -114,21 +108,13 @@ Wichtige Einstellungen (*Realm Settings → Sessions*):
 
 ---
 
-## 5. Logout-Mechanismen
-
-Wie wird man "überall" abgemeldet?
-
-![width:700px](images/logout_mechanisms.drawio.svg)
-
----
-
 <style scoped>
 section {
     font-size: 1.6rem;
 }
 </style>
 
-## 5.1 Frontchannel vs. Backchannel Logout
+## 4 Frontchannel vs. Backchannel Logout
 
 | Mechanismus | Funktionsweise | Vor-/Nachteile |
 | ----------- | -------------- | -------------- |
@@ -144,7 +130,11 @@ section {
 
 ---
 
-## 5.2 Revocation (Not-Before Policy)
+![bg width:800px](images/logout_mechanisms.drawio.svg)
+
+---
+
+## 4.1 Revocation (Not-Before Policy)
 
 Notfall-Knopf: "Alle Tokens ungültig machen".
 
@@ -157,7 +147,7 @@ Notfall-Knopf: "Alle Tokens ungültig machen".
 
 ---
 
-## 6. Zusammenfassung
+## Zusammenfassung
 
 - **SSO** basiert auf einem zentralen Cookie im Browser.
 - **User Session** = globale Sitzung, **Client Session** = pro App.
