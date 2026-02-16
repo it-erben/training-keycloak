@@ -36,8 +36,6 @@ Nach diesem Modul kannst du:
 
 ---
 
-## 1. Definition von IAM: Der Ablauf
-
 ![w:1000](images/iam_flow.drawio.svg)
 
 ---
@@ -80,9 +78,7 @@ section {
 
 ---
 
-## 2.2 Keycloak Timeline
-
-![w:950](images/keycloak_timeline.drawio.svg)
+![w:950 bg](images/keycloak_timeline.drawio.svg)
 
 ---
 <style scoped>
@@ -157,9 +153,7 @@ section {
 
 ---
 
-## 3. Keycloak Architektur im Überblick
-
-![w:800](images/keycloak_architecture.drawio.svg)
+![w:800 bg](images/keycloak_architecture.drawio.svg)
 
 ---
 <style scoped>
@@ -225,8 +219,7 @@ Keycloak ist über **Service Provider Interfaces (SPIs)** erweiterbar:
 
 ## Nächste Schritte
 
-Im nächsten Modul:
-**Die Protokoll-Standards**
+Im nächsten Modul: **Protokolle**
 
 - OAuth 2.0, OpenID Connect und SAML 2.0 verstehen.
 - Die verschiedenen Flows und deren Anwendungsfälle kennenlernen.
