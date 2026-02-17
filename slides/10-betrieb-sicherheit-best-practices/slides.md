@@ -213,7 +213,9 @@ Um Ausfälle zu vermeiden, nutze mehrere Instanzen (Nodes).
 
 - **Discovery:** Nodes müssen sich finden (Standard: JGroups Multicast/UDP. In Cloud/K8s: DNS_PING/TCP).
 - **Load Balancer:** Verteilt Traffic.
-- **Sticky Sessions:** Wichtig für Performance! Der Load Balancer sollte User basierend auf `AUTH_SESSION_ID` Cookie immer zum selben Node schicken (vermeidet unnötige Cache-Replikation).
+- **Sticky Sessions:** Wichtig für Performance! Der Load Balancer sollte User basierend auf
+  `AUTH_SESSION_ID` Cookie immer zum selben Node schicken (vermeidet unnötige
+  Cache-Replikation).
 
 ---
 
@@ -229,7 +231,8 @@ Keycloak speichert fast alles in der DB.
 
 1. **Datenbank-Backup:** Regelmäßige Dumps (pg_dump). Konsistenz beachten!
 2. **Config:** Sichere `keycloak.conf` und Keystores/Zertifikate.
-3. **Realm Export:** (Optional) Nutze `kc.sh export` als JSON-Backup der Konfiguration (ohne User-Hashes/Sessions). Gut für Disaster Recovery in neue Versionen.
+3. **Realm Export:** (Optional) Nutze `kc.sh export` als JSON-Backup der Konfiguration
+   (ohne User-Hashes/Sessions). Gut für Disaster Recovery in neue Versionen.
 
 > **Wichtig:** Teste das Restore regelmäßig auf einem Testsystem!
 

@@ -24,9 +24,13 @@ cd assignments/modul-07-identity-provider
 docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe [Troubleshooting](#container-name-konflikt).
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
+> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+> [Troubleshooting](#container-name-konflikt).
 
-Warte bis Keycloak, Gitea und das Portal-Frontend bereit sind (~60 Sekunden). Der Realm "mustertech" wird automatisch importiert mit allen Clients und Konfigurationen aus den vorherigen Modulen.
+Warte bis Keycloak, Gitea und das Portal-Frontend bereit sind (~60 Sekunden). Der Realm
+"mustertech" wird automatisch importiert mit allen Clients und Konfigurationen aus den
+vorherigen Modulen.
 
 ### Gitea einrichten
 
@@ -48,7 +52,8 @@ Das Skript erstellt in Gitea:
 - Einen Test-User `alice` (Passwort: `demo1234`)
 - Eine OAuth2-Application mit der passenden Redirect URI für Keycloak
 
-Am Ende gibt das Skript die **Client ID** und das **Client Secret** aus -- notiere dir diese Werte für die nächsten Schritte.
+Am Ende gibt das Skript die **Client ID** und das **Client Secret** aus -- notiere dir diese
+Werte für die nächsten Schritte.
 
 ---
 
@@ -62,7 +67,8 @@ Am Ende gibt das Skript die **Client ID** und das **Client Secret** aus -- notie
 
 ### Schritt 1.2: OpenID Connect v1.0 auswählen
 
-Gitea ist kein vorgefertigter Social Provider wie z.B. Google oder Facebook. Stattdessen wird Gitea als generischer **OpenID Connect v1.0** Provider konfiguriert.
+Gitea ist kein vorgefertigter Social Provider wie z.B. Google oder Facebook. Stattdessen wird
+Gitea als generischer **OpenID Connect v1.0** Provider konfiguriert.
 
 1. Klicke auf **Add provider**
 2. Wähle **OpenID Connect v1.0**
@@ -84,7 +90,12 @@ Gib folgende Werte ein:
 
 Klicke auf **Add**.
 
-> **Warum kein Discovery?** Bei OIDC gibt es normalerweise einen Discovery-Endpoint (`.well-known/openid-configuration`), der alle URLs automatisch liefert. Das Problem: Der Browser erreicht Gitea unter `localhost:3000`, aber Keycloak (im Docker-Netzwerk) erreicht Gitea unter `assignment-gitea:3000`. Deshalb tragen wir die URLs manuell ein -- die Authorization URL für den Browser, die Token URL und User Info URL für die Server-zu-Server-Kommunikation.
+> **Warum kein Discovery?** Bei OIDC gibt es normalerweise einen Discovery-Endpoint
+> (`.well-known/openid-configuration`), der alle URLs automatisch liefert. Das Problem:
+> Der Browser erreicht Gitea unter `localhost:3000`, aber Keycloak (im Docker-Netzwerk)
+> erreicht Gitea unter `assignment-gitea:3000`. Deshalb tragen wir die URLs manuell ein:
+> die Authorization URL für den Browser, die Token URL und User Info URL für die
+> Server-zu-Server-Kommunikation.
 
 Aktiviere in den **Advanced Settings** folgende Merkmale:
 
@@ -337,7 +348,8 @@ Danach kannst du die aktuelle Übung normal starten.
 
 **Ursache:** Die Redirect URI in der Gitea OAuth2-Application stimmt nicht mit der Keycloak-Konfiguration überein.
 
-**Lösung:** Prüfe, ob `setup.sh` korrekt durchgelaufen ist. Falls die OAuth2-Application manuell gelöscht und neu erstellt werden muss:
+**Lösung:** Prüfe, ob `setup.sh` korrekt durchgelaufen ist. Falls die OAuth2-Application
+manuell gelöscht und neu erstellt werden muss:
 
 1. Öffne <http://localhost:3000> und logge dich als `gitea-admin` / `admin1234` ein
 2. Navigiere zu **Einstellungen** -> **Applikationen**

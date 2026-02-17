@@ -1,6 +1,7 @@
 # Live-Demo: Modul 04 -- Clients & Benutzerverwaltung
 
-Das Rollenkonzept (Client Roles -> Composite Role -> Gruppe -> User) und Protocol Mapper live aufbauen -- mit **anderen Clients und Usern** als in der Übung.
+Das Rollenkonzept (Client Roles -> Composite Role -> Gruppe -> User) und Protocol Mapper
+live aufbauen -- mit **anderen Clients und Usern** als in der Übung.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -62,7 +63,8 @@ Wir erstellen Client-spezifische Rollen für zwei fiktive Anwendungen.
 1. Erstelle einen zweiten Client **chat-app** (gleiche Einstellungen wie oben)
 2. Erstelle die Client Role **moderator** mit Description `Darf Chat-Nachrichten moderieren`
 
-> **Zeigen:** Client Roles sind isoliert -- `wiki-app:editor` und `chat-app:moderator` existieren unabhängig voneinander. Keine Namenskonflikte möglich.
+> **Zeigen:** Client Roles sind isoliert -- `wiki-app:editor` und `chat-app:moderator`
+> existieren unabhängig voneinander. Keine Namenskonflikte möglich.
 
 **Diskussionspunkte:**
 
@@ -90,7 +92,8 @@ Wir bündeln die beiden technischen Rollen in einer Business-Rolle.
 3. Aktiviere **wiki-app editor** und **chat-app moderator**
 4. Klicke auf **Assign**
 
-> **Zeigen:** Im Tab "Associated roles" sind jetzt beide Client Roles sichtbar. Ein User mit der Rolle "Team-Lead" bekommt automatisch beide technischen Rollen.
+> **Zeigen:** Im Tab "Associated roles" sind jetzt beide Client Roles sichtbar. Ein User
+> mit der Rolle "Team-Lead" bekommt automatisch beide technischen Rollen.
 
 **Diskussionspunkte:**
 
@@ -144,7 +147,8 @@ Wir bündeln die beiden technischen Rollen in einer Business-Rolle.
 1. Tab **Credentials** -> **Set password** -> `demo1234`, Temporary: OFF
 2. Tab **Groups** -> **Join Group** -> **Engineering** -> **Join**
 
-> **Zeigen:** Alice bekommt Rollen nicht direkt -- sie erbt sie über die Gruppe. Das ist die goldene Regel: **User -> Group -> Composite Role -> Client Role**.
+> **Zeigen:** Alice bekommt Rollen nicht direkt -- sie erbt sie über die Gruppe. Das ist
+> die goldene Regel: **User -> Group -> Composite Role -> Client Role**.
 
 ---
 
@@ -201,7 +205,9 @@ Prüfe folgende Claims:
 | `department` | `Engineering` |
 | `realm_access.roles` | enthält `Team-Lead` |
 
-> **Zeigen:** Alice hat `wiki-app:editor` im Token, obwohl die Rolle nie direkt zugewiesen wurde. Die Kette: Alice -> Gruppe "Engineering" -> Realm Role "Team-Lead" -> Client Role "wiki-app:editor".
+> **Zeigen:** Alice hat `wiki-app:editor` im Token, obwohl die Rolle nie direkt zugewiesen
+> wurde. Die Kette: Alice -> Gruppe "Engineering" -> Realm Role "Team-Lead" -> Client Role
+> "wiki-app:editor".
 
 **Diskussionspunkte:**
 
@@ -244,7 +250,8 @@ curl -X POST http://localhost:9090/realms/mustertech/protocol/openid-connect/tok
   -d "client_secret=<SECRET>"
 ```
 
-> **Zeigen:** Kein Username/Passwort nötig -- der Client authentifiziert sich selbst. Im Token steht `sub = <Service-Account-UUID>`, kein menschlicher User.
+> **Zeigen:** Kein Username/Passwort nötig -- der Client authentifiziert sich selbst. Im
+> Token steht `sub = <Service-Account-UUID>`, kein menschlicher User.
 
 **Diskussionspunkte:**
 

@@ -32,7 +32,8 @@ Nach diesem Modul kannst du:
 - Erhöht die Sicherheit (Single Point of Control).
 - Verbessert die Compliance und Auditierbarkeit.
 
-> **Ziel:** "Die richtigen Personen erhalten den angemessenen Zugriff zu den korrekten Ressourcen zur rechten Zeit aus den passenden Gründen."
+> **Ziel:** "Die richtigen Personen erhalten den angemessenen Zugriff zu den korrekten
+> Ressourcen zur rechten Zeit aus den passenden Gründen."
 
 ---
 

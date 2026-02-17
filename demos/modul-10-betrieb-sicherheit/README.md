@@ -1,6 +1,7 @@
 # Live-Demo: Modul 10 -- Betrieb & Sicherheit
 
-Brute-Force-Detection, Password Policy und Events live konfigurieren und testen -- mit einem dedizierten Demo-User, Fokus auf den Audit-Trail.
+Brute-Force-Detection, Password Policy und Events live konfigurieren und testen -- mit
+einem dedizierten Demo-User, Fokus auf den Audit-Trail.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -50,7 +51,8 @@ Der Realm **mustertech** wird automatisch importiert (mit User `demo-user` / `de
 
 Klicke auf **Save**.
 
-> **Zeigen:** Bewusst niedriger Wert (3 statt 5), damit die Demo schnell geht. In Produktion empfehlen sich 5-10 Versuche.
+> **Zeigen:** Bewusst niedriger Wert (3 statt 5), damit die Demo schnell geht. In
+> Produktion empfehlen sich 5-10 Versuche.
 
 ---
 
@@ -69,7 +71,8 @@ Klicke auf **Save**.
 
 Klicke nach jeder Policy auf **Save**.
 
-> **Zeigen:** Policies greifen nur bei **Passwort-Änderungen**, nicht rückwirkend. Bestehende schwache Passwörter bleiben gültig, bis der User sie ändert.
+> **Zeigen:** Policies greifen nur bei **Passwort-Änderungen**, nicht rückwirkend.
+> Bestehende schwache Passwörter bleiben gültig, bis der User sie ändert.
 
 **Diskussionspunkte:**
 
@@ -94,7 +97,9 @@ Klicke nach jeder Policy auf **Save**.
 3. Aktiviere **Include representation:** ON
 4. Klicke auf **Save**
 
-> **Zeigen:** "Include representation" speichert den Vorher/Nachher-Zustand bei Admin-Änderungen. Damit kann man nachvollziehen, WAS genau geändert wurde -- nicht nur DASS etwas geändert wurde.
+> **Zeigen:** "Include representation" speichert den Vorher/Nachher-Zustand bei
+> Admin-Änderungen. Damit kann man nachvollziehen, WAS genau geändert wurde -- nicht nur
+> DASS etwas geändert wurde.
 
 ---
 
@@ -115,7 +120,8 @@ Klicke nach jeder Policy auf **Save**.
 
 Nach dem 3. Fehlversuch zeigt Keycloak: **"Account is temporarily disabled"**
 
-> **Zeigen:** Der 4. Versuch wird sofort abgelehnt -- auch mit dem richtigen Passwort. Das schützt gegen automatisierte Angriffe.
+> **Zeigen:** Der 4. Versuch wird sofort abgelehnt -- auch mit dem richtigen Passwort. Das
+> schützt gegen automatisierte Angriffe.
 
 ### Schritt 4 -- Account entsperren
 
@@ -124,7 +130,8 @@ Nach dem 3. Fehlversuch zeigt Keycloak: **"Account is temporarily disabled"**
 3. Wechsle zum Tab **Sessions**
 4. Klicke auf **Clear login failures**
 
-> **Zeigen:** Der Admin muss aktiv eingreifen (oder die Sperrzeit abwarten). In Produktion sollte es einen Prozess dafür geben.
+> **Zeigen:** Der Admin muss aktiv eingreifen (oder die Sperrzeit abwarten). In Produktion
+> sollte es einen Prozess dafür geben.
 
 ### Schritt 5 -- Login mit korrektem Passwort
 
@@ -143,7 +150,8 @@ Nach dem 3. Fehlversuch zeigt Keycloak: **"Account is temporarily disabled"**
    - **Event type:** `LOGIN_ERROR`
 3. Klicke auf **Search**
 
-> **Zeigen:** Jeder fehlgeschlagene Login wird protokolliert -- mit Timestamp, IP-Adresse, Username und Error-Details. Das ist der Audit-Trail für Sicherheitsvorfälle.
+> **Zeigen:** Jeder fehlgeschlagene Login wird protokolliert -- mit Timestamp, IP-Adresse,
+> Username und Error-Details. Das ist der Audit-Trail für Sicherheitsvorfälle.
 
 ### Schritt 2 -- Event-Details analysieren
 
@@ -161,7 +169,8 @@ Klicke auf ein Event und zeige:
 1. Wechsle zum Tab **Admin events**
 2. Hier siehst du die Aktionen, die du als Admin durchgeführt hast
 
-> **Zeigen:** Das "Clear login failures" von eben ist als Admin Event protokolliert. Man kann nachvollziehen, wer wann welchen Account entsperrt hat.
+> **Zeigen:** Das "Clear login failures" von eben ist als Admin Event protokolliert. Man
+> kann nachvollziehen, wer wann welchen Account entsperrt hat.
 
 **Diskussionspunkte:**
 

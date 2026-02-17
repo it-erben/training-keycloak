@@ -25,9 +25,12 @@ cd assignments/modul-05-authentifizierung-mfa
 docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe [Troubleshooting](#container-name-konflikt).
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
+> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+> [Troubleshooting](#container-name-konflikt).
 
-Warte bis Keycloak bereit ist (~30 Sekunden). Der Realm "mustertech" wird automatisch importiert mit allen Benutzern und Rollen aus dem vorherigen Modul.
+Warte bis Keycloak bereit ist (~30 Sekunden). Der Realm "mustertech" wird automatisch
+importiert mit allen Benutzern und Rollen aus dem vorherigen Modul.
 
 ---
 

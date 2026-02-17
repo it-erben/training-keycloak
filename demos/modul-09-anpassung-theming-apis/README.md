@@ -43,7 +43,8 @@ Der Realm **mustertech** wird automatisch importiert mit:
 2. Navigiere zu: <http://localhost:9090/realms/mustertech/account>
 3. Die Login-Seite zeigt das **Mustertech-Theme** (eigenes Logo, Farben, Texte)
 
-> **Zeigen:** Der Realm nutzt das Theme `mustertech`, das per Volume in den Container gemountet wird. Kein Custom Docker Image nötig.
+> **Zeigen:** Der Realm nutzt das Theme `mustertech`, das per Volume in den Container
+> gemountet wird. Kein Custom Docker Image nötig.
 
 ### Schritt 2 -- Theme-Struktur erklären
 
@@ -66,7 +67,9 @@ themes/mustertech/
     +-- text/password-reset.ftl    (Text-Variante)
 ```
 
-> **Zeigen:** Ein Theme besteht aus `theme.properties` (Konfiguration), Resources (CSS, Bilder) und Messages (Übersetzungen). Man erweitert immer ein Parent-Theme (`keycloak.v2`).
+> **Zeigen:** Ein Theme besteht aus `theme.properties` (Konfiguration), Resources (CSS,
+> Bilder) und Messages (Übersetzungen). Man erweitert immer ein Parent-Theme
+> (`keycloak.v2`).
 
 ### Schritt 3 -- Theme wechseln (Optional)
 
@@ -100,7 +103,8 @@ TOKEN=$(curl -sf -X POST http://localhost:9090/realms/master/protocol/openid-con
 echo "${TOKEN}"
 ```
 
-> **Zeigen:** Wir authentifizieren uns gegen den **master**-Realm mit dem `admin-cli`-Client. Das Token berechtigt zu allen Admin-Operationen.
+> **Zeigen:** Wir authentifizieren uns gegen den **master**-Realm mit dem `admin-cli`-Client.
+> Das Token berechtigt zu allen Admin-Operationen.
 
 ### Schritt 2 -- Token prüfen
 
@@ -152,7 +156,8 @@ curl -sf http://localhost:9090/admin/realms/mustertech/users \
 
 **Erwartete Ausgabe:** `alice`, `api-user`, `bob`
 
-> **Zeigen:** Der User wurde per API erstellt -- ohne die Admin-Konsole zu benutzen. Das ist die Grundlage für Automatisierung (Provisioning, CI/CD).
+> **Zeigen:** Der User wurde per API erstellt -- ohne die Admin-Konsole zu benutzen. Das ist
+> die Grundlage für Automatisierung (Provisioning, CI/CD).
 
 ### Schritt 4 -- User in Admin-Konsole zeigen
 
@@ -176,7 +181,8 @@ curl -sf http://localhost:9090/admin/realms/mustertech/clients \
   -H "Authorization: Bearer ${TOKEN}" | jq '.[].clientId'
 ```
 
-> **Zeigen:** Neben den selbst erstellten Clients gibt es zahlreiche Built-in Clients (`account`, `admin-cli`, `realm-management`, etc.).
+> **Zeigen:** Neben den selbst erstellten Clients gibt es zahlreiche Built-in Clients
+> (`account`, `admin-cli`, `realm-management`, etc.).
 
 ### Schritt 2 -- Client-Details abfragen
 
