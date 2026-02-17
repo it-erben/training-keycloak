@@ -34,6 +34,5 @@ repos:
           - "2"
           - --timeout
           - "20"
-          - --cache
         files: '\.md$'
         exclude: '(node_modules/|book/)'

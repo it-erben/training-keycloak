@@ -116,7 +116,7 @@ Gib die Zugangsdaten ein:
 - **Username:** `admin`
 - **Password:** `admin`
 
-Du siehst nun die die Keycloak-Startseite.
+Du siehst nun die Keycloak-Startseite.
 
 ### Schritt 2.3: Master-Realm erkunden
 
@@ -241,24 +241,7 @@ Du hast erfolgreich:
 
 ### Container-Name-Konflikt
 
-**Symptom:** Beim Start erscheint ein Fehler wie:
-
-```
-Error response from daemon: Conflict. The container name "/assignment-postgres" is already
-in use by container "...". You have to remove (or rename) that container to be able to
-reuse that name.
-```
-
-**Ursache:** Die Container einer vorherigen Übung laufen noch oder wurden nicht vollständig entfernt.
-
-**Lösung:** Wechsle in das Verzeichnis der vorherigen Übung und räume dort auf:
-
-```bash
-cd assignments/<vorherige-uebung>
-docker compose down -v
-```
-
-Danach kannst du die aktuelle Übung normal starten.
+Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
 
 ### Keycloak startet nicht
 

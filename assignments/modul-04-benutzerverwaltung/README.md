@@ -27,7 +27,7 @@ docker compose up -d
 
 > **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
 > mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
-> [Troubleshooting](#container-name-konflikt).
+> [Troubleshooting](../TROUBLESHOOTING.md#container-name-konflikt).
 
 Warte bis Keycloak bereit ist (~30 Sekunden). Der Realm "mustertech" wird automatisch importiert.
 
@@ -344,24 +344,7 @@ Du hast erfolgreich:
 
 ### Container-Name-Konflikt
 
-**Symptom:** Beim Start erscheint ein Fehler wie:
-
-```
-Error response from daemon: Conflict. The container name "/assignment-postgres" is already
-in use by container "...". You have to remove (or rename) that container to be able to
-reuse that name.
-```
-
-**Ursache:** Die Container einer vorherigen Übung laufen noch oder wurden nicht vollständig entfernt.
-
-**Lösung:** Wechsle in das Verzeichnis der vorherigen Übung und räume dort auf:
-
-```bash
-cd assignments/<vorherige-uebung>
-docker compose down -v
-```
-
-Danach kannst du die aktuelle Übung normal starten.
+Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
 
 ### User kann sich nicht einloggen
 

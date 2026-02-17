@@ -26,7 +26,7 @@ docker compose up -d
 
 > **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe
 > diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung.
-> Details siehe [Troubleshooting](#container-name-konflikt).
+> Details siehe [Troubleshooting](../TROUBLESHOOTING.md#container-name-konflikt).
 
 Warte bis Keycloak bereit ist (~30 Sekunden). Der Realm "mustertech" wird
 automatisch importiert mit allen Clients, Authorization Services und
@@ -80,11 +80,12 @@ echo $token
 Oder mit curl:
 
 ```bash
-curl -X POST "http://localhost:8080/realms/master/protocol/openid-connect/token" \
+TOKEN=$(curl -s -X POST "http://localhost:8080/realms/master/protocol/openid-connect/token" \
   -d "grant_type=password" \
   -d "client_id=admin-cli" \
   -d "username=admin" \
-  -d "password=admin" | jq -r '.access_token'
+  -d "password=admin" | jq -r '.access_token')
+echo "$TOKEN"
 ```
 
 ---
@@ -177,8 +178,8 @@ Erweitere `../services/management-cli/src/index.ts`:
 > **Wichtig:** Die Admin REST API erfordert einen Token mit Admin-Rechten. Der
 > Device-Flow-Token (`tokens.access_token`) stammt von einem User im
 > mustertech-Realm, der keine `realm-management`-Rollen besitzt -- damit erhältst
-> du **403 Forbidden**. Verwende stattdessen den **Master-Realm-Token aus Teil 1
-** (Variable `$TOKEN`) für alle Admin-API-Aufrufe.
+> du **403 Forbidden**. Verwende stattdessen den **Master-Realm-Token aus Teil 1**
+> (Variable `$TOKEN`) für alle Admin-API-Aufrufe, z.B. via Prompt oder ENV-Variable.
 
 ```typescript
 // Nach erfolgreichem Login hinzufügen:
@@ -207,9 +208,10 @@ async function createUser(token: string, userData: any) {
 // Im main() nach Login:
 console.log('\n--- User-Verwaltung ---');
 const action = readlineSync.question('Aktion (list/create/quit): ');
+const adminToken = readlineSync.question('Master-Realm-Token aus Teil 1: ');
 
 if (action === 'list') {
-    const users = await listUsers(tokens.access_token);
+    const users = await listUsers(adminToken);
     console.log('\nBenutzer:');
     users.forEach((u: any) => console.log(`- ${u.username} (${u.email})`));
 }
@@ -220,7 +222,7 @@ if (action === 'create') {
     const firstName = readlineSync.question('Vorname: ');
     const lastName = readlineSync.question('Nachname: ');
 
-    await createUser(tokens.access_token, {
+    await createUser(adminToken, {
         username, email, firstName, lastName,
         enabled: true, emailVerified: true
     });
@@ -337,25 +339,7 @@ Du hast erfolgreich:
 
 ### Container-Name-Konflikt
 
-**Symptom:** Beim Start erscheint ein Fehler wie:
-
-```
-Error response from daemon: Conflict. The container name "/assignment-postgres" is already
-in use by container "...". You have to remove (or rename) that container to be able to
-reuse that name.
-```
-
-**Ursache:** Die Container einer vorherigen Übung laufen noch oder wurden nicht
-vollständig entfernt.
-
-**Lösung:** Wechsle in das Verzeichnis der vorherigen Übung und räume dort auf:
-
-```bash
-cd assignments/<vorherige-uebung>
-docker compose down -v
-```
-
-Danach kannst du die aktuelle Übung normal starten.
+Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
 
 ### 401 Unauthorized
 

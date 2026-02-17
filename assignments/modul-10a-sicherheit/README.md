@@ -29,7 +29,7 @@ docker compose up -d
 
 > **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe
 > diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung.
-> Details siehe [Troubleshooting](#container-name-konflikt).
+> Details siehe [Troubleshooting](../TROUBLESHOOTING.md#container-name-konflikt).
 
 Warte bis Keycloak bereit ist (~30 Sekunden). Der Realm "mustertech" wird
 automatisch importiert mit allen Konfigurationen aus den vorherigen Modulen.
@@ -47,9 +47,6 @@ Passwort-Policies erzwingen sichere Passwörter bei der Registrierung und beim
 2. Wähle den Realm **mustertech**
 3. Navigiere zu **Authentication** → **Policies** → **Password policy**
 
-<!-- SCREENSHOT: keycloak-password-policy-empty.png -->
-<!-- Beschreibung: Leere Password Policy Seite -->
-
 ### Schritt 1.2: Policies hinzufügen
 
 Klicke auf **Add policy** und füge folgende Regeln hinzu:
@@ -65,9 +62,6 @@ Klicke auf **Add policy** und füge folgende Regeln hinzu:
 | **Not email**            | -    | Passwort darf nicht die E-Mail sein   |
 
 Klicke nach jeder Policy auf **Save**.
-
-<!-- SCREENSHOT: keycloak-password-policy-configured.png -->
-<!-- Beschreibung: Konfigurierte Password Policies -->
 
 ### Schritt 1.3: Password Policy testen
 
@@ -102,9 +96,6 @@ One-Time Passwords (OTP) bieten einen zweiten Faktor für die Authentifizierung.
 
 Diese Standardwerte sind für die meisten Authenticator-Apps kompatibel.
 
-<!-- SCREENSHOT: keycloak-otp-policy.png -->
-<!-- Beschreibung: OTP Policy Einstellungen -->
-
 ### Schritt 2.2: OTP für max.admin einrichten
 
 Wir konfigurieren OTP als Required Action für den Admin-User:
@@ -113,9 +104,6 @@ Wir konfigurieren OTP als Required Action für den Admin-User:
 2. Gehe zum Tab **Details**
 3. Unter **Required user actions** wähle **Configure OTP**
 4. Klicke auf **Save**
-
-<!-- SCREENSHOT: keycloak-user-required-action.png -->
-<!-- Beschreibung: Required Action "Configure OTP" beim User -->
 
 ### Schritt 2.3: OTP als User einrichten
 
@@ -130,9 +118,6 @@ Jetzt simulieren wir den User-Flow:
 
 5. Du wirst zur OTP-Einrichtung weitergeleitet:
 
-<!-- SCREENSHOT: keycloak-otp-setup.png -->
-<!-- Beschreibung: QR-Code für OTP-Einrichtung -->
-
 6. Scanne den QR-Code mit deiner Authenticator-App
 7. Gib den 6-stelligen Code aus der App ein
 8. Klicke auf **Submit**
@@ -144,9 +129,6 @@ Jetzt simulieren wir den User-Flow:
 1. Melde dich ab (Sign out)
 2. Melde dich erneut als `max.admin` an
 3. Nach Username/Passwort wirst du nach dem OTP-Code gefragt
-
-<!-- SCREENSHOT: keycloak-otp-login.png -->
-<!-- Beschreibung: OTP-Eingabe beim Login -->
 
 ---
 
@@ -173,9 +155,6 @@ Brute-Force-Protection verhindert automatisierte Angriffe auf Benutzerkonten.
 | **Failure reset time**       | `43200` Sekunden | Fehlerzähler Reset nach 12h           |
 
 Klicke auf **Save**.
-
-<!-- SCREENSHOT: keycloak-brute-force.png -->
-<!-- Beschreibung: Brute Force Detection Einstellungen -->
 
 ### Schritt 3.3: Brute-Force-Protection testen
 
@@ -236,9 +215,6 @@ Klicke auf **Save**.
 2. Du siehst alle aktiven Sessions im Realm
 3. Du kannst einzelne Sessions oder alle Sessions beenden
 
-<!-- SCREENSHOT: keycloak-sessions.png -->
-<!-- Beschreibung: Liste aktiver Sessions -->
-
 **Admin-Tipp:** Bei einem Sicherheitsvorfall kannst du hier alle Sessions
 beenden, um alle User auszuloggen.
 
@@ -271,9 +247,6 @@ Diese Standardwerte sind für die meisten Fälle geeignet.
     - **Save events:** ON
     - **Include representation:** ON (für vollständiges Audit-Log)
 4. Klicke auf **Save**
-
-<!-- SCREENSHOT: keycloak-events-config.png -->
-<!-- Beschreibung: Event-Konfiguration -->
 
 ### Aufgabe 5.3: Events ansehen
 
@@ -317,25 +290,7 @@ Du hast erfolgreich:
 
 ### Container-Name-Konflikt
 
-**Symptom:** Beim Start erscheint ein Fehler wie:
-
-```
-Error response from daemon: Conflict. The container name "/assignment-postgres" is already
-in use by container "...". You have to remove (or rename) that container to be able to
-reuse that name.
-```
-
-**Ursache:** Die Container einer vorherigen Übung laufen noch oder wurden nicht
-vollständig entfernt.
-
-**Lösung:** Wechsle in das Verzeichnis der vorherigen Übung und räume dort auf:
-
-```bash
-cd assignments/<vorherige-uebung>
-docker compose down -v
-```
-
-Danach kannst du die aktuelle Übung normal starten.
+Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
 
 ### OTP-Code wird nicht akzeptiert
 
