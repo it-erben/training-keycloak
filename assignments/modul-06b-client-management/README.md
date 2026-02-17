@@ -24,9 +24,12 @@ cd assignments/modul-06b-client-management
 docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe [Troubleshooting](#container-name-konflikt).
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
+> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+> [Troubleshooting](#container-name-konflikt).
 
-Warte bis alle Services bereit sind (~60 Sekunden). Der Realm "mustertech" wird automatisch importiert mit dem Portal-Frontend-Client und allen Konfigurationen aus den vorherigen Modulen.
+Warte bis alle Services bereit sind (~60 Sekunden). Der Realm "mustertech" wird automatisch
+importiert mit dem Portal-Frontend-Client und allen Konfigurationen aus den vorherigen Modulen.
 
 ---
 
@@ -145,7 +148,8 @@ prüfen, dann den eigentlichen Handler ausführen.
 
 ### Schritt 1.3: Docker-Compose prüfen
 
-Betrachte den `assignment-api` Service in der `docker-compose.yml` dieses Verzeichnisses. Die Portal-API ist bereits konfiguriert und wird automatisch gebaut und gestartet.
+Betrachte den `assignment-api` Service in der `docker-compose.yml` dieses Verzeichnisses.
+Die Portal-API ist bereits konfiguriert und wird automatisch gebaut und gestartet.
 
 > **Hinweis:** Die API braucht zwei Keycloak-URLs:
 >
@@ -380,7 +384,8 @@ Trennung zwischen Identität und Berechtigung.
 
 ### Schritt 3.3: Docker-Compose prüfen
 
-Betrachte den `assignment-management-cli` Service in der `docker-compose.yml`. Er ist mit `profiles: ["cli"]` konfiguriert und startet daher nicht automatisch bei `docker compose up`.
+Betrachte den `assignment-management-cli` Service in der `docker-compose.yml`. Er ist mit
+`profiles: ["cli"]` konfiguriert und startet daher nicht automatisch bei `docker compose up`.
 
 > **Konzept: Docker Compose Profiles** - Services mit `profiles` werden bei `docker compose up`
 > ignoriert. Sie lassen sich gezielt mit `docker compose run --rm <service>` starten. Das ist

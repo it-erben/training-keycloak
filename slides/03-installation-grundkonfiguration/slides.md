@@ -41,7 +41,10 @@ Keycloak ist eine Java-Anwendung (basiert auf Quarkus).
 Schnellster Weg für Dev und Prod (Cloud Native).
 
 ```bash
-docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:latest start-dev
+docker run -p 8080:8080 \
+  -e KEYCLOAK_ADMIN=admin \
+  -e KEYCLOAK_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:latest start-dev
 ```
 
 ### B. Distribution (Zip/Tar.gz)
@@ -69,7 +72,8 @@ Keycloak hat **keinen** Default-Admin. Er muss beim ersten Start gesetzt werden.
 
 ![bg right:40% fit](images/01-welcome-page.png)
 
-> **Hinweis:** Der Modus `start-dev` erlaubt HTTP und externe Verbindungen (für Tests). In Prod ist `start` + HTTPS-Zertifikat Pflicht.
+> **Hinweis:** Der Modus `start-dev` erlaubt HTTP und externe Verbindungen (für Tests). In
+> Prod ist `start` + HTTPS-Zertifikat Pflicht.
 
 ---
 
@@ -127,7 +131,8 @@ Ein **Client** ist eine Anwendung, die Keycloak nutzt.
 
 - **Client ID:** Eindeutige ID (z.B. `my-webapp`).
 - **Client Protocol:** Meist `openid-connect`.
-- **Root URL / Valid Redirect URIs:** Sicherheitskritisch! Wohin darf Keycloak den User nach dem Login zurückschicken? (z.B. `https://myapp.com/*`).
+- **Root URL / Valid Redirect URIs:** Sicherheitskritisch! Wohin darf Keycloak den User
+  nach dem Login zurückschicken? (z.B. `https://myapp.com/*`).
 
 > Mehr dazu später.
 

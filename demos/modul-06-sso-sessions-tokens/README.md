@@ -56,7 +56,9 @@ Wir setzen die maximale Session-Dauer auf 2 Minuten und beobachten, wie der User
 2. Klicke in der Account Console auf einen Link (z.B. **Personal info**)
 3. Keycloak leitet dich zur Login-Seite zurück
 
-> **Zeigen:** Die SSO Session ist abgelaufen. Egal wie aktiv der User war -- nach SSO Session Max ist Schluss. Das ist der Unterschied zu SSO Session Idle (Inaktivitäts-Timeout).
+> **Zeigen:** Die SSO Session ist abgelaufen. Egal wie aktiv der User war -- nach SSO
+> Session Max ist Schluss. Das ist der Unterschied zu SSO Session Idle
+> (Inaktivitäts-Timeout).
 
 **Diskussionspunkte:**
 
@@ -90,7 +92,8 @@ Der "Notfall-Knopf": Alle Tokens sofort ungültig machen.
 2. Klicke auf einen Link in der Account Console (z.B. **Personal info**)
 3. Keycloak leitet dich zur Login-Seite zurück -- die Session wurde ungültig
 
-> **Zeigen:** Alle Tokens, die **vor** dem Revocation-Zeitpunkt ausgestellt wurden, sind sofort ungültig. Das ist der Notfall-Mechanismus bei einem Sicherheitsvorfall.
+> **Zeigen:** Alle Tokens, die **vor** dem Revocation-Zeitpunkt ausgestellt wurden, sind
+> sofort ungültig. Das ist der Notfall-Mechanismus bei einem Sicherheitsvorfall.
 
 **Diskussionspunkte:**
 

@@ -1,6 +1,7 @@
 # Übungen: Mitarbeiterportal Mustertech GmbH
 
-Diese Übungsserie begleitet dich durch die Keycloak-Schulung. Du baust schrittweise ein vollständiges Mitarbeiterportal mit zentraler Authentifizierung auf.
+Diese Übungsserie begleitet dich durch die Keycloak-Schulung. Du baust schrittweise ein
+vollständiges Mitarbeiterportal mit zentraler Authentifizierung auf.
 
 ## Voraussetzungen
 
@@ -41,7 +42,8 @@ Diese Übungsserie begleitet dich durch die Keycloak-Schulung. Du baust schrittw
 
 ## Module
 
-Jedes Modul ist eigenständig startbar. Du kannst bei jedem Modul einsteigen - der benötigte Keycloak-Zustand wird automatisch per Realm-Import hergestellt.
+Jedes Modul ist eigenständig startbar. Du kannst bei jedem Modul einsteigen - der benötigte
+Keycloak-Zustand wird automatisch per Realm-Import hergestellt.
 
 ### Modul starten
 
@@ -56,7 +58,8 @@ docker compose up -d
 docker compose down -v
 ```
 
-> **Wichtig:** Beende immer das aktuelle Modul mit `docker compose down -v`, bevor du ein anderes startest. Alle Module nutzen dieselben Ports.
+> **Wichtig:** Beende immer das aktuelle Modul mit `docker compose down -v`, bevor du ein
+> anderes startest. Alle Module nutzen dieselben Ports.
 
 ### Übersicht
 

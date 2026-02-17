@@ -118,7 +118,8 @@ section {
 
 ## 7. Authentifizierung an der API
 
-Um die Admin API zu nutzen, braucht man ein **Access Token** mit entsprechenden Rechten (z.B. `realm-admin` oder `manage-users`).
+Um die Admin API zu nutzen, braucht man ein **Access Token** mit entsprechenden Rechten
+(z.B. `realm-admin` oder `manage-users`).
 
 ### Weg A: Admin User (für Tests/Skripte)
 

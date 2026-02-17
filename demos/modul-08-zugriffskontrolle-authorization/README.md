@@ -1,6 +1,7 @@
 # Live-Demo: Modul 08 -- Zugriffskontrolle & Authorization Services
 
-Authorization Services mit **Time Policy** und **Aggregated Policy** zeigen -- im Gegensatz zur Übung, die reine Role-Policies für `urlaubsantrag`/`admin-bereich` nutzt.
+Authorization Services mit **Time Policy** und **Aggregated Policy** zeigen -- im Gegensatz
+zur Übung, die reine Role-Policies für `urlaubsantrag`/`admin-bereich` nutzt.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -62,7 +63,8 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 - **Permissions** -- Die Verknüpfung
 - **Evaluate** -- Test-Tool
 
-> **Zeigen:** Authorization Services sind nur für Confidential Clients verfügbar. Der Tab erscheint erst nach dem Aktivieren.
+> **Zeigen:** Authorization Services sind nur für Confidential Clients verfügbar. Der Tab
+> erscheint erst nach dem Aktivieren.
 
 ---
 
@@ -103,10 +105,14 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 
 > **Zeigen:** Die Time Policy kombiniert zwei Ebenen:
 >
-> - **Start/Expire time** -- der Gesamtzeitraum, in dem die Policy aktiv ist (Pflichtfelder). Z.B. "Externer Berater darf nur bis 31.03. zugreifen."
-> - **Repeat-Felder** (Hour, Day, Month, Minute) -- wiederkehrende Einschränkungen innerhalb dieses Zeitraums. Z.B. "nur Mo-Fr 8-17 Uhr."
+> - **Start/Expire time** -- der Gesamtzeitraum, in dem die Policy aktiv ist
+>   (Pflichtfelder). Z.B. "Externer Berater darf nur bis 31.03. zugreifen."
+> - **Repeat-Felder** (Hour, Day, Month, Minute) -- wiederkehrende Einschränkungen
+>   innerhalb dieses Zeitraums. Z.B. "nur Mo-Fr 8-17 Uhr."
 >
-> Für unsere Demo setzen wir den Gesamtzeitraum bewusst weit (2025-2099) und schränken nur die Stunden ein. Das ermöglicht dynamische zeitliche Regeln, die mit reinem RBAC nicht möglich wären.
+> Für unsere Demo setzen wir den Gesamtzeitraum bewusst weit (2025-2099) und schränken nur
+> die Stunden ein. Das ermöglicht dynamische zeitliche Regeln, die mit reinem RBAC nicht
+> möglich wären.
 
 ### Schritt 3 -- Role Policy "Is Manager" erstellen
 
@@ -135,7 +141,8 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 
 3. Klicke auf **Save**
 
-> **Zeigen:** Unanimous bedeutet: **Beide** Policies müssen PERMIT liefern. Der User muss Manager sein UND es muss zwischen 8-17 Uhr sein.
+> **Zeigen:** Unanimous bedeutet: **Beide** Policies müssen PERMIT liefern. Der User muss
+> Manager sein UND es muss zwischen 8-17 Uhr sein.
 
 **Diskussionspunkte:**
 
@@ -160,7 +167,8 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 
 3. Klicke auf **Save**
 
-> **Zeigen:** Die Permission verbindet die Resource mit der Aggregated Policy. Ergebnis: "Sensitive Data" darf nur von Managern während der Arbeitszeit zugegriffen werden.
+> **Zeigen:** Die Permission verbindet die Resource mit der Aggregated Policy. Ergebnis:
+> "Sensitive Data" darf nur von Managern während der Arbeitszeit zugegriffen werden.
 
 ---
 
@@ -195,7 +203,8 @@ Nach dem Speichern erscheint der Tab **Authorization** mit:
 1. Klicke auf das Ergebnis, um die Details zu sehen
 2. Keycloak zeigt, welche Policy PERMIT und welche DENY geliefert hat
 
-> **Zeigen:** Das Evaluate-Tool ist essenziell für Debugging. Man sieht exakt, welche Policy den Zugriff blockiert -- ohne Code schreiben zu müssen.
+> **Zeigen:** Das Evaluate-Tool ist essenziell für Debugging. Man sieht exakt, welche
+> Policy den Zugriff blockiert -- ohne Code schreiben zu müssen.
 
 ### Schritt 4 -- Time Policy anpassen (Optional)
 
