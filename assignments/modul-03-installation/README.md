@@ -56,7 +56,8 @@ services:
 | `KC_DB` | Datenbanktyp (postgres) |
 | `start-dev` | Entwicklungsmodus (HTTP, kein HTTPS) |
 
-> **Hinweis:** Der `start-dev` Modus ist nur für die Entwicklung gedacht! In Produktion verwendest du `start` mit HTTPS-Konfiguration.
+> **Hinweis:** Der `start-dev` Modus ist nur für die Entwicklung gedacht! In Produktion
+> verwendest du `start` mit HTTPS-Konfiguration.
 
 ### Schritt 1.3: Container starten
 
@@ -195,13 +196,14 @@ Jeder Realm hat eine eigene Account Console für Endbenutzer. Öffne:
 
 [http://localhost:8080/realms/mustertech/account](http://localhost:8080/realms/mustertech/account)
 
-> **Hinweis:** Du kannst dich noch nicht einloggen, da wir noch keine Benutzer angelegt haben. Das machen wir im nächsten Modul!
+> **Hinweis:** Du kannst dich noch nicht einloggen, da wir noch keine Benutzer angelegt
+> haben. Das machen wir im nächsten Modul!
 
 ### Aufgabe 4.2: OIDC Discovery erkunden
 
 Öffne die OpenID Connect Discovery URL:
 
-[http://localhost:8080/realms/mustertech/.well-known/openid-configuration](http://localhost:8080/realms/mustertech/.well-known/openid-configuration)
+<http://localhost:8080/realms/mustertech/.well-known/openid-configuration>
 
 Du siehst ein JSON-Dokument mit allen Endpunkten des Realms:
 
@@ -305,6 +307,8 @@ docker compose up -d
 
 Falls du schneller fertig bist:
 
-1. **Sessions erkunden:** Unter Sessions siehst du aktive Benutzersitzungen. Melde dich ab und wieder an - was ändert sich?
+1. **Sessions erkunden:** Unter Sessions siehst du aktive Benutzersitzungen. Melde dich ab
+   und wieder an - was ändert sich?
 
-2. **Events aktivieren:** Unter Realm settings → Events kannst du Login-Events protokollieren. Aktiviere "Save events" und prüfe, ob deine Admin-Logins aufgezeichnet werden.
+2. **Events aktivieren:** Unter Realm settings → Events kannst du Login-Events protokollieren.
+   Aktiviere "Save events" und prüfe, ob deine Admin-Logins aufgezeichnet werden.

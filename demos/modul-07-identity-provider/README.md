@@ -1,6 +1,7 @@
 # Live-Demo: Modul 07 -- Identity Provider
 
-Gitea als externen OIDC Identity Provider konfigurieren und den First Login Flow erklären. Gitea läuft lokal als Container -- kein externer Account nötig.
+Gitea als externen OIDC Identity Provider konfigurieren und den First Login Flow erklären.
+Gitea läuft lokal als Container -- kein externer Account nötig.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -43,7 +44,8 @@ Das `setup.sh`-Skript hat folgende Dinge automatisch erledigt:
 
 Die Ausgabe des Skripts enthält **Client ID** und **Client Secret** -- diese brauchen wir gleich.
 
-> **Zeigen:** Gitea unter <http://localhost:3000> öffnen, als `gitea-admin` einloggen und die OAuth2-Application zeigen (Avatar oben rechts -> Settings -> Applications).
+> **Zeigen:** Gitea unter <http://localhost:3000> öffnen, als `gitea-admin` einloggen und
+> die OAuth2-Application zeigen (Avatar oben rechts -> Settings -> Applications).
 
 ---
 
@@ -70,7 +72,8 @@ Die Ausgabe des Skripts enthält **Client ID** und **Client Secret** -- diese br
 > **Hinweis -- Warum kein Discovery?**
 > Gitea's Discovery-Dokument liefert alle URLs mit `localhost:3000` (der `ROOT_URL`).
 > Die Authorization URL wird vom **Browser** aufgerufen -- `localhost` funktioniert.
-> Die Token URL wird aber **server-seitig von Keycloak** aufgerufen, und innerhalb von Docker ist `localhost` der Keycloak-Container selbst.
+> Die Token URL wird aber **server-seitig von Keycloak** aufgerufen, und innerhalb von
+> Docker ist `localhost` der Keycloak-Container selbst.
 > Deshalb setzen wir die Token URL manuell auf `http://demo-gitea:3000/...` (Docker-Netzwerkname).
 
 ### Schritt 2 -- Redirect URI prüfen
@@ -123,7 +126,8 @@ Diese wurde bereits beim Erstellen der OAuth2-App in Gitea hinterlegt.
 2. **Users** -> Suche den neuen User
 3. Öffne den User -> Tab **Identity provider links**
 
-> **Zeigen:** Der User hat einen **Identity Provider Link** zu Gitea. Bei zukünftigen Logins wird er automatisch verbunden -- ohne erneute Profil-Bestätigung.
+> **Zeigen:** Der User hat einen **Identity Provider Link** zu Gitea. Bei zukünftigen
+> Logins wird er automatisch verbunden -- ohne erneute Profil-Bestätigung.
 
 **Diskussionspunkte:**
 

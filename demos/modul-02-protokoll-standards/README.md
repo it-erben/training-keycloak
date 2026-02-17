@@ -48,10 +48,15 @@ http://localhost:9090/realms/demo/.well-known/openid-configuration
 
 ### Schritt 2 — Authorization Request (Browser)
 
-Auth-URL manuell im Browser aufrufen (PKCE-Werte sind Beispiele):
+Auth-URL manuell im Browser aufrufen (PKCE-Werte sind Beispiele). Die URL ist umbrochen,
+bitte beim Kopieren die Zeilen zusammenfügen:
 
 ```text
-http://localhost:9090/realms/demo/protocol/openid-connect/auth?response_type=code&client_id=demo-spa&redirect_uri=https%3A%2F%2Foauth.pstmn.io%2Fv1%2Fcallback&scope=openid%20profile%20email&state=demo123&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256
+http://localhost:9090/realms/demo/protocol/openid-connect/auth?response_type=code&
+client_id=demo-spa&redirect_uri=https%3A%2F%2Foauth.pstmn.io%2Fv1%2Fcallback&
+scope=openid%20profile%20email&state=demo123&
+code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&
+code_challenge_method=S256
 ```
 
 > **Hinweis:** Der `code_challenge` oben passt zum `code_verifier`
