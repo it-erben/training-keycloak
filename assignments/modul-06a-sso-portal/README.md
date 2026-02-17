@@ -23,9 +23,13 @@ cd assignments/modul-06a-sso-portal
 docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe [Troubleshooting](#container-name-konflikt).
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
+> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+> [Troubleshooting](#container-name-konflikt).
 
-Warte bis Keycloak und das Portal-Frontend bereit sind (~60 Sekunden). Der Realm "mustertech" wird automatisch importiert mit allen Benutzern, Rollen und dem Custom Auth Flow aus den vorherigen Modulen.
+Warte bis Keycloak und das Portal-Frontend bereit sind (~60 Sekunden). Der Realm "mustertech"
+wird automatisch importiert mit allen Benutzern, Rollen und dem Custom Auth Flow aus den
+vorherigen Modulen.
 
 ---
 
@@ -168,16 +172,17 @@ export const oidcConfig: UserManagerSettings = {
 };
 ```
 
-| Eigenschaft                | Bedeutung                                                                                                                                     |
-|:---------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------|
-| `authority`                | URL des Keycloak-Realms - die Bibliothek lädt automatisch die OIDC-Discovery-Konfiguration von `{authority}/.well-known/openid-configuration` |
-| `client_id`                | Die Client-ID, die wir in Teil 1 in Keycloak angelegt haben                                                                                   |
-| `redirect_uri`             | Wohin Keycloak nach dem Login zurückleiten soll                                                                                               |
-| `post_logout_redirect_uri` | Wohin Keycloak nach dem Logout zurückleiten soll                                                                                              |
-| `response_type`            | `code` = Authorization Code Flow (empfohlen für SPAs)                                                                                         |
-| `scope`                    | Welche Informationen wir anfordern: OpenID-Standard, Profilname, E-Mail                                                                       |
-| `automaticSilentRenew`     | Tokens werden automatisch im Hintergrund erneuert, bevor sie ablaufen                                                                         |
-| `userStore`                | Speichert die Session im `localStorage` des Browsers (überlebt Seiten-Neuladen)                                                               |
+**Eigenschaften:**
+
+- `authority`: URL des Keycloak-Realms. Die Bibliothek lädt automatisch die
+  OIDC-Discovery-Konfiguration von `{authority}/.well-known/openid-configuration`.
+- `client_id`: Die Client-ID, die wir in Teil 1 in Keycloak angelegt haben.
+- `redirect_uri`: Wohin Keycloak nach dem Login zurückleiten soll.
+- `post_logout_redirect_uri`: Wohin Keycloak nach dem Logout zurückleiten soll.
+- `response_type`: `code` = Authorization Code Flow (empfohlen für SPAs).
+- `scope`: Welche Informationen wir anfordern: OpenID-Standard, Profilname, E-Mail.
+- `automaticSilentRenew`: Tokens werden automatisch im Hintergrund erneuert, bevor sie ablaufen.
+- `userStore`: Speichert die Session im `localStorage` des Browsers (überlebt Seiten-Neuladen).
 
 Die Werte für `keycloakUrl`, `realm` und `clientId` kommen aus Umgebungsvariablen
 (`import.meta.env.VITE_*`). Das Präfix `VITE_` ist eine Vite-Konvention: nur Variablen
@@ -287,7 +292,8 @@ Keycloak zu erreichen ist.
 
 ### Schritt 3.2: Docker-Compose prüfen
 
-Betrachte den `assignment-portal` Service in der `docker-compose.yml` dieses Verzeichnisses. Das Portal-Frontend ist bereits konfiguriert und wird automatisch gebaut und gestartet.
+Betrachte den `assignment-portal` Service in der `docker-compose.yml` dieses Verzeichnisses.
+Das Portal-Frontend ist bereits konfiguriert und wird automatisch gebaut und gestartet.
 
 ---
 

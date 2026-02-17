@@ -69,11 +69,11 @@ section {
 
 ## 2.1 LDAP-Konzepte
 
-| Begriff                     | Bedeutung                                           | Beispiel                              |
-|-----------------------------|-----------------------------------------------------|---------------------------------------|
-| **Verzeichnisdienst**       | Hierarchische Datenbank für Benutzer, Gruppen, etc. | Active Directory                      |
-| **DN** (Distinguished Name) | Eindeutiger Pfad zu einem Eintrag                   | `cn=alice,ou=Users,dc=example,dc=com` |
-| **Attribut**                | Eigenschaft eines Eintrags                          | `mail`, `cn`, `memberOf`              |
+| Begriff | Bedeutung | Beispiel |
+| --- | --- | --- |
+| **Verzeichnisdienst** | Hierarchische Datenbank für Benutzer und Gruppen | Active Directory |
+| **DN** (Distinguished Name) | Eindeutiger Pfad zu einem Eintrag | `cn=alice,ou=Users,dc=example,dc=com` |
+| **Attribut** | Eigenschaft eines Eintrags | `mail`, `cn`, `memberOf` |
 
 > **Merksatz:** LDAP ist wie ein Telefonbuch für Unternehmen – strukturiert nach Abteilungen und Personen.
 

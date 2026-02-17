@@ -113,7 +113,8 @@ docker compose ps
 2. Setze **Require SSL** auf **None**
 3. Klicke auf **Save**
 
-> **Zeigen:** In Produktion wäre hier "External requests" oder "All requests" richtig. Für unseren lokalen Dev-Modus schalten wir die SSL-Pflicht ab.
+> **Zeigen:** In Produktion wäre hier "External requests" oder "All requests" richtig.
+> Für unseren lokalen Dev-Modus schalten wir die SSL-Pflicht ab.
 
 ### Schritt 3 -- Display Name setzen
 

@@ -1,6 +1,7 @@
 # Live-Demo: Modul 05 -- Authentifizierung & MFA
 
-Den Browser-Flow duplizieren und OTP für **alle User** erzwingen (Required statt Conditional) -- im Gegensatz zur Übung, die Conditional OTP nach Rolle konfiguriert.
+Den Browser-Flow duplizieren und OTP für **alle User** erzwingen (Required statt
+Conditional) -- im Gegensatz zur Übung, die Conditional OTP nach Rolle konfiguriert.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -46,13 +47,15 @@ Built-in Flows sollten nie direkt editiert werden -- deshalb duplizieren wir zue
 2. Gib als Name ein: `Browser mit MFA`
 3. Klicke auf **Duplicate**
 
-> **Zeigen:** Der duplizierte Flow hat dieselbe Struktur wie das Original. Built-in Flows sind schreibgeschützt -- Duplikate können frei bearbeitet werden.
+> **Zeigen:** Der duplizierte Flow hat dieselbe Struktur wie das Original. Built-in Flows
+> sind schreibgeschützt -- Duplikate können frei bearbeitet werden.
 
 ---
 
 ## Demo 2: OTP auf Required setzen
 
-In der Übung werden die Teilnehmer *Conditional OTP* (nur für Admins) konfigurieren. Hier zeigen wir den Unterschied: **OTP für jeden User erzwingen**.
+In der Übung werden die Teilnehmer *Conditional OTP* (nur für Admins) konfigurieren. Hier
+zeigen wir den Unterschied: **OTP für jeden User erzwingen**.
 
 ### Schritt 1 -- Flow-Struktur analysieren
 
@@ -133,7 +136,8 @@ Der neue Flow muss als aktiver Browser-Flow gesetzt werden.
 2. Gib den 6-stelligen Code ein
 3. Klicke auf **Submit**
 
-> **Zeigen:** Jeder User -- unabhängig von seiner Rolle -- muss jetzt OTP einrichten. Das ist der Unterschied zur Übung, wo nur Admins OTP brauchen.
+> **Zeigen:** Jeder User -- unabhängig von seiner Rolle -- muss jetzt OTP einrichten. Das
+> ist der Unterschied zur Übung, wo nur Admins OTP brauchen.
 
 ### Schritt 4 -- Re-Login testen
 

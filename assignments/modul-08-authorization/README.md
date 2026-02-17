@@ -24,9 +24,13 @@ cd assignments/modul-08-authorization
 docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe [Troubleshooting](#container-name-konflikt).
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
+> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+> [Troubleshooting](#container-name-konflikt).
 
-Warte bis Keycloak, Portal-Frontend und Portal-API bereit sind (~60 Sekunden). Der Realm "mustertech" wird automatisch importiert mit allen Clients und Konfigurationen aus den vorherigen Modulen.
+Warte bis Keycloak, Portal-Frontend und Portal-API bereit sind (~60 Sekunden). Der Realm
+"mustertech" wird automatisch importiert mit allen Clients und Konfigurationen aus den
+vorherigen Modulen.
 
 ---
 
@@ -148,14 +152,15 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 | Policies | `Mitarbeiter Policy` |
 | Decision strategy | Unanimous |
 
-> **Decision Strategy** bestimmt, wie Keycloak mehrere Policies einer Permission
-> auswertet:
+> **Decision Strategy** bestimmt, wie Keycloak mehrere Policies einer Permission auswertet:
 >
-> | Strategy | Bedeutung |
-> | :--------- | :---------- |
-> | **Unanimous** | **Alle** zugeordneten Policies müssen PERMIT liefern. Verweigert eine einzige Policy, wird der Zugriff abgelehnt. Strengste Variante -- sinnvoll, wenn jede Bedingung zwingend erfüllt sein muss. |
-> | **Affirmative** | **Mindestens eine** Policy muss PERMIT liefern. Sobald eine Policy zustimmt, wird der Zugriff gewährt -- auch wenn andere Policies DENY liefern. |
-> | **Consensus** | Die **Mehrheit** entscheidet. Liefern mehr Policies PERMIT als DENY, wird der Zugriff gewährt. Bei Gleichstand wird abgelehnt. |
+> - **Unanimous:** **Alle** zugeordneten Policies müssen PERMIT liefern. Verweigert
+>   eine einzige Policy, wird der Zugriff abgelehnt. Strengste Variante -- sinnvoll,
+>   wenn jede Bedingung zwingend erfüllt sein muss.
+> - **Affirmative:** **Mindestens eine** Policy muss PERMIT liefern. Sobald eine Policy
+>   zustimmt, wird der Zugriff gewährt -- auch wenn andere Policies DENY liefern.
+> - **Consensus:** Die **Mehrheit** entscheidet. Liefern mehr Policies PERMIT als DENY,
+>   wird der Zugriff gewährt. Bei Gleichstand wird abgelehnt.
 >
 > Bei nur einer Policy pro Permission verhalten sich alle drei Strategien identisch.
 
@@ -204,7 +209,9 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 
 ## Teil 7: API Integration -- Permissions im Portal testen
 
-Bisher haben wir Permissions nur im **Evaluate-Tool** der Admin-Konsole getestet. Jetzt schalten wir die echte Integration ein: Die Portal-API fragt Keycloak bei jedem Request, ob der User die nötige Permission besitzt.
+Bisher haben wir Permissions nur im **Evaluate-Tool** der Admin-Konsole getestet. Jetzt
+schalten wir die echte Integration ein: Die Portal-API fragt Keycloak bei jedem Request, ob
+der User die nötige Permission besitzt.
 
 ### Hintergrund: UMA-Ticket-Grant
 
@@ -225,7 +232,8 @@ User -> API -> Keycloak Authorization Endpoint
        API: 200 OK / 403 Forbidden
 ```
 
-Der Vorteil: **Die API kennt keine Rollen mehr.** Ob ein User zugreifen darf, entscheidet allein Keycloak -- zentral, konfigurierbar, ohne Code-Änderung.
+Der Vorteil: **Die API kennt keine Rollen mehr.** Ob ein User zugreifen darf, entscheidet
+allein Keycloak -- zentral, konfigurierbar, ohne Code-Änderung.
 
 ### Schritt 7.1: Authorization in docker-compose.yml aktivieren
 

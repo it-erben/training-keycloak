@@ -25,7 +25,9 @@ cd assignments/modul-04-benutzerverwaltung
 docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe [Troubleshooting](#container-name-konflikt).
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
+> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+> [Troubleshooting](#container-name-konflikt).
 
 Warte bis Keycloak bereit ist (~30 Sekunden). Der Realm "mustertech" wird automatisch importiert.
 
@@ -84,7 +86,8 @@ admin
 
 ## Teil 2: Gruppen erstellen
 
-Gruppen repräsentieren die Organisationsstruktur. User können Gruppen zugewiesen werden und erben deren Attribute und Rollen.
+Gruppen repräsentieren die Organisationsstruktur. User können Gruppen zugewiesen werden und
+erben deren Attribute und Rollen.
 
 ### Schritt 2.1: Zu Groups navigieren
 
@@ -260,7 +263,8 @@ Erstelle analog zwei weitere User:
 
 **Frage:** Siehst du das Attribut `abteilung` vom User oder von der Gruppe?
 
-> **Antwort:** Gruppen-Attribute werden nicht direkt beim User angezeigt, sondern erst zur Laufzeit aufgelöst (z.B. im Token).
+> **Antwort:** Gruppen-Attribute werden nicht direkt beim User angezeigt, sondern erst zur
+> Laufzeit aufgelöst (z.B. im Token).
 
 ### Aufgabe 4.3: Login testen
 
@@ -381,4 +385,5 @@ Danach kannst du die aktuelle Übung normal starten.
 
 ### Attribut fehlt im Token
 
-**Hinweis:** Gruppen-Attribute erscheinen nicht automatisch im Token. Dafür benötigst du einen **Protocol Mapper** (wird im Slide-Modul 04 behandelt).
+**Hinweis:** Gruppen-Attribute erscheinen nicht automatisch im Token. Dafür benötigst du einen
+**Protocol Mapper** (wird im Slide-Modul 04 behandelt).

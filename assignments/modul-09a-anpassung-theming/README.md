@@ -25,9 +25,13 @@ cd assignments/modul-09a-anpassung-theming
 docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe [Troubleshooting](#container-name-konflikt).
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
+> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+> [Troubleshooting](#container-name-konflikt).
 
-Warte bis Keycloak, Portal-Frontend und Mailpit bereit sind (~60 Sekunden). Der Realm "mustertech" wird automatisch importiert mit allen Clients und Authorization Services aus den vorherigen Modulen.
+Warte bis Keycloak, Portal-Frontend und Mailpit bereit sind (~60 Sekunden). Der Realm
+"mustertech" wird automatisch importiert mit allen Clients und Authorization Services aus den
+vorherigen Modulen.
 
 ---
 
@@ -90,9 +94,14 @@ import=common/keycloak
 styles=css/styles.css css/mustertech.css
 ```
 
-- **`parent=keycloak.v2`** -- Das Theme erbt von `keycloak.v2`, dem neuen Standard-Theme ab Keycloak 26. Dieses basiert auf PatternFly v5 (CSS-Klassen `pf-v5-c-*`). Das ältere `keycloak`-Parent nutzt noch PatternFly 3/4 und ist veraltet.
+- **`parent=keycloak.v2`** -- Das Theme erbt von `keycloak.v2`, dem neuen Standard-Theme ab
+  Keycloak 26. Dieses basiert auf PatternFly v5 (CSS-Klassen `pf-v5-c-*`). Das ältere
+  `keycloak`-Parent nutzt noch PatternFly 3/4 und ist veraltet.
 - **`import=common/keycloak`** -- Importiert gemeinsame Ressourcen (Fonts, Icons) aus dem `common`-Theme.
-- **`styles=...`** -- Definiert die CSS-Dateien, die geladen werden. `css/styles.css` stammt aus dem Parent-Theme (`keycloak.v2`), `css/mustertech.css` ist unsere eigene Datei mit den Mustertech-Anpassungen. Die Reihenfolge ist wichtig: unsere Datei kommt zuletzt und überschreibt damit die Standard-Styles.
+- **`styles=...`** -- Definiert die CSS-Dateien, die geladen werden. `css/styles.css` stammt
+  aus dem Parent-Theme (`keycloak.v2`), `css/mustertech.css` ist unsere eigene Datei mit den
+  Mustertech-Anpassungen. Die Reihenfolge ist wichtig: unsere Datei kommt zuletzt und
+  überschreibt damit die Standard-Styles.
 
 ### `login/resources/css/mustertech.css`
 
@@ -108,15 +117,23 @@ styles=css/styles.css css/mustertech.css
 }
 ```
 
-Keycloak 26 nutzt [PatternFly v5](https://www.patternfly.org/) als CSS-Framework. Über CSS Custom Properties (`--pf-v5-global--primary-color--*`) lassen sich die Primärfarben global ändern, ohne einzelne Komponenten überschreiben zu müssen. Der Hintergrund wird über `.login-pf body` gesetzt -- wichtig ist hier der Selektor mit `body` als Kindelement, da das Standard-Theme den Hintergrund auf dem `<body>` innerhalb von `.login-pf` definiert. Zusätzlich werden in der Datei Styles für Login-Container, Buttons, Links und den Header definiert -- alle mit den PF5-Selektoren (`.pf-v5-c-button`, `.pf-v5-c-login__main` etc.).
+Keycloak 26 nutzt [PatternFly v5](https://www.patternfly.org/) als CSS-Framework. Über CSS
+Custom Properties (`--pf-v5-global--primary-color--*`) lassen sich die Primärfarben global
+ändern, ohne einzelne Komponenten überschreiben zu müssen. Der Hintergrund wird über
+`.login-pf body` gesetzt -- wichtig ist hier der Selektor mit `body` als Kindelement, da das
+Standard-Theme den Hintergrund auf dem `<body>` innerhalb von `.login-pf` definiert.
+Zusätzlich werden in der Datei Styles für Login-Container, Buttons, Links und den Header
+definiert -- alle mit den PF5-Selektoren (`.pf-v5-c-button`, `.pf-v5-c-login__main` etc.).
 
 ### `login/resources/img/bg.png`
 
-Das Hintergrundbild für die Login-Seite. Wird in `mustertech.css` über den Selektor `.login-pf body` referenziert und ersetzt das Standard-Hintergrundbild von Keycloak.
+Das Hintergrundbild für die Login-Seite. Wird in `mustertech.css` über den Selektor
+`.login-pf body` referenziert und ersetzt das Standard-Hintergrundbild von Keycloak.
 
 ### `login/resources/img/logo.png`
 
-Das Firmenlogo der Mustertech GmbH. Keycloak zeigt es automatisch auf der Login-Seite an, da der Pfad `resources/img/` dem Standard-Theme-Verzeichnis für Bilder entspricht.
+Das Firmenlogo der Mustertech GmbH. Keycloak zeigt es automatisch auf der Login-Seite an,
+da der Pfad `resources/img/` dem Standard-Theme-Verzeichnis für Bilder entspricht.
 
 ### `login/messages/messages_de.properties`
 
@@ -126,7 +143,10 @@ doLogIn=Anmelden
 doRegister=Registrieren
 ```
 
-Überschreibt die Standard-Texte mit deutschen Bezeichnungen. Die Property-Keys (`loginTitle`, `doLogIn`, etc.) sind von Keycloak vorgegeben -- das Theme ersetzt nur die Werte. Alle Keys, die hier nicht definiert sind, fallen auf die Defaults des Parent-Themes zurück.
+Überschreibt die Standard-Texte mit deutschen Bezeichnungen. Die Property-Keys
+(`loginTitle`, `doLogIn`, etc.) sind von Keycloak vorgegeben -- das Theme ersetzt nur die
+Werte. Alle Keys, die hier nicht definiert sind, fallen auf die Defaults des Parent-Themes
+zurück.
 
 ### `email/theme.properties`
 
@@ -134,15 +154,20 @@ doRegister=Registrieren
 parent=keycloak
 ```
 
-Erbt alle E-Mail-Templates vom `keycloak`-Theme. Nur die Templates, die wir im `html/`- und `text/`-Verzeichnis überschreiben, werden durch unsere Version ersetzt.
+Erbt alle E-Mail-Templates vom `keycloak`-Theme. Nur die Templates, die wir im `html/`- und
+`text/`-Verzeichnis überschreiben, werden durch unsere Version ersetzt.
 
 ### `email/html/template.ftl`
 
-Überschreibt den Basis-Wrapper für **alle** HTML-E-Mails. Enthält den Mustertech-Header (blau mit Firmenname), ein sauberes responsives Layout und den Footer mit Firmenadresse. Einzelne E-Mail-Templates (z.B. `password-reset.ftl`) setzen die Variable `body` und inkludieren dann dieses Template.
+Überschreibt den Basis-Wrapper für **alle** HTML-E-Mails. Enthält den Mustertech-Header
+(blau mit Firmenname), ein sauberes responsives Layout und den Footer mit Firmenadresse.
+Einzelne E-Mail-Templates (z.B. `password-reset.ftl`) setzen die Variable `body` und
+inkludieren dann dieses Template.
 
 ### `email/html/password-reset.ftl` und `email/text/password-reset.ftl`
 
-Passwort-Reset-E-Mail in HTML- und Text-Version. Die HTML-Version nutzt den `template.ftl`-Wrapper und enthält einen gestylten Button-Link.
+Passwort-Reset-E-Mail in HTML- und Text-Version. Die HTML-Version nutzt den
+`template.ftl`-Wrapper und enthält einen gestylten Button-Link.
 
 ---
 
@@ -186,7 +211,8 @@ Das Theme-Verzeichnis wird als Read-Only-Volume in den Keycloak-Container gemoun
 
 ## Teil 5: SMTP-Server einrichten (Mailpit)
 
-Um E-Mails lokal testen zu können, verwenden wir **Mailpit** -- einen lokalen SMTP-Server mit Web-Oberfläche, der alle E-Mails abfängt und anzeigt, ohne sie wirklich zu versenden.
+Um E-Mails lokal testen zu können, verwenden wir **Mailpit** -- einen lokalen SMTP-Server
+mit Web-Oberfläche, der alle E-Mails abfängt und anzeigt, ohne sie wirklich zu versenden.
 
 ### Schritt 5.1: Mailpit ist bereits in docker-compose.yml
 
@@ -205,7 +231,9 @@ Die Web-UI ist unter <http://localhost:8025> erreichbar.
 
 ### Schritt 5.2: E-Mail-Adresse für den Admin-User hinterlegen
 
-"Test connection" versendet eine Test-E-Mail an den aktuell eingeloggten User. Der Keycloak-Admin-User hat standardmäßig keine E-Mail-Adresse -- deshalb muss vorher eine hinterlegt werden:
+"Test connection" versendet eine Test-E-Mail an den aktuell eingeloggten User. Der
+Keycloak-Admin-User hat standardmäßig keine E-Mail-Adresse -- deshalb muss vorher eine
+hinterlegt werden:
 
 1. Wechsle in den **master**-Realm (Dropdown oben links)
 2. Navigiere zu **Users** -> klicke auf **admin**
@@ -242,7 +270,9 @@ Die E-Mail-Templates liegen bereits fertig im Theme. Schauen wir uns den Aufbau 
 
 ### Schritt 6.1: template.ftl -- Basis-Layout
 
-Die Datei `services/keycloak/themes/mustertech/email/html/template.ftl` definiert das gemeinsame Layout für **alle** HTML-E-Mails. Einzelne E-Mail-Templates setzen die FreeMarker-Variable `body` und inkludieren dann dieses Template:
+Die Datei `services/keycloak/themes/mustertech/email/html/template.ftl` definiert das
+gemeinsame Layout für **alle** HTML-E-Mails. Einzelne E-Mail-Templates setzen die
+FreeMarker-Variable `body` und inkludieren dann dieses Template:
 
 ```html
 <!-- Auszug: Header und Body-Platzhalter -->
@@ -257,7 +287,8 @@ Die Datei `services/keycloak/themes/mustertech/email/html/template.ftl` definier
 
 ### Schritt 6.2: password-reset.ftl (HTML)
 
-Die Datei `services/keycloak/themes/mustertech/email/html/password-reset.ftl` setzt den `body` und inkludiert das Template:
+Die Datei `services/keycloak/themes/mustertech/email/html/password-reset.ftl` setzt den
+`body` und inkludiert das Template:
 
 ```html
 <#assign body>
@@ -276,7 +307,8 @@ Die Datei `services/keycloak/themes/mustertech/email/html/password-reset.ftl` se
 
 ### Schritt 6.3: password-reset.ftl (Text)
 
-Die Plain-Text-Version unter `email/text/password-reset.ftl` enthält den gleichen Inhalt ohne HTML-Formatierung -- für E-Mail-Clients, die kein HTML unterstützen.
+Die Plain-Text-Version unter `email/text/password-reset.ftl` enthält den gleichen Inhalt
+ohne HTML-Formatierung -- für E-Mail-Clients, die kein HTML unterstützen.
 
 ---
 
@@ -284,11 +316,13 @@ Die Plain-Text-Version unter `email/text/password-reset.ftl` enthält den gleich
 
 Jetzt bist du dran: Ändere einzelne Aspekte des Themes und beobachte die Auswirkungen live.
 
-> **Tipp:** Nach jeder CSS-Änderung die Seite mit **Ctrl+Shift+R** (Hard Reload) aktualisieren, damit der Browser-Cache umgangen wird.
+> **Tipp:** Nach jeder CSS-Änderung die Seite mit **Ctrl+Shift+R** (Hard Reload)
+> aktualisieren, damit der Browser-Cache umgangen wird.
 
 ### Aufgabe 7.1: Button- und Akzentfarbe ändern
 
-Die auffälligsten Elemente auf der Login-Seite sind der **Anmelde-Button** und der **farbige Akzent-Strich** am oberen Rand des Login-Containers.
+Die auffälligsten Elemente auf der Login-Seite sind der **Anmelde-Button** und der
+**farbige Akzent-Strich** am oberen Rand des Login-Containers.
 
 1. Öffne `../services/keycloak/themes/mustertech/login/resources/css/mustertech.css`
 2. Ändere die Button-Farbe -- zum Beispiel auf Grün:
@@ -317,7 +351,8 @@ Die auffälligsten Elemente auf der Login-Seite sind der **Anmelde-Button** und 
 
 4. Lade die Login-Seite neu -- der Button und der Akzent-Strich sollten jetzt grün sein
 
-**Frage:** Welche weiteren Stellen müsste man anpassen, um ein durchgängig grünes Farbschema zu bekommen?
+**Frage:** Welche weiteren Stellen müsste man anpassen, um ein durchgängig grünes
+Farbschema zu bekommen?
 
 ### Aufgabe 7.2: Login-Titel-Farbe und Schriftgröße anpassen
 
@@ -404,7 +439,8 @@ Baue einen dunklen Login-Bildschirm:
 }
 ```
 
-**Frage:** Welche Elemente musst du noch anpassen, damit der Dark Mode konsistent aussieht? (Tipp: Input-Felder, Labels, Footer)
+**Frage:** Welche Elemente musst du noch anpassen, damit der Dark Mode konsistent
+aussieht? (Tipp: Input-Felder, Labels, Footer)
 
 ---
 
@@ -455,7 +491,9 @@ Danach kannst du die aktuelle Übung normal starten.
 
 - Browser-Cache leeren (Ctrl+Shift+R)
 - Inkognito-Fenster verwenden
-- Das Theme-Caching ist in dieser Übung bereits deaktiviert (`--spi-theme-cache-themes=false` in docker-compose.yml). Falls die Änderungen trotzdem nicht sichtbar sind, Keycloak neu starten: `docker compose restart assignment-keycloak`
+- Das Theme-Caching ist in dieser Übung bereits deaktiviert
+  (`--spi-theme-cache-themes=false` in docker-compose.yml). Falls die Änderungen trotzdem
+  nicht sichtbar sind, Keycloak neu starten: `docker compose restart assignment-keycloak`
 
 ### E-Mails werden nicht gesendet
 
