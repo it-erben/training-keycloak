@@ -100,6 +100,8 @@ assignments/
 
 ## Hilfe bei Problemen
 
+Zentrale Sammlung: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+
 ### Container starten nicht
 
 ```bash

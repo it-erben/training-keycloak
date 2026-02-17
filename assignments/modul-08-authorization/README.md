@@ -26,7 +26,7 @@ docker compose up -d
 
 > **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
 > mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
-> [Troubleshooting](#container-name-konflikt).
+> [Troubleshooting](../TROUBLESHOOTING.md#container-name-konflikt).
 
 Warte bis Keycloak, Portal-Frontend und Portal-API bereit sind (~60 Sekunden). Der Realm
 "mustertech" wird automatisch importiert mit allen Clients und Konfigurationen aus den
@@ -240,7 +240,8 @@ allein Keycloak -- zentral, konfigurierbar, ohne Code-Änderung.
 Die Portal-API enthält bereits eine `requirePermission()`-Middleware, die per Umgebungsvariable aktiviert wird.
 
 1. Öffne die `docker-compose.yml` in diesem Verzeichnis
-2. Füge beim Service **assignment-api** eine Zeile hinzu:
+2. Prüfe beim Service **assignment-api**, dass folgende Zeile vorhanden und auf `true` gesetzt ist
+   (in diesem Modul bereits vorkonfiguriert):
 
 ```yaml
   assignment-api:
@@ -250,7 +251,7 @@ Die Portal-API enthält bereits eine `requirePermission()`-Middleware, die per U
       - VITE_KEYCLOAK_URL=http://assignment-keycloak:8080
       - KEYCLOAK_PUBLIC_URL=http://localhost:8080
       - VITE_KEYCLOAK_REALM=mustertech
-      - AUTHORIZATION_ENABLED=true          # <- diese Zeile hinzufügen
+      - AUTHORIZATION_ENABLED=true          # <- muss gesetzt sein
 ```
 
 ### Schritt 7.2: API neu starten
@@ -302,21 +303,4 @@ Du hast erfolgreich:
 
 ### Container-Name-Konflikt
 
-**Symptom:** Beim Start erscheint ein Fehler wie:
-
-```
-Error response from daemon: Conflict. The container name "/assignment-postgres" is already
-in use by container "...". You have to remove (or rename) that container to be able to
-reuse that name.
-```
-
-**Ursache:** Die Container einer vorherigen Übung laufen noch oder wurden nicht vollständig entfernt.
-
-**Lösung:** Wechsle in das Verzeichnis der vorherigen Übung und räume dort auf:
-
-```bash
-cd assignments/<vorherige-uebung>
-docker compose down -v
-```
-
-Danach kannst du die aktuelle Übung normal starten.
+Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
