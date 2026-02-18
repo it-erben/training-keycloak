@@ -1,4 +1,4 @@
-# Modul 09a: Anpassung -- Theming
+# Modul 09a: Anpassung - Theming
 
 ## Übungsziel
 
@@ -200,12 +200,18 @@ Das Theme-Verzeichnis wird als Read-Only-Volume in den Keycloak-Container gemoun
 
 3. Klicke auf **Save**
 
+![Realm Themes Einstellungen](screenshots/01-realm-themes-settings.png)
+
+![Realm Themes mit Mustertech ausgewählt](screenshots/02-realm-themes-mustertech.png)
+
 ### Schritt 4.2: Theme testen
 
 1. Öffne ein Inkognito-Fenster
 2. Gehe zu: <http://localhost:5173>
 3. Klicke auf "Anmelden mit Keycloak"
 4. Die Login-Seite sollte das neue Design zeigen
+
+![Login-Seite mit Mustertech Theme](screenshots/03-login-page-themed.png)
 
 ---
 
@@ -243,6 +249,8 @@ hinterlegt werden:
 
 ### Schritt 5.3: SMTP in Keycloak konfigurieren
 
+![Realm E-Mail Einstellungen](screenshots/04-realm-email-settings.png)
+
 1. Admin-Konsole -> **Realm settings** -> **Email**
 2. Konfiguriere:
 
@@ -253,7 +261,12 @@ hinterlegt werden:
 | Port     | `1025`                      |
 
 3. Klicke auf **Save**
+
+![Realm E-Mail Einstellungen konfiguriert](screenshots/05-realm-email-configured.png)
+
 4. Klicke auf **Test connection** -- in Mailpit (<http://localhost:8025>) sollte eine Test-E-Mail erscheinen
+
+![Mailpit Posteingang mit Test-E-Mail](screenshots/06-mailpit-inbox.png)
 
 ### Schritt 5.4: Passwort-Reset testen
 
@@ -261,6 +274,8 @@ hinterlegt werden:
 2. Klicke auf **Anmelden mit Keycloak** -> **Passwort vergessen?**
 3. Gib den Benutzernamen eines bestehenden Users ein
 4. Öffne <http://localhost:8025> -- die Passwort-Reset-E-Mail sollte mit dem Mustertech-Design erscheinen
+
+![Passwort-Reset Seite](screenshots/07-password-reset-page.png)
 
 ---
 
@@ -453,8 +468,6 @@ Du hast erfolgreich:
 - [x] Theme in Docker eingebunden
 - [x] Theme im Realm aktiviert
 - [x] E-Mail-Templates angepasst
-
-**Weiter:** Modul 09b - Admin REST API nutzen!
 
 ---
 
