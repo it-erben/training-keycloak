@@ -54,6 +54,8 @@ Nach dem Aktivieren erscheint ein neuer Tab **Authorization** mit:
 - **Policies**: Bedingungen für Zugriff
 - **Permissions**: Verknüpfung von Ressourcen, Scopes und Policies
 
+![Authorization Settings Tab](screenshots/02-authorization-settings.png)
+
 ---
 
 ## Teil 2: Ressourcen definieren
@@ -81,6 +83,8 @@ Klicke auf **Save**.
 | Type         | `urn:portal-api:resource:admin` |
 | URI          | `/api/admin/*`                  |
 
+![Ressourcen Liste mit Urlaubsantrag und Admin-Bereich](screenshots/03-resources-list.png)
+
 ---
 
 ## Teil 3: Scopes definieren
@@ -95,6 +99,8 @@ Klicke auf **Save**.
 | `view`    | Anzeigen     |
 | `create`  | Erstellen    |
 | `approve` | Genehmigen   |
+
+![Authorization Scopes Liste](screenshots/04-scopes-list.png)
 
 ### Schritt 3.2: Scopes zu Ressourcen zuweisen
 
@@ -134,6 +140,8 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 | Name | `Admin Policy` |
 | Roles | `admin` |
 | Logic | Positive |
+
+![Policies Liste mit Mitarbeiter, Manager und Admin](screenshots/05-policies-list.png)
 
 ---
 
@@ -184,6 +192,8 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 | Policies | `Admin Policy` |
 | Decision strategy | Unanimous |
 
+![Permissions Liste](screenshots/06-permissions-list.png)
+
 ---
 
 ## Teil 6: Permissions testen
@@ -195,6 +205,8 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 3. Wähle die passende Rolle (z.B. mitarbeiter)
 3. Wähle Ressource und Scope
 4. Klicke auf **Evaluate**
+
+![Authorization Evaluate Tab](screenshots/07-evaluate-tab.png)
 
 **Erwartete Ergebnisse:**
 
@@ -294,8 +306,6 @@ Du hast erfolgreich:
 - [x] Permissions erstellt und getestet
 - [x] Die API mit Keycloak Authorization Services verbunden
 - [x] Live-Änderungen an Policies ohne Code-Änderung erlebt
-
-**Nächstes Modul:** Anpassung - Theming, APIs & SPIs (Modul 09)!
 
 ---
 

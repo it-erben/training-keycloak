@@ -60,6 +60,10 @@ Erstelle analog zwei weitere Rollen:
 | `manager` | Manager mit erweiterten Rechten (z.B. Urlaubsgenehmigung) |
 | `admin`   | Administrator mit vollen Zugriffsrechten                  |
 
+**Erwartetes Ergebnis:**
+
+![Realm Roles Liste](screenshots/01-realm-roles-liste.png)
+
 ### Schritt 1.4: Rollen-Hierarchie einrichten (Composite Roles)
 
 Manager sollten automatisch auch Mitarbeiter-Rechte haben. Wir machen `manager` zu einer **Composite Role**:
@@ -70,9 +74,13 @@ Manager sollten automatisch auch Mitarbeiter-Rechte haben. Wir machen `manager` 
 5. Aktiviere **mitarbeiter**
 6. Klicke auf **Assign**
 
+![Composite Role Manager](screenshots/02-composite-role-manager.png)
+
 Wiederhole dies für die Rolle **admin**:
 
 - `admin` enthält `manager` (und damit auch `mitarbeiter`)
+
+![Composite Role Admin](screenshots/03-composite-role-admin.png)
 
 **Ergebnis:** Rollen-Hierarchie
 
@@ -104,6 +112,8 @@ Klicke auf **Create group** und erstelle:
 | `Vertrieb` | Sales und Kundenbetreuung |
 | `Management` | Führungskräfte |
 
+![Gruppen Liste](screenshots/04-gruppen-liste.png)
+
 ### Schritt 2.3: Rollen zu Gruppen zuweisen
 
 Jede Gruppe soll automatisch bestimmte Rollen erhalten:
@@ -124,6 +134,8 @@ Jede Gruppe soll automatisch bestimmte Rollen erhalten:
 
 - Rolle: `manager`
 
+![Gruppe Rollenzuweisung](screenshots/05-gruppe-rollenzuweisung.png)
+
 ### Schritt 2.4: Gruppen-Attribute hinzufügen
 
 Gruppen können Attribute haben, die an Mitglieder vererbt werden:
@@ -142,6 +154,8 @@ Wiederhole für die anderen Gruppen:
 | :--- | :--- | :--- |
 | Vertrieb | `abteilung` | `Vertrieb` |
 | Management | `abteilung` | `Management` |
+
+![Gruppe Attribute](screenshots/06-gruppe-attribute.png)
 
 ---
 
@@ -166,6 +180,8 @@ Gib folgende Daten ein:
 | **First name** | `Hans` |
 | **Last name** | `Müller` |
 
+![Benutzer Details](screenshots/08-benutzer-details.png)
+
 Klicke auf **Create**.
 
 ### Schritt 3.3: Passwort setzen
@@ -181,12 +197,16 @@ Nach dem Erstellen wirst du zur User-Detailseite weitergeleitet:
 4. Klicke auf **Save**
 5. Bestätige mit **Save password**
 
+![Benutzer Credentials](screenshots/09-benutzer-credentials.png)
+
 ### Schritt 3.4: User zur Gruppe hinzufügen
 
 1. Wechsle zum Tab **Groups**
 2. Klicke auf **Join Group**
 3. Wähle **Entwicklung**
 4. Klicke auf **Join**
+
+![Benutzer Gruppen](screenshots/10-benutzer-gruppen.png)
 
 ### Schritt 3.5: User-Attribute hinzufügen
 
@@ -195,6 +215,9 @@ Nach dem Erstellen wirst du zur User-Detailseite weitergeleitet:
 3. Klicke auf **Add attribute**
 4. Vergib den Namen `personalnummer` und den Display Name `${personalnummer}`
 5. Klicke auf **Save**
+
+![User Profile Einstellungen](screenshots/12-user-profile-einstellungen.png)
+
 6. Wechsle wieder zu den Einstellungen des Benutzers `hans.mueller`
 7. Füge unten hinzu:
    - **Key:** `personalnummer` | **Value:** `M-1001`
@@ -256,6 +279,8 @@ Erstelle analog zwei weitere User:
 - `mitarbeiter` (von manager geerbt)
 - `default-roles-mustertech` (Standard)
 
+![Effective Roles max.admin](screenshots/13-effective-roles-max-admin.png)
+
 ### Aufgabe 4.2: Gruppen-Attribute prüfen
 
 1. Öffne User **hans.mueller**
@@ -278,6 +303,8 @@ Teste den Login mit einem der neuen User:
 
 **Erwartetes Ergebnis:** Du siehst die Account Console mit Hans Müllers Profil.
 
+![Account Console Profil](screenshots/16-account-console-profil.png)
+
 ### Aufgabe 4.4: User-Liste prüfen
 
 Zurück in der Admin-Konsole:
@@ -286,6 +313,8 @@ Zurück in der Admin-Konsole:
 2. Klicke auf **View all users**
 
 Du solltest drei User sehen.
+
+![Benutzer Liste](screenshots/14-benutzer-liste.png)
 
 ---
 
@@ -335,8 +364,6 @@ Du hast erfolgreich:
 - [x] Rollen und Attribute zu Gruppen zugewiesen
 - [x] Drei Benutzer mit unterschiedlichen Rechten angelegt
 - [x] Login mit einem User getestet
-
-**Nächstes Modul:** Authentifizierung & MFA - Custom Flows und Conditional Authentication!
 
 ---
 

@@ -41,6 +41,9 @@ rollenbasierte Endpunkte bereitstellt. Der Code liegt fertig unter `services/por
 ### Schritt 1.1: Client in Keycloak erstellen
 
 1. Admin-Konsole → **Clients** → **Create client**
+
+![Clients Liste](screenshots/01-clients-liste.png)
+
 2. **General settings:**
 
 | Feld | Wert |
@@ -66,6 +69,8 @@ rollenbasierte Endpunkte bereitstellt. Der Code liegt fertig unter `services/por
 | Web origins | `+` (alle erlauben) |
 
 Klicke auf **Save**.
+
+![portal-api Settings](screenshots/02-portal-api-settings.png)
 
 ### Schritt 1.2: Code-Walkthrough - `../services/portal-api/src/index.ts`
 
@@ -146,7 +151,14 @@ app.get('/api/urlaubsantraege', validateToken, requireRole('mitarbeiter'), handl
 Express verarbeitet die Middlewares von links nach rechts: erst Token prüfen, dann Rolle
 prüfen, dann den eigentlichen Handler ausführen.
 
-### Schritt 1.3: Docker-Compose prüfen
+### Schritt 1.3: Client Secret notieren
+
+Wechsle zum Tab **Credentials** des `portal-api`-Clients. Hier findest du das Client Secret,
+das die API zur Authentifizierung bei Keycloak nutzt.
+
+![portal-api Credentials](screenshots/03-portal-api-credentials.png)
+
+### Schritt 1.4: Docker-Compose prüfen
 
 Betrachte den `assignment-api` Service in der `docker-compose.yml` dieses Verzeichnisses.
 Die Portal-API ist bereits konfiguriert und wird automatisch gebaut und gestartet.
@@ -156,13 +168,15 @@ Die Portal-API ist bereits konfiguriert und wird automatisch gebaut und gestarte
 > - `VITE_KEYCLOAK_URL=http://assignment-keycloak:8080` - Interne URL für JWKS-Abruf (Docker-Netzwerk)
 > - `KEYCLOAK_PUBLIC_URL=http://localhost:8080` - Öffentliche URL für Issuer-Validierung
 
-### Schritt 1.4: API testen
+### Schritt 1.5: API testen
 
 Prüfe zunächst den öffentlichen Health-Endpoint im Browser:
 
 [http://localhost:3001/api/health](http://localhost:3001/api/health)
 
 **Erwartetes Ergebnis:** `{"status":"ok","timestamp":"..."}`
+
+![API Health Check](screenshots/04-api-health.png)
 
 Teste nun einen geschützten Endpunkt. Hole dir dazu ein Access Token über den
 Direct Access Grant (Username/Password):
@@ -283,6 +297,8 @@ docker compose up --build -d assignment-portal
 
 Öffne <http://localhost:5173> und melde dich an.
 
+![Portal eingeloggt](screenshots/05-portal-logged-in.png)
+
 **Test als `hans.mueller` (Rolle: mitarbeiter):**
 
 | Button | Erwartetes Ergebnis |
@@ -291,6 +307,8 @@ docker compose up --build -d assignment-portal
 | Meine Urlaubsanträge | Liste mit 2 Urlaubsanträgen |
 | Alle Anträge (Manager) | **Fehler 403** - Role 'manager' required |
 | Admin Stats | **Fehler 403** - Role 'admin' required |
+
+![Portal API Demo](screenshots/06-portal-api-demo.png)
 
 Melde dich ab und teste erneut:
 
@@ -332,6 +350,8 @@ Der Code liegt unter `services/management-cli/`.
 | Client ID             | `management-cli`                                            |
 | Client authentication | **OFF** (Public Client)                                     |
 | Authentication flow   | ☐ Standard flow, ☑ **OAuth 2.0 Device Authorization Grant** |
+
+![management-cli Settings](screenshots/07-management-cli-settings.png)
 
 ### Schritt 3.2: Code-Walkthrough - `../services/management-cli/src/index.ts`
 
@@ -421,6 +441,8 @@ Der Code liegt unter `services/sync-service/`.
 | Client authentication | **ON** (Confidential) |
 | Authentication flow | ☐ Standard flow, ☑ **Service accounts roles** |
 
+![sync-service Settings](screenshots/08-sync-service-settings.png)
+
 ### Schritt 4.2: Service Account Rollen zuweisen
 
 Der Service Account braucht die Berechtigung, Benutzer zu lesen:
@@ -432,10 +454,15 @@ Der Service Account braucht die Berechtigung, Benutzer zu lesen:
 5. Wähle **view-users**
 6. Klicke auf **Assign**
 
+![sync-service Service Account Roles](screenshots/10-sync-service-account-roles.png)
+
 ### Schritt 4.3: Client Secret konfigurieren
 
 1. Gehe zum Tab **Credentials** des `sync-service`-Clients
 2. Kopiere das **Client secret**
+
+![sync-service Credentials](screenshots/09-sync-service-credentials.png)
+
 3. Kopiere die Datei `.env.example` zu `.env` und trage dein Secret in die Datei ein.
 
 ```bash
@@ -515,15 +542,6 @@ Du hast erfolgreich:
 - [x] Management-CLI mit Device Flow getestet
 - [x] Sync-Service mit Client Credentials getestet
 - [x] Rollenbasierte Zugriffskontrolle über die API verifiziert
-
-**Client-Übersicht:**
-
-| Client          | Typ          | Flow                       | Zweck              |
-|:----------------|:-------------|:---------------------------|:-------------------|
-| portal-frontend | Public       | Auth Code + PKCE           | SPA im Browser     |
-| portal-api      | Confidential | Token-Validierung via JWKS | Backend-API        |
-| management-cli  | Public       | Device Flow                | CLI ohne Browser   |
-| sync-service    | Confidential | Client Credentials         | Machine-to-Machine |
 
 ---
 
