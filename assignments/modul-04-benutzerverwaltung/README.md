@@ -215,14 +215,15 @@ Nach dem Erstellen wirst du zur User-Detailseite weitergeleitet:
 2. Gehe weit rechts zum Tab **User Profile**
 3. Klicke auf **Add attribute**
 4. Vergib den Namen `personalnummer` und den Display Name `${personalnummer}`
-5. Klicke auf **Save**
+5. Setze den Haken bei "Who can view -> User"
+6. Klicke auf **Save**
 
 ![User Profile Einstellungen](screenshots/12-user-profile-einstellungen.png)
 
-6. Wechsle wieder zu den Einstellungen des Benutzers `hans.mueller`
-7. Füge unten hinzu:
+7. Wechsle wieder zu den Einstellungen des Benutzers `hans.mueller`
+8. Füge unten hinzu:
    - **Key:** `personalnummer` | **Value:** `M-1001`
-8. Klicke auf **Save**
+9. Klicke auf **Save**
 
 ### Schritt 3.6: Weitere User erstellen
 
@@ -284,8 +285,7 @@ Erstelle analog zwei weitere User:
 
 ### Aufgabe 4.2: Gruppen-Attribute prüfen
 
-1. Öffne User **hans.mueller**
-2. Gehe zu **Attributes**
+Öffne User **hans.mueller**
 
 **Frage:** Siehst du das Attribut `abteilung` vom User oder von der Gruppe?
 
