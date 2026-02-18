@@ -65,6 +65,8 @@ Werte für die nächsten Schritte.
 2. Wähle den Realm **mustertech**
 3. Navigiere zu **Identity providers**
 
+![Identity Providers Übersicht (leer)](screenshots/01-identity-providers-leer.png)
+
 ### Schritt 1.2: OpenID Connect v1.0 auswählen
 
 Gitea ist kein vorgefertigter Social Provider wie z.B. Google oder Facebook. Stattdessen wird
@@ -90,6 +92,8 @@ Gib folgende Werte ein:
 
 Klicke auf **Add**.
 
+![Gitea Identity Provider Einstellungen](screenshots/02-idp-gitea-settings.png)
+
 > **Warum kein Discovery?** Bei OIDC gibt es normalerweise einen Discovery-Endpoint
 > (`.well-known/openid-configuration`), der alle URLs automatisch liefert. Das Problem:
 > Der Browser erreicht Gitea unter `localhost:3000`, aber Keycloak (im Docker-Netzwerk)
@@ -105,6 +109,8 @@ Aktiviere in den **Advanced Settings** folgende Merkmale:
 | **Trust Email** | `On` |
 
 Klicke auf **Save**.
+
+![Gitea Identity Provider Advanced Settings](screenshots/03-idp-gitea-advanced.png)
 
 ### Schritt 1.4: Redirect URI prüfen
 
@@ -128,15 +134,7 @@ Wenn ein User sich zum ersten Mal über Gitea anmeldet, durchläuft er den **Fir
 2. Finde **first broker login**
 3. Analysiere die Schritte (Diagramm vereinfacht):
 
-```
-first broker login
-+-- Review Profile (REQUIRED)              -> User prüft/ergänzt Profil
-+-- User Creation Or Linking (REQUIRED)    -> User wird erstellt oder verlinkt
-    +-- Create User If Unique (ALTERNATIVE)    -> User wird erstellt wenn E-Mail/Username eindeutig
-    +-- Handle Existing Account (ALTERNATIVE)
-        +-- Confirm Link Existing Account      -> Bei E-Mail-Konflikt: Account verknüpfen?
-        +-- Verify Existing Account by Email   -> Verifikation per E-Mail
-```
+![First Broker Login Flow](screenshots/04-first-broker-login-flow.png)
 
 ### Schritt 2.2: Flow-Verhalten verstehen
 
@@ -156,6 +154,8 @@ Gitea liefert verschiedene Attribute über die User-Info, die wir in Keycloak ü
 
 1. Navigiere zu **Identity providers** -> **gitea**
 2. Wechsle zum Tab **Mappers**
+
+![Identity Provider Mappers Tab](screenshots/05-idp-mappers.png)
 
 ### Schritt 3.2: Mapper für Gitea-Username hinzufügen
 
@@ -223,6 +223,8 @@ Damit die neuen Attribute in der Admin-Konsole angezeigt werden, müssen sie im 
 
 Die Attribute erscheinen nun im User-Detail neben den bereits vorhandenen Feldern wie `personalnummer`.
 
+![User Profile Attribute Konfiguration](screenshots/06-user-profile-attributes.png)
+
 ---
 
 ## Teil 4: Social Login testen
@@ -237,6 +239,8 @@ Die Attribute erscheinen nun im User-Detail neben den bereits vorhandenen Felder
 1. Klicke auf **Anmelden mit Keycloak**
 2. Auf der Keycloak-Login-Seite siehst du jetzt **Gitea** als Option
 3. Klicke auf **Gitea**
+
+![Login-Seite mit Gitea Button](screenshots/07-login-gitea-button.png)
 
 ### Schritt 4.3: Bei Gitea autorisieren
 
@@ -253,6 +257,8 @@ Die Attribute erscheinen nun im User-Detail neben den bereits vorhandenen Felder
 1. Öffne die Admin-Konsole
 2. Navigiere zu **Users**
 3. Suche nach `alice`
+
+![Benutzerliste mit alice](screenshots/08-users-liste.png)
 
 ### Schritt 5.2: Identity Provider Links prüfen
 
@@ -316,8 +322,6 @@ Du hast erfolgreich:
 - [x] Attribute Mapping eingerichtet
 - [x] Social Login im Portal getestet
 - [x] Verknüpfte Accounts geprüft
-
-**Nächstes Modul:** Zugriffskontrolle & Authorization Services (Modul 08)!
 
 ---
 

@@ -109,7 +109,7 @@ assignment-postgres     Up (healthy)
 
 Öffne im Browser: [http://localhost:8080](http://localhost:8080)
 
-![Keycloak-Login](../images/keycloak-login.png)
+![Keycloak-Login](screenshots/01-keycloak-login.png)
 
 Gib die Zugangsdaten ein:
 
@@ -122,7 +122,7 @@ Du siehst nun die Keycloak-Startseite.
 
 Nach dem Login siehst du den **Master-Realm**. Dieser ist nur für die Verwaltung anderer Realms gedacht.
 
-![Master Realm](../images/master-realm.png)
+![Master Realm](screenshots/02-master-realm.png)
 
 #### Navigation erkunden
 
@@ -156,6 +156,8 @@ Gib folgende Werte ein:
 | **Realm name** | `mustertech` |
 | **Enabled** | ON |
 
+![Create Realm](screenshots/03-create-realm.png)
+
 Klicke auf **Create**.
 
 ### Schritt 3.3: Realm-Einstellungen prüfen
@@ -166,6 +168,8 @@ Du wirst automatisch in den neuen Realm weitergeleitet. Prüfe die Einstellungen
 
 - Display name: `Mustertech GmbH`
 - HTML Display name: `<b>Mustertech</b> GmbH`
+
+![Realm Settings General](screenshots/04-realm-settings-general.png)
 
 Klicke auf **Save**.
 
@@ -179,6 +183,8 @@ Aktiviere folgende Optionen:
 | Forgot password | ON | "Passwort vergessen" Link |
 | Remember me | ON | "Angemeldet bleiben" Option |
 | Email as username | OFF | Separater Benutzername |
+
+![Realm Settings Login](screenshots/05-realm-settings-login.png)
 
 Klicke auf **Save**.
 
@@ -196,6 +202,8 @@ Jeder Realm hat eine eigene Account Console für Endbenutzer. Öffne:
 
 [http://localhost:8080/realms/mustertech/account](http://localhost:8080/realms/mustertech/account)
 
+![Account Console](screenshots/06-account-console.png)
+
 > **Hinweis:** Du kannst dich noch nicht einloggen, da wir noch keine Benutzer angelegt
 > haben. Das machen wir im nächsten Modul!
 
@@ -206,6 +214,8 @@ Jeder Realm hat eine eigene Account Console für Endbenutzer. Öffne:
 <http://localhost:8080/realms/mustertech/.well-known/openid-configuration>
 
 Du siehst ein JSON-Dokument mit allen Endpunkten des Realms:
+
+![OIDC Discovery](screenshots/07-oidc-discovery.png)
 
 ```json
 {
@@ -232,8 +242,6 @@ Du hast erfolgreich:
 - [x] Den Realm "mustertech" angelegt
 - [x] Grundlegende Realm-Einstellungen konfiguriert
 - [x] Die OIDC Discovery URL erkundet
-
-**Nächstes Modul:** Benutzerverwaltung - Wir legen unsere ersten Mitarbeiter an!
 
 ---
 

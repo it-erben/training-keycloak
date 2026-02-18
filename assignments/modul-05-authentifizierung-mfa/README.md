@@ -5,7 +5,7 @@
 Am Ende dieser Übung hast du:
 
 - Den Standard-Browser-Flow verstanden und dupliziert
-- Einen Custom Flow mit Conditional OTP erstellt
+- Einen Custom Flow mit Conditional 2FA erstellt
 - Bedingungen für MFA basierend auf Rollen konfiguriert
 - Den Flow mit verschiedenen Usern getestet
 
@@ -44,6 +44,8 @@ importiert mit allen Benutzern und Rollen aus dem vorherigen Modul.
 
 Du siehst eine Liste vordefinierter Flows.
 
+![Authentication Flows Liste](screenshots/01-authentication-flows.png)
+
 ### Schritt 1.2: Flow-Typen verstehen
 
 Hier ist eine Auswahl der wichtigsten Flows:
@@ -61,15 +63,7 @@ Hier ist eine Auswahl der wichtigsten Flows:
 1. Klicke auf **browser**
 2. Analysiere die Struktur:
 
-```
-browser (top-level)
-├── Cookie (ALTERNATIVE)           → Prüft ob Session-Cookie vorhanden
-├── Kerberos (DISABLED)            → Enterprise Single Sign-On
-├── Identity Provider Redirector   → Redirect zu externem IdP
-└── forms (ALTERNATIVE)            → Username/Passwort Formular
-    ├── Username Password Form  (REQUIRED)
-    └── Browser Conditional OTP (CONDITIONAL)     → Nur wenn OTP konfiguriert
-```
+![Browser Flow Detail](screenshots/02-browser-flow-detail.png)
 
 **Execution-Typen:**
 
@@ -93,6 +87,8 @@ Wir erstellen einen Flow, bei dem nur Admins OTP eingeben müssen.
 3. Gib als Name ein: `browser-mustertech`
 4. Klicke auf **Duplicate**
 
+![Browser-Mustertech Flow](screenshots/03-browser-mustertech-flow.png)
+
 ### Schritt 2.2: OTP-Bedingung verstehen
 
 Der Standard-Flow hat bereits "OTP Form" als CONDITIONAL. Das bedeutet:
@@ -103,9 +99,9 @@ Wir fügen hinzu:
 
 - OTP wird auch abgefragt, **wenn der User die Rolle "admin" hat**
 
-### Schritt 2.3: Conditional OTP erweitern
+### Schritt 2.3: Conditional 2FA erweitern
 
-1. Klicke auf das **+** Symbol neben "browser-mustertech Browser - Conditional OTP"
+1. Klicke auf das **+** Symbol neben "browser-mustertech Browser - Conditional 2FA"
 2. Wähle **Add condition**
 3. Wähle **Condition - User Role**
 4. Klicke auf **Add**
@@ -127,23 +123,15 @@ Setze die Requirement-Typen:
 |:----------------------------|:----------------|
 | Condition - User Role       | **ALTERNATIVE** |
 | Condition - User Configured | **ALTERNATIVE** |
+| Condition - credential      | **ALTERNATIVE** |
+
+Der letzte Eintrag wird gesetzt, damit Passkey-Authentifizierung erkannt wird.
 
 ### Schritt 2.6: Flow-Struktur verifizieren
 
 Dein Flow sollte jetzt so aussehen:
 
-```
-browser-mustertech (top-level)
-├── Cookie                          (Alternative)
-├── Kerberos                        (Disabled)
-├── Identity Provider Redirector    (Alternative)
-└── browser-mustertech forms         (Alternative)
-    ├── Username Password Form      (Required)
-    └── OTP Conditional             (Conditional)
-        ├── Condition - User Configured  (Alternative)
-        ├── Condition - User Role        (Alternative)
-        └── OTP Form                     (Required)
-```
+![Flow Gesamtstruktur](screenshots/05-flow-full-structure.png)
 
 ---
 
@@ -156,6 +144,8 @@ browser-mustertech (top-level)
 3. Ändere **Action** -> **Bind Flow**
 4. Wähle den Binding Type **Browser Flow**
 5. Klicke auf **Save**
+
+![Bind Flow Dialog](screenshots/07-bind-flow-dialog.png)
 
 ---
 
@@ -174,6 +164,8 @@ browser-mustertech (top-level)
 - Login erfolgreich OHNE OTP-Abfrage
 - (hans.mueller hat nicht die Rolle "admin")
 
+![Login Hans Mueller](screenshots/08-login-hans-success.png)
+
 ### Test 4.2: Login als Admin (mit OTP)
 
 1. Melde dich ab
@@ -185,6 +177,8 @@ browser-mustertech (top-level)
 
 **Erwartetes Ergebnis:**
 Nach korrektem Code: Login erfolgreich
+
+![OTP Setup QR Code](screenshots/09-login-max-otp-setup.png)
 
 ---
 
@@ -211,6 +205,8 @@ Required Actions sind Aktionen, die ein User ausführen muss:
 
 Du kannst Actions als **Default** markieren (gilt für alle neu registrierenden User).
 
+![Required Actions](screenshots/10-required-actions.png)
+
 ---
 
 ## Zusammenfassung
@@ -218,12 +214,10 @@ Du kannst Actions als **Default** markieren (gilt für alle neu registrierenden 
 Du hast erfolgreich:
 
 - [x] Den Standard-Browser-Flow analysiert
-- [x] Einen Custom Flow mit Conditional OTP erstellt
+- [x] Einen Custom Flow mit Conditional 2FA erstellt
 - [x] Bedingung basierend auf User-Rolle konfiguriert
 - [x] Den Flow an den Realm gebunden
 - [x] Den Flow mit verschiedenen Usern getestet
-
-**Nächstes Modul:** SSO & Sessions - Wir bauen das React-Portal!
 
 ---
 
