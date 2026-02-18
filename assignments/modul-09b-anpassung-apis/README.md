@@ -47,6 +47,8 @@ Die Admin REST API ist dokumentiert unter:
 
 Basis-URL: `http://localhost:8080/admin/realms/{realm}`
 
+![OIDC Discovery Endpoint](screenshots/04-oidc-configuration.png)
+
 | Endpunkt                     | Methode | Beschreibung        |
 |:-----------------------------|:--------|:--------------------|
 | `/users`                     | GET     | Alle User auflisten |
@@ -136,6 +138,8 @@ curl -X POST "http://localhost:8080/admin/realms/mustertech/users" \
 ```
 
 **Erfolg:** HTTP 201 Created (Location-Header enthält User-ID)
+
+![User peter.neu in der Admin-Konsole](screenshots/03-user-peter-detail.png)
 
 ### Schritt 2.3: Passwort setzen
 
@@ -295,6 +299,8 @@ curl -X DELETE "http://localhost:8080/admin/realms/mustertech/users/$USER_ID/ses
 
 ### Schritt 5.2: Events abfragen
 
+![Events Seite in der Admin-Konsole](screenshots/05-events-page.png)
+
 ```bash
 # Letzte Login-Events
 curl "http://localhost:8080/admin/realms/mustertech/events?type=LOGIN&max=10" \
@@ -330,8 +336,6 @@ Du hast erfolgreich:
 | Sessions          | `/admin/realms/{realm}/users/{id}/sessions` |
 | Events            | `/admin/realms/{realm}/events`              |
 | Token prüfen      | `/realms/{realm}/.../token/introspect`      |
-
-**Nächstes Modul:** Betrieb, Sicherheit & Best Practices (Modul 10)!
 
 ---
 

@@ -12,10 +12,6 @@ Am Ende dieser Übung hast du:
 
 ---
 
-## Voraussetzungen
-
-- Docker Desktop installiert und gestartet
-
 ### Umgebung starten
 
 ```bash
@@ -55,6 +51,8 @@ vorherigen Modulen.
 
 Klicke auf **Next**.
 
+![Client Settings](screenshots/02-client-settings.png)
+
 ### Schritt 1.3: Capability config
 
 | Feld | Wert |
@@ -76,6 +74,8 @@ Klicke auf **Next**.
 | **Web origins** | `http://localhost:5173` |
 
 Klicke auf **Save**.
+
+![Client Login Settings](screenshots/03-client-login-settings.png)
 
 ---
 
@@ -301,10 +301,16 @@ Das Portal-Frontend ist bereits konfiguriert und wird automatisch gebaut und ges
 
 Navigiere mit deinem Browser auf [http://localhost:5173/](http://localhost:5173/) und melde dich an:
 
+![Portal Landing Page](screenshots/07-portal-landing.png)
+
 - Username: `hans.mueller`
 - Password: `test1234`
 
+![Keycloak Login](screenshots/08-keycloak-login-portal.png)
+
 Betrachte danach Access- und ID-Token.
+
+![Portal eingeloggt](screenshots/09-portal-logged-in.png)
 
 ---
 
@@ -324,6 +330,9 @@ Attribut ins ID Token aufnimmt.
 1. Navigiere zu **Clients** -> **portal-frontend**
 2. Wechsle zum Tab **Client scopes**
 3. Klicke auf **portal-frontend-dedicated**
+
+![Client Scopes Tab](screenshots/04-client-scopes-tab.png)
+
 4. Klicke auf **Configure a new mapper**
 5. Wähle **User Attribute**
 
@@ -339,6 +348,8 @@ Attribut ins ID Token aufnimmt.
 | **Add to token introspection** | ON               |
 
 Klicke auf **Save**.
+
+![Protocol Mapper Konfiguration](screenshots/06-protocol-mapper-config.png)
 
 ### Schritt 5.2: App anpassen
 

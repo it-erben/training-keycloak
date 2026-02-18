@@ -47,6 +47,8 @@ Passwort-Policies erzwingen sichere Passwörter bei der Registrierung und beim
 2. Wähle den Realm **mustertech**
 3. Navigiere zu **Authentication** → **Policies** → **Password policy**
 
+![Passwort-Policy Seite (leer)](screenshots/01-password-policy-leer.png)
+
 ### Schritt 1.2: Policies hinzufügen
 
 Klicke auf **Add policy** und füge folgende Regeln hinzu:
@@ -62,6 +64,8 @@ Klicke auf **Add policy** und füge folgende Regeln hinzu:
 | **Not email**            | -    | Passwort darf nicht die E-Mail sein   |
 
 Klicke nach jeder Policy auf **Save**.
+
+![Passwort-Policy konfiguriert](screenshots/02-password-policy-configured.png)
 
 ### Schritt 1.3: Password Policy testen
 
@@ -96,6 +100,8 @@ One-Time Passwords (OTP) bieten einen zweiten Faktor für die Authentifizierung.
 
 Diese Standardwerte sind für die meisten Authenticator-Apps kompatibel.
 
+![OTP Policy Einstellungen](screenshots/03-otp-policy.png)
+
 ### Schritt 2.2: OTP für max.admin einrichten
 
 Wir konfigurieren OTP als Required Action für den Admin-User:
@@ -104,6 +110,8 @@ Wir konfigurieren OTP als Required Action für den Admin-User:
 2. Gehe zum Tab **Details**
 3. Unter **Required user actions** wähle **Configure OTP**
 4. Klicke auf **Save**
+
+![Required User Actions mit Configure OTP](screenshots/04-user-required-actions-otp.png)
 
 ### Schritt 2.3: OTP als User einrichten
 
@@ -140,21 +148,28 @@ Brute-Force-Protection verhindert automatisierte Angriffe auf Benutzerkonten.
 
 1. Navigiere zu **Realm settings** → **Security defenses**
 2. Wechsle zum Tab **Brute force detection**
-3. Aktiviere **Enabled**
+3. Setze **Brute Force Mode** auf **Lockout temporarily**
+
+![Brute-Force-Detection Einstellungen](screenshots/05-brute-force-detection.png)
 
 ### Schritt 3.2: Parameter konfigurieren
 
-| Parameter                    | Wert             | Beschreibung                          |
-|:-----------------------------|:-----------------|:--------------------------------------|
-| **Permanent lockout**        | OFF              | Account wird nicht permanent gesperrt |
-| **Max login failures**       | `5`              | Nach 5 Fehlversuchen wird gesperrt    |
-| **Wait increment**           | `60` Sekunden    | Sperrzeit nach Fehlversuchen          |
-| **Quick login check**        | `1000` ms        | Mindestzeit zwischen Login-Versuchen  |
-| **Minimum quick login wait** | `60` Sekunden    | Sperrzeit bei zu schnellen Versuchen  |
-| **Max wait**                 | `900` Sekunden   | Maximale Sperrzeit (15 Min)           |
-| **Failure reset time**       | `43200` Sekunden | Fehlerzähler Reset nach 12h           |
+Nachdem der Modus aktiviert ist, erscheinen die Detail-Einstellungen:
+
+| Parameter                          | Wert                | Beschreibung                          |
+|:-----------------------------------|:--------------------|:--------------------------------------|
+| **Brute Force Mode**               | Lockout temporarily | Account wird temporär gesperrt        |
+| **Max login failures**             | `5`                 | Nach 5 Fehlversuchen wird gesperrt    |
+| **Strategy to increase wait time** | Multiple            | Wartezeit wird multipliziert          |
+| **Wait increment**                 | `1` Minutes         | Sperrzeit nach Fehlversuchen          |
+| **Max wait**                       | `15` Minutes        | Maximale Sperrzeit                    |
+| **Failure reset time**             | `12` Hours          | Fehlerzähler Reset nach 12h           |
+| **Quick login check milliseconds** | `1000`              | Mindestzeit zwischen Login-Versuchen  |
+| **Minimum quick login wait**       | `1` Minutes         | Sperrzeit bei zu schnellen Versuchen  |
 
 Klicke auf **Save**.
+
+![Brute-Force-Detection konfiguriert](screenshots/06-brute-force-configured.png)
 
 ### Schritt 3.3: Brute-Force-Protection testen
 
@@ -209,6 +224,8 @@ testen:
 
 Klicke auf **Save**.
 
+![Session Einstellungen](screenshots/07-session-settings.png)
+
 ### Schritt 4.3: Aktive Sessions verwalten
 
 1. Navigiere zu **Sessions** (linke Navigation)
@@ -236,6 +253,8 @@ beenden, um alle User auszuloggen.
 
 Diese Standardwerte sind für die meisten Fälle geeignet.
 
+![Security Headers Konfiguration](screenshots/09-security-headers.png)
+
 ### Aufgabe 5.2: Events aktivieren (für Audit)
 
 1. Navigiere zu **Realm settings** → **Events**
@@ -247,6 +266,8 @@ Diese Standardwerte sind für die meisten Fälle geeignet.
     - **Save events:** ON
     - **Include representation:** ON (für vollständiges Audit-Log)
 4. Klicke auf **Save**
+
+![Events Einstellungen](screenshots/08-events-settings.png)
 
 ### Aufgabe 5.3: Events ansehen
 
@@ -271,18 +292,6 @@ Du hast erfolgreich:
 - [x] Brute-Force-Protection aktiviert und getestet
 - [x] Session-Timeouts angepasst
 - [x] Security-Events aktiviert
-
-**Sicherheitsstatus:**
-
-| Feature              | Status                                           |
-|:---------------------|:-------------------------------------------------|
-| Passwort-Komplexität | Aktiviert (min. 10 Zeichen, Sonderzeichen, etc.) |
-| MFA                  | Aktiviert für max.admin                          |
-| Brute-Force-Schutz   | Aktiviert (5 Versuche, dann Sperre)              |
-| Session-Timeout      | 30 Min Idle, 10h Max                             |
-| Audit-Logging        | Aktiviert                                        |
-
-**Weiter:** Modul 10b - Best Practices & Produktion!
 
 ---
 

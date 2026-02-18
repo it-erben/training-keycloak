@@ -68,6 +68,8 @@ keycloak:
     KC_PROXY: edge
 ```
 
+![Realm Settings im Produktionsmodus](screenshots/04-realm-settings-general.png)
+
 ---
 
 ## Teil 2: HTTPS mit Traefik Reverse Proxy
@@ -186,6 +188,8 @@ deaktivieren.
 2. Optionen wählen (Users, Groups, Clients...)
 3. Export
 
+![Realm Action Menü mit Partial Export](screenshots/06-realm-action-menu.png)
+
 **Per API:**
 
 ```bash
@@ -239,14 +243,20 @@ curl http://localhost:9000/health/ready
 curl http://localhost:9000/health
 ```
 
+![Health Endpoint Antwort](screenshots/01-health-endpoint.png)
+
 > **Hinweis:** Ab Keycloak 24 werden Health- und Metrics-Endpoints auf einem
 > separaten Management-Port (Standard: 9000) bereitgestellt.
+
+![Health Readiness Endpoint](screenshots/02-health-ready.png)
 
 ### Schritt 5.2: Metriken für Prometheus
 
 ```bash
 curl http://localhost:9000/metrics
 ```
+
+![Metrics Endpoint im Prometheus-Format](screenshots/03-metrics-endpoint.png)
 
 Liefert Metriken im Prometheus-Format:
 
@@ -306,6 +316,8 @@ keycloak:
     jgroups.dns.query: keycloak-headless
 ```
 
+![Sessions Übersicht](screenshots/05-sessions-page.png)
+
 ---
 
 ## Zusammenfassung
@@ -316,15 +328,6 @@ Du hast erfolgreich:
 - [x] HTTPS mit Reverse Proxy konfiguriert
 - [x] Backup & Restore Strategien kennengelernt
 - [x] Health Checks und Monitoring vorbereitet
-- [x] Produktions-Checkliste durchgearbeitet
-
-**Wichtige Produktionsregeln:**
-
-1. **Niemals** `start-dev` in Produktion
-2. **Immer** HTTPS verwenden
-3. **Niemals** Standard-Passwörter
-4. **Immer** Backups haben und testen
-5. **Immer** Monitoring und Alerting
 
 ---
 
