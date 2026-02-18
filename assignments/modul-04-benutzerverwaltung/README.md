@@ -71,7 +71,7 @@ Manager sollten automatisch auch Mitarbeiter-Rechte haben. Wir machen `manager` 
 1. Klicke auf die Rolle **manager**
 2. Wechsle zum Tab **Associated roles**
 3. Drücke den Knopf **Assign role** -> **Realm roles**
-5. Aktiviere **mitarbeiter**
+4. Aktiviere **mitarbeiter**
 6. Klicke auf **Assign**
 
 ![Composite Role Manager](screenshots/02-composite-role-manager.png)
