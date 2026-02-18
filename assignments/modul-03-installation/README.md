@@ -195,8 +195,6 @@ Aktiviere folgende Optionen:
 
 ![Realm Settings Login](screenshots/05-realm-settings-login.png)
 
-Klicke auf **Save**.
-
 #### Tab "Email"
 
 Für die Entwicklung können wir dies überspringen. In Produktion würdest du hier deinen SMTP-Server konfigurieren.
