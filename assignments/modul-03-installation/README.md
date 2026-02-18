@@ -45,6 +45,10 @@ services:
     image: quay.io/keycloak/keycloak:26.5
     command: start-dev    # Entwicklungsmodus!
     # ...
+
+  assignment-setup:      # Einmalige Konfiguration
+    # Deaktiviert SSL-Pflicht im Master-Realm
+    # (für lokale Entwicklung ohne HTTPS)
 ```
 
 **Wichtige Konfigurationen:**
@@ -99,7 +103,12 @@ Erwartete Ausgabe:
 NAME                    STATUS
 assignment-keycloak     Up (healthy)
 assignment-postgres     Up (healthy)
+assignment-setup        Exited (0)
 ```
+
+> **Hinweis:** `assignment-setup` ist ein Hilfs-Container, der einmalig die SSL-Pflicht für den
+> Master-Realm deaktiviert (für lokale Entwicklung ohne HTTPS). Er beendet sich nach
+> erfolgreicher Ausführung automatisch.
 
 ---
 
@@ -118,7 +127,7 @@ Gib die Zugangsdaten ein:
 
 Du siehst nun die Keycloak-Startseite.
 
-### Schritt 2.3: Master-Realm erkunden
+### Schritt 2.2: Master-Realm erkunden
 
 Nach dem Login siehst du den **Master-Realm**. Dieser ist nur für die Verwaltung anderer Realms gedacht.
 
