@@ -1,0 +1,178 @@
+# ============================================
+# Keycloak Demo - Modul 06d: Client Role
+#   Isolation mit Protocol Mappern
+# ============================================
+# Separate Instanz auf Port 9090, damit kein
+# Konflikt mit den Übungen (Port 8080) entsteht.
+#
+# Starten:   docker compose up -d
+# Stoppen:   docker compose down
+# Logs:      docker compose logs -f demo-setup
+# Reset:     docker compose down -v && docker compose up -d
+
+services:
+  # ------------------------------------------
+  # PostgreSQL Datenbank
+  # ------------------------------------------
+  demo-postgres:
+    image: postgres:18-alpine
+    container_name: demo-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_db_password
+    volumes:
+      - demo_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - demo-network
+
+  # ------------------------------------------
+  # Keycloak Identity Provider
+  # ------------------------------------------
+  demo-keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: demo-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://demo-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_db_password
+      KC_HOSTNAME: http://localhost:9090
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./realm-demo.json:/opt/keycloak/data/import/realm-demo.json:ro
+    depends_on:
+      demo-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - demo-network
+
+  # ------------------------------------------
+  # Setup: Client Scopes mit scoped Role
+  # Mappern erstellen (crm-roles, hr-roles)
+  # ------------------------------------------
+  demo-setup:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: demo-setup
+    depends_on:
+      demo-keycloak:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -euo pipefail
+        KCADM="/opt/keycloak/bin/kcadm.sh"
+
+        echo "=== Logging in to Keycloak ==="
+        $$KCADM config credentials \
+          --server http://demo-keycloak:8080 --realm master \
+          --user admin --password admin
+
+        echo "=== Disabling SSL for master realm ==="
+        $$KCADM update realms/master -s sslRequired=NONE
+
+        # ------------------------------------------
+        # Client Scope: crm-roles
+        # ------------------------------------------
+        echo "=== Creating client scope 'crm-roles' ==="
+        $$KCADM create client-scopes -r mustertech \
+          -s name=crm-roles \
+          -s protocol=openid-connect \
+          -s 'attributes={"include.in.token.scope":"true","display.on.consent.screen":"false"}'
+
+        CRM_SCOPE_ID=$$($$KCADM get client-scopes -r mustertech \
+          --fields id,name --format csv --noquotes \
+          | grep ',crm-roles$$' | cut -d',' -f1)
+        echo "  crm-roles scope ID: $$CRM_SCOPE_ID"
+
+        echo "=== Adding role mapper to 'crm-roles' ==="
+        $$KCADM create client-scopes/$$CRM_SCOPE_ID/protocol-mappers/models -r mustertech \
+          -s name=crm-role-mapper \
+          -s protocol=openid-connect \
+          -s protocolMapper=oidc-usermodel-client-role-mapper \
+          -s 'config={
+            "usermodel.clientRoleMapping.clientId":"crm-app",
+            "claim.name":"roles",
+            "jsonType.label":"String",
+            "multivalued":"true",
+            "id.token.claim":"true",
+            "access.token.claim":"true",
+            "userinfo.token.claim":"true"
+          }'
+
+        # Assign crm-roles as default scope to crm-app
+        CRM_CLIENT_ID=$$($$KCADM get clients -r mustertech \
+          -q clientId=crm-app --fields id --format csv --noquotes)
+        echo "  crm-app client ID: $$CRM_CLIENT_ID"
+
+        echo "=== Assigning 'crm-roles' as default scope to crm-app ==="
+        $$KCADM update clients/$$CRM_CLIENT_ID/default-client-scopes/$$CRM_SCOPE_ID -r mustertech
+
+        # ------------------------------------------
+        # Client Scope: hr-roles
+        # ------------------------------------------
+        echo "=== Creating client scope 'hr-roles' ==="
+        $$KCADM create client-scopes -r mustertech \
+          -s name=hr-roles \
+          -s protocol=openid-connect \
+          -s 'attributes={"include.in.token.scope":"true","display.on.consent.screen":"false"}'
+
+        HR_SCOPE_ID=$$($$KCADM get client-scopes -r mustertech \
+          --fields id,name --format csv --noquotes \
+          | grep ',hr-roles$$' | cut -d',' -f1)
+        echo "  hr-roles scope ID: $$HR_SCOPE_ID"
+
+        echo "=== Adding role mapper to 'hr-roles' ==="
+        $$KCADM create client-scopes/$$HR_SCOPE_ID/protocol-mappers/models -r mustertech \
+          -s name=hr-role-mapper \
+          -s protocol=openid-connect \
+          -s protocolMapper=oidc-usermodel-client-role-mapper \
+          -s 'config={
+            "usermodel.clientRoleMapping.clientId":"hr-app",
+            "claim.name":"roles",
+            "jsonType.label":"String",
+            "multivalued":"true",
+            "id.token.claim":"true",
+            "access.token.claim":"true",
+            "userinfo.token.claim":"true"
+          }'
+
+        # Assign hr-roles as default scope to hr-app
+        HR_CLIENT_ID=$$($$KCADM get clients -r mustertech \
+          -q clientId=hr-app --fields id --format csv --noquotes)
+        echo "  hr-app client ID: $$HR_CLIENT_ID"
+
+        echo "=== Assigning 'hr-roles' as default scope to hr-app ==="
+        $$KCADM update clients/$$HR_CLIENT_ID/default-client-scopes/$$HR_SCOPE_ID -r mustertech
+
+        echo ""
+        echo "=== Setup complete ==="
+        echo "  - crm-roles scope -> crm-app (maps only crm-app roles to 'roles' claim)"
+        echo "  - hr-roles scope  -> hr-app  (maps only hr-app roles to 'roles' claim)"
+    networks:
+      - demo-network
+
+volumes:
+  demo_postgres_data:
+    name: demo-postgres-data
+
+networks:
+  demo-network:
+    name: demo-network
