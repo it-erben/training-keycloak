@@ -1,0 +1,77 @@
+{
+  "id": "mustertech",
+  "realm": "mustertech",
+  "displayName": "Mustertech GmbH",
+  "displayNameHtml": "<b>Mustertech</b> GmbH",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "rememberMe": true,
+  "bruteForceProtected": false,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "roles": {
+    "realm": [
+      {
+        "name": "default-roles-mustertech",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "offline_access",
+            "uma_authorization"
+          ]
+        }
+      },
+      {
+        "name": "offline_access",
+        "description": "${role_offline-access}"
+      },
+      {
+        "name": "uma_authorization",
+        "description": "${role_uma_authorization}"
+      },
+      {
+        "name": "entwicklung",
+        "description": "Rolle fuer die Abteilung Entwicklung"
+      },
+      {
+        "name": "vertrieb",
+        "description": "Rolle fuer die Abteilung Vertrieb"
+      },
+      {
+        "name": "management",
+        "description": "Rolle fuer die Abteilung Management"
+      }
+    ]
+  },
+  "defaultRole": {
+    "name": "default-roles-mustertech",
+    "description": "${role_default-roles}",
+    "composite": true
+  },
+  "clients": [
+    {
+      "clientId": "test-app",
+      "name": "Test Application",
+      "description": "Oeffentlicher Client zum Testen von Token-Claims",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "rootUrl": "http://localhost:8080",
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
+      "protocol": "openid-connect"
+    }
+  ]
+}

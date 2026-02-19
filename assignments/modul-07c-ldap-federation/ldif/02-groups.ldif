@@ -1,0 +1,17 @@
+dn: cn=entwicklung,ou=groups,dc=mustertech,dc=de
+objectClass: groupOfNames
+cn: entwicklung
+description: Abteilung Entwicklung
+member: uid=hans.mueller,ou=users,dc=mustertech,dc=de
+
+dn: cn=vertrieb,ou=groups,dc=mustertech,dc=de
+objectClass: groupOfNames
+cn: vertrieb
+description: Abteilung Vertrieb
+member: uid=anna.schmidt,ou=users,dc=mustertech,dc=de
+
+dn: cn=management,ou=groups,dc=mustertech,dc=de
+objectClass: groupOfNames
+cn: management
+description: Abteilung Management
+member: uid=max.admin,ou=users,dc=mustertech,dc=de

@@ -1,0 +1,7 @@
+dn: ou=users,dc=mustertech,dc=de
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=groups,dc=mustertech,dc=de
+objectClass: organizationalUnit
+ou: groups
