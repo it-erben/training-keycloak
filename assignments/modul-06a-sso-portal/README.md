@@ -297,7 +297,7 @@ Das Portal-Frontend ist bereits konfiguriert und wird automatisch gebaut und ges
 
 ---
 
-## Schritt 4: Test
+## Teil 4: Test
 
 Navigiere mit deinem Browser auf [http://localhost:5173/](http://localhost:5173/) und melde dich an:
 
@@ -351,23 +351,7 @@ Klicke auf **Save**.
 
 ![Protocol Mapper Konfiguration](screenshots/06-protocol-mapper-config.png)
 
-### Schritt 5.2: App anpassen
-
-Öffne `../services/portal-frontend/src/App.tsx` und ergänze in der Profil-Tabelle eine Zeile
-für die Personalnummer:
-
-```tsx
-<tr>
-  <td><strong>Personalnummer:</strong></td>
-  <td>{String(auth.user.profile['personalnummer'] ?? '–')}</td>
-</tr>
-```
-
-Der Zugriff erfolgt über `auth.user.profile['personalnummer']`, da es sich um einen
-benutzerdefinierten Claim handelt, der nicht zum Standard-OIDC-Profil gehört. Daher nutzen
-wir die Bracket-Notation statt `auth.user.profile.personalnummer`.
-
-### Schritt 5.3: Ergebnis prüfen
+### Schritt 5.2: Ergebnis prüfen
 
 Nach dem Neustart (`docker compose up --build -d`) und erneutem Login solltest du:
 

@@ -231,28 +231,7 @@ Die Komponente verwaltet drei States:
 - `error` - Die Fehlermeldung bei 401 (kein Token) oder 403 (fehlende Rolle)
 - `loading` - Zeigt "Lädt..." während des Aufrufs
 
-### Schritt 2.2: ApiDemo in App.tsx einbinden
-
-Öffne `../services/portal-frontend/src/App.tsx` und füge oben den Import hinzu:
-
-```tsx
-import { ApiDemo } from './components/ApiDemo';
-```
-
-Füge die Komponente im authentifizierten Bereich ein, nach der Token-Informationen-Section:
-
-```tsx
-          </section>
-
-          <ApiDemo />
-        </main>
-```
-
-### Schritt 2.3: Frontend neu bauen und testen
-
-```bash
-docker compose up --build -d assignment-portal
-```
+### Schritt 2.2: Testen
 
 Öffne <http://localhost:5173> und melde dich an.
 
