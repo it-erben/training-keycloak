@@ -166,7 +166,7 @@ Jetzt erstellen wir drei Mitarbeiter mit unterschiedlichen Rollen.
 ### Schritt 3.1: Zu Users navigieren
 
 1. Navigiere zu **Users** (linke Navigation)
-2. Klicke auf **Create new user** bzw. **Add user** je nachdem, ob es der erste Benutzer ist, 
+2. Klicke auf **Create new user** bzw. **Add user** je nachdem, ob es der erste Benutzer ist,
    den du anlegst, oder nicht
 
 ### Schritt 3.2: User "hans.mueller" erstellen

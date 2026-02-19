@@ -1,4 +1,4 @@
-# Modul 06c: Client Roles & Isolation -- Gitea mit Keycloak
+# Modul 06c: Client Roles & Isolation - Gitea mit Keycloak
 
 ## Übungsziel
 
@@ -55,7 +55,7 @@ Browser --> Gitea (Port 3000) --> Keycloak (Port 8080) --> PostgreSQL
 | `anna.schmidt` | `test1234` | `mitarbeiter` (über Gruppe) |
 | `max.admin` | `test1234` | `admin` (inkl. `manager`, `mitarbeiter`) |
 
-> **Ausgangslage:** Die Benutzer haben **keine Client Roles** -- diese erstellst du selbst.
+> **Ausgangslage:** Die Benutzer haben **keine Client Roles** - diese erstellst du selbst.
 
 ---
 
@@ -109,7 +109,7 @@ Nimm die Einstellungen zur Kenntnis:
 | Root URL | `http://localhost:3000` | Basis-URL von Gitea |
 | Valid redirect URIs | `http://localhost:3000/user/oauth2/keycloak/callback` | Callback nach Login |
 
-4. Wechsle zum Tab **Roles** -- die Liste ist leer.
+4. Wechsle zum Tab **Roles** - die Liste ist leer.
 
 ---
 
