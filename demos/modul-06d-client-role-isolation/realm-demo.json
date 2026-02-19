@@ -1,0 +1,175 @@
+{
+  "id": "mustertech",
+  "realm": "mustertech",
+  "displayName": "Mustertech GmbH",
+  "displayNameHtml": "<b>Mustertech</b> GmbH",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "rememberMe": true,
+  "bruteForceProtected": false,
+  "defaultSignatureAlgorithm": "RS256",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanLogin": 1800,
+  "roles": {
+    "realm": [
+      {
+        "name": "default-roles-mustertech",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "offline_access",
+            "uma_authorization"
+          ]
+        }
+      },
+      {
+        "name": "offline_access",
+        "description": "${role_offline-access}"
+      },
+      {
+        "name": "uma_authorization",
+        "description": "${role_uma_authorization}"
+      }
+    ],
+    "client": {
+      "crm-app": [
+        {
+          "name": "crm-viewer",
+          "description": "Kann CRM-Daten einsehen"
+        },
+        {
+          "name": "crm-editor",
+          "description": "Kann CRM-Daten bearbeiten"
+        },
+        {
+          "name": "crm-admin",
+          "description": "Kann CRM administrieren"
+        }
+      ],
+      "hr-app": [
+        {
+          "name": "hr-viewer",
+          "description": "Kann HR-Daten einsehen"
+        },
+        {
+          "name": "hr-editor",
+          "description": "Kann HR-Daten bearbeiten"
+        },
+        {
+          "name": "hr-admin",
+          "description": "Kann HR administrieren"
+        }
+      ]
+    }
+  },
+  "defaultRole": {
+    "name": "default-roles-mustertech",
+    "description": "${role_default-roles}",
+    "composite": true
+  },
+  "clients": [
+    {
+      "clientId": "crm-app",
+      "name": "CRM Application",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "crm-app-secret",
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"]
+    },
+    {
+      "clientId": "hr-app",
+      "name": "HR Application",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "hr-app-secret",
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"]
+    }
+  ],
+  "users": [
+    {
+      "username": "alice",
+      "enabled": true,
+      "email": "alice@mustertech.de",
+      "firstName": "Alice",
+      "lastName": "Meier",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-mustertech"
+      ],
+      "clientRoles": {
+        "crm-app": ["crm-editor", "crm-viewer"]
+      }
+    },
+    {
+      "username": "bob",
+      "enabled": true,
+      "email": "bob@mustertech.de",
+      "firstName": "Bob",
+      "lastName": "Fischer",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-mustertech"
+      ],
+      "clientRoles": {
+        "hr-app": ["hr-editor", "hr-viewer"]
+      }
+    },
+    {
+      "username": "charlie",
+      "enabled": true,
+      "email": "charlie@mustertech.de",
+      "firstName": "Charlie",
+      "lastName": "Wagner",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "demo1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-mustertech"
+      ],
+      "clientRoles": {
+        "crm-app": ["crm-viewer"],
+        "hr-app": ["hr-viewer", "hr-admin"]
+      }
+    }
+  ]
+}

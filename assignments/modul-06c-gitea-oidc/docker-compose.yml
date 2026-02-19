@@ -1,0 +1,160 @@
+# Keycloak Schulung - Modul 06c: Gitea mit Keycloak-Authentifizierung
+#   & Client Role Isolation
+#
+# Starten:   docker compose up -d
+# Stoppen:   docker compose down
+# Reset:     docker compose down -v && docker compose up -d
+
+services:
+  assignment-postgres:
+    image: postgres:18-alpine
+    container_name: assignment-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_db_password
+    volumes:
+      - assignment_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - assignment-network
+
+  assignment-keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: assignment-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://assignment-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_db_password
+      KC_HOSTNAME: http://localhost:8080
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./realm-import.json:/opt/keycloak/data/import/realm-import.json:ro
+    depends_on:
+      assignment-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - assignment-network
+
+  # ------------------------------------------
+  # Setup: SSL-Deaktivierung + User Profile
+  # ------------------------------------------
+  assignment-setup:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: assignment-setup
+    depends_on:
+      assignment-keycloak:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -euo pipefail
+        KCADM="/opt/keycloak/bin/kcadm.sh"
+
+        echo "=== Logging in to Keycloak ==="
+        $$KCADM config credentials \
+          --server http://assignment-keycloak:8080 --realm master \
+          --user admin --password admin
+
+        echo "=== Disabling SSL for master realm ==="
+        $$KCADM update realms/master -s sslRequired=NONE
+
+        echo "=== Updating User Profile policy ==="
+        $$KCADM update users/profile -r mustertech \
+          -s unmanagedAttributePolicy=ADMIN_EDIT
+
+        echo ""
+        echo "=== Setup complete ==="
+    networks:
+      - assignment-network
+
+  assignment-gitea:
+    image: gitea/gitea:1.23
+    container_name: assignment-gitea
+    environment:
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__server__ROOT_URL: http://localhost:3000
+      GITEA__server__HTTP_PORT: "3000"
+      GITEA__security__INSTALL_LOCK: "true"
+      GITEA__oauth2_client__ENABLE_AUTO_REGISTRATION: "true"
+      GITEA__oauth2_client__USERNAME: preferred_username
+      GITEA__oauth2_client__ACCOUNT_LINKING: auto
+      GITEA__service__DISABLE_REGISTRATION: "true"
+      GITEA__service__ALLOW_ONLY_EXTERNAL_REGISTRATION: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - assignment_gitea_data:/data
+    depends_on:
+      assignment-keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/api/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - assignment-network
+
+  assignment-gitea-setup:
+    image: gitea/gitea:1.23
+    container_name: assignment-gitea-setup
+    user: git
+    depends_on:
+      assignment-gitea:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - assignment_gitea_data:/data
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        # Admin-User erstellen
+        gitea admin user create --admin \
+          --username gitea-admin --password admin1234 \
+          --email admin@gitea.local --must-change-password=false \
+          || true
+        # OAuth2-Quelle einrichten
+        gitea admin auth add-oauth \
+          --name keycloak \
+          --provider openidConnect \
+          --key gitea \
+          --secret gitea-client-secret \
+          --auto-discover-url http://assignment-keycloak:8080/realms/mustertech/.well-known/openid-configuration \
+          --skip-local-2fa \
+          --scopes openid --scopes email --scopes profile \
+          --required-claim-name roles \
+          --required-claim-value gitea-user \
+          --group-claim-name roles
+    networks:
+      - assignment-network
+
+volumes:
+  assignment_postgres_data:
+    name: assignment-postgres-data
+  assignment_gitea_data:
+    name: assignment-gitea-data
+
+networks:
+  assignment-network:
+    name: assignment-network
