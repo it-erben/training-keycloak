@@ -33,46 +33,12 @@ importiert mit dem Portal-Frontend-Client und allen Konfigurationen aus den vorh
 
 ---
 
-## Teil 1: Portal-API - Confidential Client
+## Teil 1: Portal-API
 
 Die Portal-API ist ein Express-Backend, das die Access Tokens des Frontends validiert und
 rollenbasierte Endpunkte bereitstellt. Der Code liegt fertig unter `services/portal-api/`.
 
-### Schritt 1.1: Client in Keycloak erstellen
-
-1. Admin-Konsole → **Clients** → **Create client**
-
-![Clients Liste](screenshots/01-clients-liste.png)
-
-2. **General settings:**
-
-| Feld | Wert |
-| :--- | :--- |
-| Client type | OpenID Connect |
-| Client ID | `portal-api` |
-| Name | `Mustertech Portal API` |
-
-3. **Capability config:**
-
-| Feld | Wert |
-| :--- | :--- |
-| Client authentication | **ON** (Confidential Client) |
-| Authorization | OFF |
-| Authentication flow | ☑ Standard flow, ☑ Service account roles |
-
-4. **Login settings:**
-
-| Feld | Wert |
-| :--- | :--- |
-| Root URL | `http://localhost:3001` |
-| Valid redirect URIs | `http://localhost:3001/*` |
-| Web origins | `+` (alle erlauben) |
-
-Klicke auf **Save**.
-
-![portal-api Settings](screenshots/02-portal-api-settings.png)
-
-### Schritt 1.2: Code-Walkthrough - `../services/portal-api/src/index.ts`
+### Schritt 1.1: Code-Walkthrough - `../services/portal-api/src/index.ts`
 
 Die API hat eine einzige Quelldatei. Schauen wir uns die wichtigsten Bausteine an.
 
@@ -151,14 +117,7 @@ app.get('/api/urlaubsantraege', validateToken, requireRole('mitarbeiter'), handl
 Express verarbeitet die Middlewares von links nach rechts: erst Token prüfen, dann Rolle
 prüfen, dann den eigentlichen Handler ausführen.
 
-### Schritt 1.3: Client Secret notieren
-
-Wechsle zum Tab **Credentials** des `portal-api`-Clients. Hier findest du das Client Secret,
-das die API zur Authentifizierung bei Keycloak nutzt.
-
-![portal-api Credentials](screenshots/03-portal-api-credentials.png)
-
-### Schritt 1.4: Docker-Compose prüfen
+### Schritt 1.2: Docker-Compose prüfen
 
 Betrachte den `assignment-api` Service in der `docker-compose.yml` dieses Verzeichnisses.
 Die Portal-API ist bereits konfiguriert und wird automatisch gebaut und gestartet.
@@ -168,7 +127,7 @@ Die Portal-API ist bereits konfiguriert und wird automatisch gebaut und gestarte
 > - `VITE_KEYCLOAK_URL=http://assignment-keycloak:8080` - Interne URL für JWKS-Abruf (Docker-Netzwerk)
 > - `KEYCLOAK_PUBLIC_URL=http://localhost:8080` - Öffentliche URL für Issuer-Validierung
 
-### Schritt 1.5: API testen
+### Schritt 1.3: API testen
 
 Prüfe zunächst den öffentlichen Health-Endpoint im Browser:
 
