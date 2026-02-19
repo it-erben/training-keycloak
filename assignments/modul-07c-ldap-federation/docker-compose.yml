@@ -1,0 +1,116 @@
+# Keycloak Schulung - Modul 07c: LDAP Federation
+#   Keycloak mit OpenLDAP als externer Benutzerquelle
+#
+# Starten:   docker compose up -d
+# Stoppen:   docker compose down
+# Reset:     docker compose down -v && docker compose up -d
+
+services:
+  assignment-postgres:
+    image: postgres:18-alpine
+    container_name: assignment-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_db_password
+    volumes:
+      - assignment-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - assignment-network
+
+  assignment-openldap:
+    image: osixia/openldap:1.5.0
+    container_name: assignment-openldap
+    command: --copy-service
+    environment:
+      LDAP_ORGANISATION: "Mustertech GmbH"
+      LDAP_DOMAIN: mustertech.de
+      LDAP_ADMIN_PASSWORD: admin
+    volumes:
+      - ./ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom:ro
+      - assignment-openldap-data:/var/lib/ldap
+      - assignment-openldap-config:/etc/ldap/slapd.d
+    ports:
+      - "1389:389"
+    healthcheck:
+      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost -D 'cn=admin,dc=mustertech,dc=de' -w admin -b 'dc=mustertech,dc=de' -s base > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - assignment-network
+
+  assignment-keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: assignment-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://assignment-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_db_password
+      KC_HOSTNAME: http://localhost:8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./realm-import.json:/opt/keycloak/data/import/realm-import.json:ro
+    depends_on:
+      assignment-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - assignment-network
+
+  # ------------------------------------------
+  # Setup: SSL-Deaktivierung
+  # ------------------------------------------
+  assignment-setup:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: assignment-setup
+    depends_on:
+      assignment-keycloak:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -euo pipefail
+        KCADM="/opt/keycloak/bin/kcadm.sh"
+
+        echo "=== Logging in to Keycloak ==="
+        $$KCADM config credentials \
+          --server http://assignment-keycloak:8080 --realm master \
+          --user admin --password admin
+
+        echo "=== Disabling SSL for master realm ==="
+        $$KCADM update realms/master -s sslRequired=NONE
+
+        echo ""
+        echo "=== Setup complete ==="
+    networks:
+      - assignment-network
+
+volumes:
+  assignment-postgres-data:
+    name: assignment-postgres-data
+  assignment-openldap-data:
+    name: assignment-openldap-data
+  assignment-openldap-config:
+    name: assignment-openldap-config
+
+networks:
+  assignment-network:
+    name: assignment-network

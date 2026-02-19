@@ -1,0 +1,26 @@
+dn: uid=hans.mueller,ou=users,dc=mustertech,dc=de
+objectClass: inetOrgPerson
+uid: hans.mueller
+cn: Hans Mueller
+sn: Mueller
+givenName: Hans
+mail: hans.mueller@mustertech.de
+userPassword: test1234
+
+dn: uid=anna.schmidt,ou=users,dc=mustertech,dc=de
+objectClass: inetOrgPerson
+uid: anna.schmidt
+cn: Anna Schmidt
+sn: Schmidt
+givenName: Anna
+mail: anna.schmidt@mustertech.de
+userPassword: test1234
+
+dn: uid=max.admin,ou=users,dc=mustertech,dc=de
+objectClass: inetOrgPerson
+uid: max.admin
+cn: Max Administrator
+sn: Administrator
+givenName: Max
+mail: max.admin@mustertech.de
+userPassword: test1234
