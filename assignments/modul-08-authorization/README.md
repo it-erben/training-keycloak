@@ -24,13 +24,16 @@ cd assignments/modul-08-authorization
 docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe diese zuerst
-> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe
+> diese zuerst
+> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details
+> siehe
 > [Troubleshooting](../TROUBLESHOOTING.md#container-name-konflikt).
 
-Warte bis Keycloak, Portal-Frontend und Portal-API bereit sind (~60 Sekunden). Der Realm
-"mustertech" wird automatisch importiert mit allen Clients und Konfigurationen aus den
-vorherigen Modulen.
+Warte bis Keycloak, Portal-Frontend und Portal-API bereit sind (~60 Sekunden).
+Der Realm
+"mustertech" wird automatisch importiert mit allen Clients und Konfigurationen
+aus den vorherigen Modulen.
 
 ---
 
@@ -65,12 +68,12 @@ Nach dem Aktivieren erscheint ein neuer Tab **Authorization** mit:
 1. **Authorization** -> **Resources** -> **Create resource**
 2. Konfiguriere:
 
-| Feld | Wert |
-| :--- | :--- |
-| Name | `urlaubsantrag` |
-| Display name | `Urlaubsantrag` |
-| Type | `urn:portal-api:resource:urlaubsantrag` |
-| URI | `/api/urlaubsantraege/*` |
+| Feld         | Wert                                    |
+|:-------------|:----------------------------------------|
+| Name         | `urlaubsantrag`                         |
+| Display name | `Urlaubsantrag`                         |
+| Type         | `urn:portal-api:resource:urlaubsantrag` |
+| URI          | `/api/urlaubsantraege/*`                |
 
 Klicke auf **Save**.
 
@@ -135,11 +138,11 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 
 ### Schritt 4.3: Policy für Admins
 
-| Feld | Wert |
-| :--- | :--- |
-| Name | `Admin Policy` |
-| Roles | `admin` |
-| Logic | Positive |
+| Feld  | Wert           |
+|:------|:---------------|
+| Name  | `Admin Policy` |
+| Roles | `admin`        |
+| Logic | Positive       |
 
 ![Policies Liste mit Mitarbeiter, Manager und Admin](screenshots/05-policies-list.png)
 
@@ -152,45 +155,52 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 1. **Authorization** -> **Permissions** -> **Create scope-based permission**
 2. Konfiguriere:
 
-| Feld | Wert |
-| :--- | :--- |
-| Name | `View Urlaubsanträge` |
-| Resources | `urlaubsantrag` |
-| Scopes | `view` |
-| Policies | `Mitarbeiter Policy` |
-| Decision strategy | Unanimous |
+| Feld              | Wert                  |
+|:------------------|:----------------------|
+| Name              | `View Urlaubsanträge` |
+| Resources         | `urlaubsantrag`       |
+| Scopes            | `view`                |
+| Policies          | `Mitarbeiter Policy`  |
+| Decision strategy | Unanimous             |
 
-> **Decision Strategy** bestimmt, wie Keycloak mehrere Policies einer Permission auswertet:
+> **Decision Strategy** bestimmt, wie Keycloak mehrere Policies einer Permission
+> auswertet:
 >
-> - **Unanimous:** **Alle** zugeordneten Policies müssen PERMIT liefern. Verweigert
->   eine einzige Policy, wird der Zugriff abgelehnt. Strengste Variante -- sinnvoll,
->   wenn jede Bedingung zwingend erfüllt sein muss.
-> - **Affirmative:** **Mindestens eine** Policy muss PERMIT liefern. Sobald eine Policy
->   zustimmt, wird der Zugriff gewährt -- auch wenn andere Policies DENY liefern.
-> - **Consensus:** Die **Mehrheit** entscheidet. Liefern mehr Policies PERMIT als DENY,
->   wird der Zugriff gewährt. Bei Gleichstand wird abgelehnt.
+> - **Unanimous:** **Alle** zugeordneten Policies müssen PERMIT liefern.
+    Verweigert
+    > eine einzige Policy, wird der Zugriff abgelehnt. Strengste Variante -
+    sinnvoll,
+    > wenn jede Bedingung zwingend erfüllt sein muss.
+> - **Affirmative:** **Mindestens eine** Policy muss PERMIT liefern. Sobald eine
+    Policy
+    > zustimmt, wird der Zugriff gewährt - auch wenn andere Policies DENY
+    liefern.
+> - **Consensus:** Die **Mehrheit** entscheidet. Liefern mehr Policies PERMIT
+    als DENY,
+    > wird der Zugriff gewährt. Bei Gleichstand wird abgelehnt.
 >
-> Bei nur einer Policy pro Permission verhalten sich alle drei Strategien identisch.
+> Bei nur einer Policy pro Permission verhalten sich alle drei Strategien
+> identisch.
 
 ### Schritt 5.2: Permission für Urlaubsanträge genehmigen
 
-| Feld | Wert |
-| :--- | :--- |
-| Name | `Approve Urlaubsanträge` |
-| Resources | `urlaubsantrag` |
-| Scopes | `approve` |
-| Policies | `Manager Policy` |
-| Decision strategy | Unanimous |
+| Feld              | Wert                     |
+|:------------------|:-------------------------|
+| Name              | `Approve Urlaubsanträge` |
+| Resources         | `urlaubsantrag`          |
+| Scopes            | `approve`                |
+| Policies          | `Manager Policy`         |
+| Decision strategy | Unanimous                |
 
 ### Schritt 5.3: Permission für Admin-Bereich
 
-| Feld | Wert |
-| :--- | :--- |
-| Name | `Access Admin` |
-| Resources | `admin-bereich` |
-| Scopes | `view` |
-| Policies | `Admin Policy` |
-| Decision strategy | Unanimous |
+| Feld              | Wert            |
+|:------------------|:----------------|
+| Name              | `Access Admin`  |
+| Resources         | `admin-bereich` |
+| Scopes            | `view`          |
+| Policies          | `Admin Policy`  |
+| Decision strategy | Unanimous       |
 
 ![Permissions Liste](screenshots/06-permissions-list.png)
 
@@ -219,18 +229,19 @@ Füge analog "view" zur Ressource "admin-bereich" hinzu.
 
 ---
 
-## Teil 7: API Integration -- Permissions im Portal testen
+## Teil 7: API Integration - Permissions im Portal testen
 
-Bisher haben wir Permissions nur im **Evaluate-Tool** der Admin-Konsole getestet. Jetzt
-schalten wir die echte Integration ein: Die Portal-API fragt Keycloak bei jedem Request, ob
-der User die nötige Permission besitzt.
+Bisher haben wir Permissions nur im **Evaluate-Tool** der Admin-Konsole
+getestet. Jetzt schalten wir die echte Integration ein: Die Portal-API fragt
+Keycloak bei jedem Request, ob der User die nötige Permission besitzt.
 
 ### Hintergrund: UMA-Ticket-Grant
 
 Die API nutzt den **UMA (User-Managed Access) Ticket Grant**. Der Ablauf:
 
 1. Der User schickt seinen Access Token an die API
-2. Die API schickt diesen Token an Keycloak weiter und fragt: *"Darf dieser User `urlaubsantrag#view`?"*
+2. Die API schickt diesen Token an Keycloak weiter und fragt: *"Darf dieser
+   User `urlaubsantrag#view`?"*
 3. Keycloak evaluiert alle relevanten Policies
 4. Keycloak antwortet mit `{ "result": true }` oder verweigert
 
@@ -244,15 +255,17 @@ User -> API -> Keycloak Authorization Endpoint
        API: 200 OK / 403 Forbidden
 ```
 
-Der Vorteil: **Die API kennt keine Rollen mehr.** Ob ein User zugreifen darf, entscheidet
-allein Keycloak -- zentral, konfigurierbar, ohne Code-Änderung.
+Der Vorteil: **Die API kennt keine Rollen mehr.** Ob ein User zugreifen darf,
+entscheidet allein Keycloak.
 
 ### Schritt 7.1: Authorization in docker-compose.yml aktivieren
 
-Die Portal-API enthält bereits eine `requirePermission()`-Middleware, die per Umgebungsvariable aktiviert wird.
+Die Portal-API enthält bereits eine `requirePermission()`-Middleware, die per
+Umgebungsvariable aktiviert wird.
 
 1. Öffne die `docker-compose.yml` in diesem Verzeichnis
-2. Prüfe beim Service **assignment-api**, dass folgende Zeile vorhanden und auf `true` gesetzt ist
+2. Prüfe beim Service **assignment-api**, dass folgende Zeile vorhanden und auf
+   `true` gesetzt ist
    (in diesem Modul bereits vorkonfiguriert):
 
 ```yaml
@@ -266,21 +279,18 @@ Die Portal-API enthält bereits eine `requirePermission()`-Middleware, die per U
       - AUTHORIZATION_ENABLED=true          # <- muss gesetzt sein
 ```
 
-### Schritt 7.2: API neu starten
+### Schritt 7.2: Testen
 
-```bash
-docker compose up -d --build assignment-api
-```
+1. Melde dich im Portal (<http://localhost:5173/>) als **hans.mueller** (Mitarbeiter) an
+2. Klicke auf **Urlaubsanträge** -> sollte funktionieren (`urlaubsantrag#view` =
+   PERMIT)
+3. Navigiere zu **Alle Anträge** -> sollte **403** liefern (
+   `urlaubsantrag#approve` = DENY)
 
-### Schritt 7.3: Testen
+Melde dich als **max.admin** an und prüfe, dass der Admin-Bereich erreichbar
+ist.
 
-1. Melde dich im Portal als **hans.mueller** (Mitarbeiter) an
-2. Klicke auf **Urlaubsanträge** -> sollte funktionieren (`urlaubsantrag#view` = PERMIT)
-3. Navigiere zu **Alle Anträge** -> sollte **403** liefern (`urlaubsantrag#approve` = DENY)
-
-Melde dich als **max.admin** an und prüfe, dass der Admin-Bereich erreichbar ist.
-
-### Schritt 7.4: Live-Änderung -- Policy deaktivieren
+### Schritt 7.4: Live-Änderung - Policy deaktivieren
 
 1. Gehe in die Admin-Konsole -> **Clients** -> **portal-api** -> **Authorization** -> **Policies**
 2. Öffne die **Mitarbeiter Policy**
@@ -291,9 +301,7 @@ Teste erneut als **hans.mueller**:
 
 - **Urlaubsanträge** -> jetzt **403 Forbidden**!
 
-Setze die Policy wieder auf **Positive** zurück -- der Zugriff funktioniert sofort wieder.
-
-> **Erkenntnis:** Kein Rebuild, kein Redeploy, kein Code-Change. Die Zugriffsentscheidung liegt in Keycloak.
+Setze die Policy wieder auf **Positive** zurück - der Zugriff funktioniert sofort wieder.
 
 ## Zusammenfassung
 
@@ -305,12 +313,4 @@ Du hast erfolgreich:
 - [x] Role-based Policies konfiguriert
 - [x] Permissions erstellt und getestet
 - [x] Die API mit Keycloak Authorization Services verbunden
-- [x] Live-Änderungen an Policies ohne Code-Änderung erlebt
-
----
-
-## Troubleshooting
-
-### Container-Name-Konflikt
-
-Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
+- [x] Live-Änderungen an Policies ohne Code-Änderung getestet
