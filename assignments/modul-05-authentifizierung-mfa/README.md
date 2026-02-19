@@ -91,22 +91,26 @@ Wir erstellen einen Flow, bei dem nur Admins OTP eingeben müssen.
 
 ### Schritt 2.2: OTP-Bedingung verstehen
 
-Der Standard-Flow hat bereits "OTP Form" als CONDITIONAL. Das bedeutet:
+Der Standard-Flow hat bereits einen CONDITIONAL Sub-Flow "Conditional 2FA".
+Darin stecken Bedingungen wie "Condition - user configured" - OTP wird nur
+abgefragt, wenn der User bereits OTP eingerichtet hat.
 
-- OTP wird nur abgefragt, **wenn der User OTP konfiguriert hat**
+Wir wollen stattdessen: **OTP nur für Admins** (Rolle "admin").
 
-Wir fügen hinzu:
+### Schritt 2.3: Bestehende Bedingungen entfernen
 
-- OTP wird auch abgefragt, **wenn der User die Rolle "admin" hat**
+1. Klappe den Sub-Flow **browser-mustertech Browser - Conditional 2FA** auf
+2. Stelle **Condition - user configured** auf **Disabled**
+3. Stelle **Condition - credential** auf **Disabled**
 
-### Schritt 2.3: Conditional 2FA erweitern
+### Schritt 2.4: Admin-Bedingung hinzufügen
 
 1. Klicke auf das **+** Symbol neben "browser-mustertech Browser - Conditional 2FA"
 2. Wähle **Add condition**
 3. Wähle **Condition - User Role**
 4. Klicke auf **Add**
 
-### Schritt 2.4: Bedingung konfigurieren
+### Schritt 2.5: Bedingung konfigurieren
 
 1. Klicke auf das Zahnrad-Symbol bei "Condition - User Role"
 2. Konfiguriere:
@@ -115,23 +119,19 @@ Wir fügen hinzu:
    - **Negate output:** OFF
 3. Klicke auf **Save**
 
-### Schritt 2.5: Execution-Typen setzen
+### Schritt 2.6: Execution-Typen setzen
 
-Setze die Requirement-Typen:
+Setze die Requirement-Typen im Conditional 2FA Sub-Flow:
 
-| Execution                   | Requirement     |
-|:----------------------------|:----------------|
-| Condition - User Role       | **ALTERNATIVE** |
-| Condition - User Configured | **ALTERNATIVE** |
-| Condition - credential      | **ALTERNATIVE** |
+| Execution             | Requirement  |
+|:----------------------|:-------------|
+| Condition - User Role | **REQUIRED** |
+| OTP Form              | **REQUIRED** |
 
-Der letzte Eintrag wird gesetzt, damit Passkey-Authentifizierung erkannt wird.
+Die anderen Einträge (WebAuthn, Recovery) können auf **DISABLED** bleiben.
 
-### Schritt 2.6: Flow-Struktur verifizieren
-
-Dein Flow sollte jetzt so aussehen:
-
-![Flow Gesamtstruktur](screenshots/05-flow-full-structure.png)
+> **Ergebnis:** Der Sub-Flow prüft jetzt nur noch, ob der User die Rolle "admin" hat.
+> Wenn ja, wird OTP abgefragt. Für alle anderen User wird der Sub-Flow übersprungen.
 
 ---
 
@@ -226,22 +226,3 @@ Du hast erfolgreich:
 ### Container-Name-Konflikt
 
 Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
-
----
-
-## Bonus: Weitere Conditional Flows
-
-Du kannst ähnliche Bedingungen für andere Szenarien erstellen:
-
-**Beispiele:**
-
-- OTP nur für bestimmte Client-Anwendungen
-- OTP nur bei Login von unbekannten Geräten
-- Zusätzliche Authentifizierung bei verdächtigen IPs
-
-**Verfügbare Conditions:**
-
-- Condition - User Role
-- Condition - User Configured
-- Condition - User Attribute
-- Condition - Client Scope
