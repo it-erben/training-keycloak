@@ -93,6 +93,14 @@ docker exec assignment-openldap ldapsearch -x \
   "(objectClass=*)" dn
 ```
 
+```powershell
+docker exec assignment-openldap ldapsearch -x `
+  -H ldap://localhost `
+  -D "cn=admin,dc=mustertech,dc=de" -w admin `
+  -b "dc=mustertech,dc=de" `
+  "(objectClass=*)" dn
+```
+
 > **Erklärung der Parameter:**
 >
 > | Parameter | Bedeutung                          |
@@ -113,6 +121,14 @@ docker exec assignment-openldap ldapsearch -x \
   "(objectClass=inetOrgPerson)"
 ```
 
+```powershell
+docker exec assignment-openldap ldapsearch -x `
+  -H ldap://localhost `
+  -D "cn=admin,dc=mustertech,dc=de" -w admin `
+  -b "ou=users,dc=mustertech,dc=de" `
+  "(objectClass=inetOrgPerson)"
+```
+
 Beachte die Attribute jedes Benutzers: `uid`, `cn`, `sn`, `givenName`, `mail`.
 
 ### Schritt 1.3: Gruppen anzeigen
@@ -122,6 +138,14 @@ docker exec assignment-openldap ldapsearch -x \
   -H ldap://localhost \
   -D "cn=admin,dc=mustertech,dc=de" -w admin \
   -b "ou=groups,dc=mustertech,dc=de" \
+  "(objectClass=groupOfNames)"
+```
+
+```powershell
+docker exec assignment-openldap ldapsearch -x `
+  -H ldap://localhost `
+  -D "cn=admin,dc=mustertech,dc=de" -w admin `
+  -b "ou=groups,dc=mustertech,dc=de" `
   "(objectClass=groupOfNames)"
 ```
 
@@ -312,159 +336,6 @@ Wiederhole für die anderen Gruppen:
 
 ---
 
-## Teil 6: Rollen-Claims in Tokens überprüfen
-
-### Schritt 6.1: Token über die Evaluate-Funktion prüfen
-
-1. Navigiere zu **Clients** -> **test-app** -> Tab **Client scopes**
-2. Klicke auf den Sub-Tab **Evaluate**
-3. Wähle bei **Users** den Benutzer **hans.mueller**
-4. Klicke auf **Generated access token**
-
-Suche im Token nach dem Abschnitt `realm_access`:
-
-```json
-{
-  "realm_access": {
-    "roles": [
-      "entwicklung",
-      "default-roles-mustertech"
-    ]
-  }
-}
-```
-
-**Erwartetes Ergebnis:** Die Rolle `entwicklung` erscheint im Token, weil
-`hans.mueller` über die LDAP-Gruppe "entwicklung" diese Keycloak-Rolle
-erhalten hat.
-
-### Schritt 6.2: Verschiedene Benutzer vergleichen
-
-Wiederhole die Evaluate-Funktion für `anna.schmidt` und `max.admin`:
-
-| Benutzer       | Erwartete Rolle in `realm_access.roles` |
-|:---------------|:----------------------------------------|
-| `hans.mueller` | `entwicklung`                           |
-| `anna.schmidt` | `vertrieb`                              |
-| `max.admin`    | `management`                            |
-
-### Schritt 6.3: Token per curl abrufen
-
-Du kannst auch direkt ein Token per **Direct Access Grant** (Resource Owner Password Credentials) abrufen:
-
-```bash
-curl -s -X POST http://localhost:8080/realms/mustertech/protocol/openid-connect/token \
-  -d "client_id=test-app" \
-  -d "grant_type=password" \
-  -d "username=hans.mueller" \
-  -d "password=test1234" | python3 -m json.tool
-```
-
-```powershell
-$uri = "http://localhost:8080/realms/mustertech/protocol/openid-connect/token"
-$response = Invoke-RestMethod -Method Post -Uri $uri -Body @{
-    client_id  = "test-app"
-    grant_type = "password"
-    username   = "hans.mueller"
-    password   = "test1234"
-}
-$response | ConvertTo-Json -Depth 5
-```
-
-### Schritt 6.4: Token dekodieren
-
-Kopiere den `access_token` aus der Antwort und dekodiere den Payload (mittlerer
-Teil des JWT):
-
-```bash
-TOKEN=$(curl -s -X POST http://localhost:8080/realms/mustertech/protocol/openid-connect/token \
-  -d "client_id=test-app" \
-  -d "grant_type=password" \
-  -d "username=hans.mueller" \
-  -d "password=test1234" \
-  | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
-
-echo $TOKEN | cut -d'.' -f2 | base64 -d 2>/dev/null | python3 -m json.tool
-```
-
-```powershell
-$uri = "http://localhost:8080/realms/mustertech/protocol/openid-connect/token"
-$response = Invoke-RestMethod -Method Post -Uri $uri -Body @{
-    client_id  = "test-app"
-    grant_type = "password"
-    username   = "hans.mueller"
-    password   = "test1234"
-}
-$payload = $response.access_token.Split('.')[1]
-# Base64-URL-Padding korrigieren
-switch ($payload.Length % 4) { 2 { $payload += '==' } 3 { $payload += '=' } }
-$bytes = [Convert]::FromBase64String($payload.Replace('-','+').Replace('_','/'))
-[System.Text.Encoding]::UTF8.GetString($bytes) |
-    ConvertFrom-Json | ConvertTo-Json -Depth 5
-```
-
-Prüfe, dass `realm_access.roles` die Rolle `entwicklung` enthält.
-
----
-
-## Teil 7: Gruppen-Claim hinzufügen (Bonus)
-
-Zusätzlich zu den Rollen kannst du auch die **Gruppenmitgliedschaft** direkt als
-eigenen Claim im Token verfügbar machen.
-
-### Schritt 7.1: Client Scope erstellen
-
-1. Navigiere zu **Client scopes** -> **Create client scope**
-2. Konfiguriere:
-    - Name: `groups`
-    - Type: `Optional`
-    - Protocol: `OpenID Connect`
-3. Klicke **Save**
-
-### Schritt 7.2: Group Membership Mapper anlegen
-
-1. Wechsle zum Tab **Mappers** -> **Configure a new mapper** -> **Group
-   Membership**
-2. Konfiguriere:
-
-| Feld                | Wert     |
-|:--------------------|:---------|
-| Name                | `groups` |
-| Token Claim Name    | `groups` |
-| Full group path     | `OFF`    |
-| Add to ID token     | `ON`     |
-| Add to access token | `ON`     |
-| Add to userinfo     | `ON`     |
-
-3. Klicke **Save**
-
-### Schritt 7.3: Scope dem Client zuweisen
-
-1. Navigiere zu **Clients** -> **test-app** -> Tab **Client scopes**
-2. Klicke auf **Add client scope**
-3. Wähle **groups** und füge ihn als **Default** hinzu
-
-### Schritt 7.4: Ergebnis prüfen
-
-Teste erneut mit der Evaluate-Funktion (Schritt 6.1). Der Token enthält jetzt
-zusätzlich:
-
-```json
-{
-  "groups": [
-    "entwicklung"
-  ],
-  "realm_access": {
-    "roles": [
-      "entwicklung",
-      "default-roles-mustertech"
-    ]
-  }
-}
-```
-
----
-
 ## Zusammenfassung
 
 Du hast erfolgreich:
@@ -474,40 +345,3 @@ Du hast erfolgreich:
 - [x] LDAP-Benutzer nach Keycloak **synchronisiert** und Login getestet
 - [x] Einen **Gruppen-Mapper** eingerichtet, der LDAP-Gruppen synchronisiert
 - [x] LDAP-Gruppen auf **Keycloak Realm Roles** gemappt
-- [x] Rollen-Claims in **OIDC-Tokens** überprüft
-- [x] (Bonus) Einen **Gruppen-Claim** im Token konfiguriert
-
-## Troubleshooting
-
-Häufige Probleme und Lösungen findest du in der zentralen
-[Troubleshooting-Anleitung](../TROUBLESHOOTING.md).
-
-### LDAP-Verbindung schlägt fehl
-
-- Prüfe, ob der OpenLDAP-Container läuft: `docker compose ps`
-- Teste die Verbindung manuell:
-
-  ```bash
-  docker exec assignment-openldap ldapsearch -x \
-    -H ldap://localhost \
-    -D "cn=admin,dc=mustertech,dc=de" -w admin \
-    -b "dc=mustertech,dc=de" -s base
-  ```
-
-- Stelle sicher, dass die Connection URL `ldap://assignment-openldap:389`
-  verwendet
-  (nicht `localhost` - Keycloak läuft im Docker-Netzwerk)
-
-### Keine Benutzer nach Synchronisation
-
-- Prüfe den **Users DN**: muss `ou=users,dc=mustertech,dc=de` sein
-- Prüfe **User Object Classes**: muss `inetOrgPerson` sein
-- Prüfe **Search Scope**: `One Level` für die flache Verzeichnisstruktur
-
-### Gruppen werden nicht synchronisiert
-
-- Prüfe den **LDAP Groups DN**: muss `ou=groups,dc=mustertech,dc=de` sein
-- Prüfe **Group Object Classes**: muss `groupOfNames` sein
-- Prüfe **Membership LDAP Attribute**: muss `member` sein
-- Stelle sicher, dass nach dem Anlegen des Mappers eine erneute
-  User-Synchronisation durchgeführt wurde
