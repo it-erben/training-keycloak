@@ -155,8 +155,6 @@ Gitea liefert verschiedene Attribute über die User-Info, die wir in Keycloak ü
 1. Navigiere zu **Identity providers** -> **gitea**
 2. Wechsle zum Tab **Mappers**
 
-![Identity Provider Mappers Tab](screenshots/05-idp-mappers.png)
-
 ### Schritt 3.2: Mapper für Gitea-Username hinzufügen
 
 Gitea liefert den Login-Namen, den wir als Attribut speichern können:
@@ -257,8 +255,6 @@ Die Attribute erscheinen nun im User-Detail neben den bereits vorhandenen Felder
 1. Öffne die Admin-Konsole
 2. Navigiere zu **Users**
 3. Suche nach `alice`
-
-![Benutzerliste mit alice](screenshots/08-users-liste.png)
 
 ### Schritt 5.2: Identity Provider Links prüfen
 
