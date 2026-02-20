@@ -59,7 +59,7 @@ function App() {
                   <td><strong>Username:</strong></td>
                   <td>{auth.user.profile.preferred_username}</td>
                 </tr>
-                {auth.user.profile.personalnummer && (
+                {String(auth.user.profile.personalnummer) && (
                   <tr>
                     <td><strong>Personalnummer:</strong></td>
                     <td>{String(auth.user.profile.personalnummer)}</td>
