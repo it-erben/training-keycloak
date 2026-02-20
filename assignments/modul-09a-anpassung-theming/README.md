@@ -252,7 +252,7 @@ Die Web-UI ist unter <http://localhost:8025> erreichbar.
 ### Schritt 5.2: E-Mail-Adresse für den Admin-User hinterlegen
 
 "Test connection" versendet eine Test-E-Mail an den aktuell eingeloggten User.
-Der Keycloak-Admin-User hat standardmäßig keine E-Mail-Adresse -- deshalb muss
+Der Keycloak-Admin-User hat standardmäßig keine E-Mail-Adresse - deshalb muss
 vorher eine hinterlegt werden:
 
 1. Wechsle in den **master**-Realm (Dropdown oben links)
@@ -295,12 +295,12 @@ vorher eine hinterlegt werden:
 
 ---
 
-## Teil 6: E-Mail-Templates -- Code-Walkthrough
+## Teil 6: E-Mail-Templates - Code-Walkthrough
 
 Die E-Mail-Templates liegen bereits fertig im Theme. Schauen wir uns den Aufbau
 an.
 
-### Schritt 6.1: template.ftl -- Basis-Layout
+### Schritt 6.1: template.ftl - Basis-Layout
 
 Die Datei `services/keycloak/themes/mustertech/email/html/template.ftl`
 definiert das gemeinsame Layout für **alle** HTML-E-Mails. Einzelne
@@ -343,7 +343,7 @@ setzt den
 ### Schritt 6.3: password-reset.ftl (Text)
 
 Die Plain-Text-Version unter `email/text/password-reset.ftl` enthält den
-gleichen Inhalt ohne HTML-Formatierung -- für E-Mail-Clients, die kein HTML
+gleichen Inhalt ohne HTML-Formatierung - für E-Mail-Clients, die kein HTML
 unterstützen.
 
 ---
@@ -364,7 +364,7 @@ der
 
 1. Öffne
    `../services/keycloak/themes/mustertech/login/resources/css/mustertech.css`
-2. Ändere die Button-Farbe -- zum Beispiel auf Grün:
+2. Ändere die Button-Farbe - zum Beispiel auf Grün:
 
 ```css
 .pf-v5-c-button.pf-m-primary {
@@ -388,7 +388,7 @@ der
 }
 ```
 
-4. Lade die Login-Seite neu -- der Button und der Akzent-Strich sollten jetzt
+4. Lade die Login-Seite neu - der Button und der Akzent-Strich sollten jetzt
    grün sein
 
 **Frage:** Welche weiteren Stellen müsste man anpassen, um ein durchgängig
