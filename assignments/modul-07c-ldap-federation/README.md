@@ -339,7 +339,8 @@ Wiederhole für die anderen Gruppen:
 
 1. Navigiere zu **Users** -> **hans.mueller**
 2. Wechsle zum Tab **Role mapping**
-3. Die Rolle `entwicklung` ist jetzt zugewiesen (über die Gruppe)
+3. Lasse dir auch die **inherited roles** anzeigen 
+4. Die Rolle `entwicklung` erscheint
 
 > **Indirekte Rollenzuweisung** - Benutzer erhalten Rollen nicht direkt,
 > sondern über ihre Gruppenmitgliedschaft. Wenn ein neuer Benutzer im LDAP der
