@@ -168,7 +168,7 @@ Gitea liefert den Login-Namen, den wir als Attribut speichern können:
 | **Name**                | `gitea-username`                     |
 | **Sync mode override**  | `inherit`                            |
 | **Mapper type**         | `Attribute importer`                 |
-| **Claim**               | `login`                              |
+| **Claim**               | `preferred_username`                 |
 | **User attribute name** | `Custom Attribute -> gitea_username` |
 
 Klicke auf **Save**.
