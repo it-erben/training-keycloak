@@ -10,7 +10,7 @@ Am Ende dieser Übung hast du:
 - Session-Einstellungen angepasst
 - Die Sicherheitsmaßnahmen getestet
 
-**Geschätzte Dauer:** 25-30 Minuten
+**Geschätzte Dauer:** 10 Minuten
 
 ---
 
@@ -233,23 +233,7 @@ beenden, um alle User auszuloggen.
 
 ## Teil 5: Weitere Sicherheitseinstellungen
 
-### Aufgabe 5.1: Headers konfigurieren
-
-1. Navigiere zu **Realm settings** → **Security defenses** → **Headers**
-2. Prüfe die Standard-Security-Header:
-
-| Header                  | Zweck                         |
-|:------------------------|:------------------------------|
-| X-Frame-Options         | Schutz vor Clickjacking       |
-| Content-Security-Policy | Schutz vor XSS                |
-| X-Content-Type-Options  | Verhindert MIME-Type-Sniffing |
-| X-XSS-Protection        | Browser-XSS-Filter            |
-
-Diese Standardwerte sind für die meisten Fälle geeignet.
-
-![Security Headers Konfiguration](screenshots/09-security-headers.png)
-
-### Aufgabe 5.2: Events aktivieren (für Audit)
+### Aufgabe 5.1: Events aktivieren (für Audit)
 
 1. Navigiere zu **Realm settings** → **Events**
 2. Tab **User events settings**:
@@ -263,7 +247,7 @@ Diese Standardwerte sind für die meisten Fälle geeignet.
 
 ![Events Einstellungen](screenshots/08-events-settings.png)
 
-### Aufgabe 5.3: Events ansehen
+### Aufgabe 5.2: Events ansehen
 
 1. Navigiere zu **Events** → **User events**
 2. Hier siehst du Login-Versuche, Fehler, etc.
@@ -286,43 +270,6 @@ Du hast erfolgreich:
 - [x] Brute-Force-Protection aktiviert und getestet
 - [x] Session-Timeouts angepasst
 - [x] Security-Events aktiviert
-
----
-
-## Troubleshooting
-
-### Container-Name-Konflikt
-
-Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
-
-### OTP-Code wird nicht akzeptiert
-
-**Mögliche Ursachen:**
-
-- Uhrzeit auf Server und Smartphone nicht synchron (TOTP ist zeitbasiert!)
-- Falscher QR-Code gescannt (alter Code)
-
-**Lösung:**
-
-- Smartphone-Zeit prüfen (automatische Zeit empfohlen)
-- OTP-Credential für User löschen und neu einrichten
-
-### Account ist gesperrt
-
-**Symptom:** "Account is temporarily disabled"
-
-**Lösung (Admin-Konsole):**
-
-1. Users → [Username]
-2. Sessions Tab
-3. "Clear login failures" klicken
-
-### Passwort-Policy wird nicht angewendet
-
-**Prüfen:**
-
-- Policy wurde gespeichert?
-- Policy gilt nur für neue/geänderte Passwörter, nicht für bestehende!
 
 ---
 
