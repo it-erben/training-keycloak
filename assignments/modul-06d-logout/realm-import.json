@@ -1,0 +1,97 @@
+{
+  "id": "mustertech",
+  "realm": "mustertech",
+  "displayName": "Mustertech GmbH",
+  "displayNameHtml": "<b>Mustertech</b> GmbH",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "roles": {
+    "realm": [
+      {
+        "name": "mitarbeiter",
+        "description": "Basis-Rolle für alle Mitarbeiter der Mustertech GmbH"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "hans.mueller",
+      "enabled": true,
+      "email": "hans.mueller@mustertech.de",
+      "firstName": "Hans",
+      "lastName": "Müller",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["default-roles-mustertech", "mitarbeiter"]
+    },
+    {
+      "username": "anna.schmidt",
+      "enabled": true,
+      "email": "anna.schmidt@mustertech.de",
+      "firstName": "Anna",
+      "lastName": "Schmidt",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["default-roles-mustertech", "mitarbeiter"]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "app-a",
+      "name": "App A",
+      "description": "Demo-Anwendung A für Logout-Übung",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "app-a-secret",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "rootUrl": "http://localhost:3001",
+      "baseUrl": "http://localhost:3001",
+      "redirectUris": ["http://localhost:3001/*"],
+      "webOrigins": ["http://localhost:3001"],
+      "frontchannelLogout": false,
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3001"
+      }
+    },
+    {
+      "clientId": "app-b",
+      "name": "App B",
+      "description": "Demo-Anwendung B für Logout-Übung",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "app-b-secret",
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "rootUrl": "http://localhost:3002",
+      "baseUrl": "http://localhost:3002",
+      "redirectUris": ["http://localhost:3002/*"],
+      "webOrigins": ["http://localhost:3002"],
+      "frontchannelLogout": false,
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3002"
+      }
+    }
+  ]
+}

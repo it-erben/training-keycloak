@@ -1,0 +1,124 @@
+# Modul 06d – Front- und Backchannel-Logout
+#
+# Starten:   docker compose up -d --build
+# Stoppen:   docker compose down
+# Reset:     docker compose down -v && docker compose up -d --build
+# Logs:      docker compose logs -f assignment-app-a assignment-app-b
+
+services:
+
+  assignment-postgres:
+    image: postgres:18-alpine
+    container_name: assignment-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - assignment_postgres_data:/var/lib/postgresql/data
+    networks:
+      - assignment-network
+
+  assignment-keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: assignment-keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://assignment-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_db_password
+      KC_HOSTNAME: http://localhost:8080
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      assignment-postgres:
+        condition: service_healthy
+    volumes:
+      - ./realm-import.json:/opt/keycloak/data/import/realm-import.json:ro
+    networks:
+      - assignment-network
+
+  assignment-setup:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: assignment-setup
+    depends_on:
+      assignment-keycloak:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -euo pipefail
+        KCADM="/opt/keycloak/bin/kcadm.sh"
+
+        echo "=== Keycloak Setup ==="
+        $$KCADM config credentials \
+          --server http://assignment-keycloak:8080 --realm master \
+          --user admin --password admin
+        $$KCADM update realms/master -s sslRequired=NONE
+        echo "=== Setup abgeschlossen ==="
+    networks:
+      - assignment-network
+
+  assignment-app-a:
+    build: ./app
+    container_name: assignment-app-a
+    environment:
+      APP_NAME: "App A"
+      PORT: "3001"
+      CLIENT_ID: app-a
+      CLIENT_SECRET: app-a-secret
+      KEYCLOAK_URL: http://assignment-keycloak:8080
+      KEYCLOAK_PUBLIC_URL: http://localhost:8080
+      REALM: mustertech
+      APP_URL: http://localhost:3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      assignment-keycloak:
+        condition: service_healthy
+    networks:
+      - assignment-network
+
+  assignment-app-b:
+    build: ./app
+    container_name: assignment-app-b
+    environment:
+      APP_NAME: "App B"
+      PORT: "3002"
+      CLIENT_ID: app-b
+      CLIENT_SECRET: app-b-secret
+      KEYCLOAK_URL: http://assignment-keycloak:8080
+      KEYCLOAK_PUBLIC_URL: http://localhost:8080
+      REALM: mustertech
+      APP_URL: http://localhost:3002
+    ports:
+      - "3002:3002"
+    depends_on:
+      assignment-keycloak:
+        condition: service_healthy
+    networks:
+      - assignment-network
+
+volumes:
+  assignment_postgres_data:
+    name: assignment-postgres-data
+
+networks:
+  assignment-network:
+    name: assignment-network
