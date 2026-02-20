@@ -85,6 +85,8 @@ synchronisiert. Die Realm Roles `entwicklung`, `vertrieb` und `management` sind 
 
 Verwende `ldapsearch` im OpenLDAP-Container, um den LDAP-Baum zu erkunden:
 
+**Bash:**
+
 ```bash
 docker exec assignment-openldap ldapsearch -x \
   -H ldap://localhost \
@@ -92,6 +94,8 @@ docker exec assignment-openldap ldapsearch -x \
   -b "dc=mustertech,dc=de" \
   "(objectClass=*)" dn
 ```
+
+**PowerShell:**
 
 ```powershell
 docker exec assignment-openldap ldapsearch -x `
@@ -113,6 +117,8 @@ docker exec assignment-openldap ldapsearch -x `
 
 ### Schritt 1.2: Benutzer anzeigen
 
+**Bash:**
+
 ```bash
 docker exec assignment-openldap ldapsearch -x \
   -H ldap://localhost \
@@ -120,6 +126,8 @@ docker exec assignment-openldap ldapsearch -x \
   -b "ou=users,dc=mustertech,dc=de" \
   "(objectClass=inetOrgPerson)"
 ```
+
+**PowerShell:**
 
 ```powershell
 docker exec assignment-openldap ldapsearch -x `
@@ -133,6 +141,8 @@ Beachte die Attribute jedes Benutzers: `uid`, `cn`, `sn`, `givenName`, `mail`.
 
 ### Schritt 1.3: Gruppen anzeigen
 
+**Bash:**
+
 ```bash
 docker exec assignment-openldap ldapsearch -x \
   -H ldap://localhost \
@@ -140,6 +150,8 @@ docker exec assignment-openldap ldapsearch -x \
   -b "ou=groups,dc=mustertech,dc=de" \
   "(objectClass=groupOfNames)"
 ```
+
+**PowerShell:**
 
 ```powershell
 docker exec assignment-openldap ldapsearch -x `
