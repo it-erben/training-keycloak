@@ -273,7 +273,20 @@ Die Attribute erscheinen nun im User-Detail neben den bereits vorhandenen Felder
 
 ## Teil 6: Erweiterte Konfiguration
 
-### Aufgabe 6.1: Default Identity Provider (Optional)
+### Aufgabe 6.1: Account Linking für bestehende User
+
+Bestehende User können ihren Account mit Gitea verknüpfen. Entferne dazu zuerst den Link
+der Benutzerin Alice zu ihrem Gitea-Account in den Benutzereinstellungen. Anschließend:
+
+1. Login als bestehender User (z.B. hans.mueller)
+2. Öffne die Account Console: <http://localhost:8080/realms/mustertech/account>
+3. Navigiere zu **Linked accounts**
+4. Klicke bei Gitea auf **Link account**
+
+Du kannst nun den Account verlinken, mit dem du aktuell in Gitea angemeldet bist.
+
+
+### Aufgabe 6.2: Default Identity Provider (Optional)
 
 Wenn du möchtest, dass User direkt zu Gitea weitergeleitet werden:
 
@@ -284,16 +297,7 @@ Wenn du möchtest, dass User direkt zu Gitea weitergeleitet werden:
 
 **Hinweis:** Dies überspringt die Keycloak-Login-Seite komplett!
 
-### Aufgabe 6.2: Account Linking für bestehende User
-
-Bestehende User können ihren Account mit Gitea verknüpfen:
-
-1. Login als bestehender User (z.B. hans.mueller)
-2. Öffne die Account Console: <http://localhost:8080/realms/mustertech/account>
-3. Navigiere zu **Linked accounts**
-4. Klicke bei Gitea auf **Link account**
-
-### Aufgabe 6.3: Gruppen/Rollen für Social Login User
+### Aufgabe 6.3: Gruppen/Rollen für Social Login User (optional)
 
 Social Login User haben standardmäßig keine speziellen Rollen. Um ihnen automatisch Rollen zuzuweisen:
 
