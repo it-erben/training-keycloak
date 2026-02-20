@@ -177,21 +177,15 @@ Klicke auf **Save**.
 2. Versuche, dich als `hans.mueller` mit falschem Passwort anzumelden
 3. Wiederhole dies 5+ Mal
 
-**Erwartetes Ergebnis:** Nach 5 Fehlversuchen erscheint eine Meldung, dass der
-Account temporär gesperrt ist.
+**Erwartetes Ergebnis:** Nach 5 Fehlversuchen wird auch das richtige Passwort nicht
+mehr akzeptiert werden.
 
 ### Schritt 3.4: Gesperrten Account prüfen
 
 In der Admin-Konsole:
 
-1. Navigiere zu **Users** → **hans.mueller**
-2. Gehe zum Tab **Sessions**
-3. Unter **Brute force detection** siehst du den Status
-
-Um den Account zu entsperren:
-
-- Klicke auf **Clear login failures** (falls sichtbar)
-- Oder warte die Sperrzeit ab
+1. Navigiere zu **Users**. Der benutzer erscheint in der Liste als gesperrt.
+2. Gehe in die Benutzereinstellungen. Dort kannst du den Benutzer entsperren.
 
 ---
 
