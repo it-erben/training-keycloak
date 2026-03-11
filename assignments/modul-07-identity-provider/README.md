@@ -184,7 +184,7 @@ Klicke auf **Save**.
 | **Name**                | `gitea-avatar`                |
 | **Sync mode override**  | `inherit`                     |
 | **Mapper type**         | `Attribute importer`          |
-| **Claim**               | `picture`                  |
+| **Claim**               | `picture`                     |
 | **User attribute name** | `Custom Attribute -> picture` |
 
 ### Schritt 3.4: Attribute im User Profile sichtbar machen
@@ -284,7 +284,6 @@ der Benutzerin Alice zu ihrem Gitea-Account in den Benutzereinstellungen. Anschl
 4. Klicke bei Gitea auf **Link account**
 
 Du kannst nun den Account verlinken, mit dem du aktuell in Gitea angemeldet bist.
-
 
 ### Aufgabe 6.2: Default Identity Provider (Optional)
 
