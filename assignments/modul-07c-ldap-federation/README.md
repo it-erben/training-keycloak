@@ -339,7 +339,7 @@ Wiederhole für die anderen Gruppen:
 
 1. Navigiere zu **Users** -> **hans.mueller**
 2. Wechsle zum Tab **Role mapping**
-3. Lasse dir auch die **inherited roles** anzeigen 
+3. Lasse dir auch die **inherited roles** anzeigen
 4. Die Rolle `entwicklung` erscheint
 
 > **Indirekte Rollenzuweisung** - Benutzer erhalten Rollen nicht direkt,

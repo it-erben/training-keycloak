@@ -1,5 +1,5 @@
 include:
-  - component: "gitlab.com/it-erben/components/pdf-publisher/build-publish@1.6.0"
+  - component: "gitlab.com/it-erben/components/pdf-publisher/build-publish@1.7.0"
   - component: "gitlab.com/it-erben/components/linters/lychee-lint@1.3.0"
   - component: "gitlab.com/it-erben/components/linters/yaml-lint@1.3.0"
   - component: "gitlab.com/it-erben/components/linters/markdown-lint@1.3.0"
