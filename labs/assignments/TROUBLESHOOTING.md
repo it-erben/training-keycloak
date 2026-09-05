@@ -128,3 +128,42 @@ kubectl -n keycloak logs job/mustertech
 Der Import laeuft nur, wenn die Keycloak-CR `Ready` ist. Ein Realm, der bereits existiert, wird
 nicht erneut importiert; dazu die CR loeschen, den Realm in der Admin-Konsole entfernen und die CR
 erneut anwenden.
+
+## Admin Permissions und Client Policies
+
+Gilt fuer `modul-12-pci-dss`.
+
+### Menuepunkt "Permissions" oder "Workflows" fehlt
+
+- **Permissions:** erscheint erst, nachdem unter *Realm settings -> General* der Schalter
+  *Admin Permissions* aktiviert und gespeichert wurde. Seite einmal neu laden.
+- **Workflows** und der Executor **secret-rotation:** brauchen die Preview-Features aus der
+  Compose-Datei (`KC_FEATURES: client-secret-rotation,workflows`). Pruefen mit
+  `docker compose logs assignment-keycloak | grep -i preview`.
+
+### Helpdesk sieht keine Benutzer
+
+**Symptom:** `tom.helpdesk` kommt in die Realm-Konsole, die Benutzerliste bleibt leer.
+
+**Ursache:** Die Permission hat nur `reset-password`, aber nicht `view`. Ohne `view` filtert
+Keycloak die Liste auf null Treffer.
+
+**Loesung:** Permission oeffnen, Scope `view` ergaenzen, speichern. Danach in der Realm-Konsole
+ab- und wieder anmelden.
+
+### Admin nach OTP-Einrichtung ausgesperrt
+
+**Symptom:** Nach dem Binden des Flows `browser-mfa` im Realm `master` ist der OTP-Eintrag in
+der App verloren.
+
+**Loesung:** Es gibt keinen Weg zurueck in die Konsole ohne den Code. Lab zuruecksetzen:
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+### kcadm.sh fragt nach einem Code
+
+Sobald `admin` ein OTP hat, verlangt `kcadm.sh config credentials` den aktuellen Code. Ihn
+eingeben oder den Befehl mit `--totp <code>` aufrufen.
