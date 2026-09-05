@@ -49,7 +49,7 @@
 
 ## Folien
 
-Elf Marp-Decks unter `slides/<NN-thema>/slides.md`. Lehrmaterial, das die
+Zwölf Marp-Decks unter `slides/<NN-thema>/slides.md`. Lehrmaterial, das die
 Pronomen- und Leseransprache-Regel aufhebt.
 
 - **Geduzt.** „du“, „dir“, „dein“. Im gesamten `slides/`-Baum steht keine
@@ -57,7 +57,7 @@ Pronomen- und Leseransprache-Regel aufhebt.
 - Frontmatter: `header: "Modul NN: Thema"`, `footer: "CC BY-NC-SA 4.0,
   Alexander Erben"`, `paginate: true`.
 - Titelfolie ist `# Modul NN`, darunter `## Thema`.
-- `## Lernziele` als zweite Folie in allen elf Decks, mit der Einleitung
+- `## Lernziele` als zweite Folie in allen zwölf Decks, mit der Einleitung
   „Nach diesem Modul kannst du:“. Jedes Ziel ein Satz mit dem Fachbegriff
   fett.
 - **Folientitel sind hierarchisch nummeriert**: `## 1. Was ist ein Client?`
@@ -74,7 +74,7 @@ Pronomen- und Leseransprache-Regel aufhebt.
 
 ## Lab-Anleitungen
 
-Sechzehn Übungen unter `labs/assignments/modul-NN[x]-thema/`. Sie bauen
+Siebzehn Übungen unter `labs/assignments/modul-NN[x]-thema/`. Sie bauen
 aufeinander auf: über die ganze Schulung entsteht ein Mitarbeiterportal der
 fiktiven Mustertech GmbH.
 
@@ -129,10 +129,10 @@ Teilnehmenden.
 
 ## Aufbau dieses Repos
 
-Keycloak-Schulung, elf Module.
+Keycloak-Schulung, zwölf Module.
 
-- `slides/01-…` bis `slides/11-…` — die Decks.
-- `labs/assignments/modul-NN…` — sechzehn Übungen, je mit
+- `slides/01-…` bis `slides/12-…` — die Decks.
+- `labs/assignments/modul-NN…` — siebzehn Übungen, je mit
   `docker-compose.yml`, meist mit `realm-import.json` und `screenshots/`.
   `modul-11-kubernetes` hat statt Compose ein `manifests/`-Verzeichnis mit
   dem Realm als `KeycloakRealmImport`-CR.
@@ -142,7 +142,7 @@ Keycloak-Schulung, elf Module.
   `keycloak`.
 - `labs/assignments/TROUBLESHOOTING.md` — die Sammelstelle für Fehlerbilder.
   Neue Stolpersteine dorthin, nicht in das einzelne Lab.
-- `demos/modul-NN-thema/` — elf Vorführungen des Trainers.
+- `demos/modul-NN-thema/` — zwölf Vorführungen des Trainers.
 - `materials/` — zwei Vortragsvorlagen zu OAuth-Flows.
 
 ## Fallstricke dieses Repos
@@ -159,7 +159,7 @@ Keycloak-Schulung, elf Module.
 - **`tools/screenshots/` enthält nur ein ignoriertes `node_modules`.** Es gibt
   keinen versionierten Quellcode für das Screenshot-Werkzeug.
 - **Nicht jedes Lab bringt alles mit.** `modul-03-installation` hat kein
-  `realm-import.json` — dort ist das Aufsetzen die Übung. Fünf Labs haben
+  `realm-import.json` — dort ist das Aufsetzen die Übung. Sechs Labs haben
   keine `screenshots/`, eines keine geschätzte Dauer.
 - **Die Modulnummern von Labs und Demos decken sich nicht durchgängig.** Zu
   `demos/modul-06d-client-role-isolation` gehört `labs/assignments/
