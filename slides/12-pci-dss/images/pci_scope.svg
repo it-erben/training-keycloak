@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="560" viewBox="0 0 520 560" font-family="Helvetica, Arial, sans-serif" font-size="15">
+  <!-- Out of scope -->
+  <rect x="10" y="10" width="500" height="540" rx="14" fill="#f5f5f5" stroke="#999999" stroke-width="2" stroke-dasharray="8,6"/>
+  <text x="30" y="40" font-weight="bold" fill="#666666">Außerhalb des Scope</text>
+  <rect x="40" y="60" width="200" height="44" rx="8" fill="#ffffff" stroke="#bbbbbb" stroke-width="1.5"/>
+  <text x="140" y="87" text-anchor="middle" fill="#666666">Intranet, Wiki, Mail</text>
+
+  <!-- In scope -->
+  <rect x="30" y="130" width="460" height="400" rx="12" fill="#fff2cc" stroke="#d6b656" stroke-width="2"/>
+  <text x="50" y="158" font-weight="bold" fill="#8a6d1f">Im Scope von PCI DSS</text>
+
+  <!-- CDE -->
+  <rect x="50" y="180" width="420" height="150" rx="10" fill="#f8cecc" stroke="#b85450" stroke-width="2"/>
+  <text x="70" y="206" font-weight="bold" fill="#7a2f2c">CDE: Cardholder Data Environment</text>
+  <rect x="70" y="225" width="180" height="44" rx="8" fill="#ffffff" stroke="#b85450" stroke-width="1.5"/>
+  <text x="160" y="252" text-anchor="middle">Zahlungs-Backend</text>
+  <rect x="270" y="225" width="180" height="44" rx="8" fill="#ffffff" stroke="#b85450" stroke-width="1.5"/>
+  <text x="360" y="252" text-anchor="middle">Kartendaten-DB</text>
+  <text x="70" y="305" font-size="13" fill="#7a2f2c">speichert, verarbeitet oder überträgt Karteninhaberdaten</text>
+
+  <!-- Connected-to -->
+  <rect x="50" y="350" width="200" height="160" rx="10" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/>
+  <text x="150" y="376" text-anchor="middle" font-weight="bold" fill="#2f4b7c">Connected-to</text>
+  <rect x="70" y="395" width="160" height="40" rx="8" fill="#ffffff" stroke="#6c8ebf" stroke-width="1.5"/>
+  <text x="150" y="420" text-anchor="middle">Reporting-Server</text>
+  <text x="150" y="470" text-anchor="middle" font-size="13" fill="#2f4b7c">Netzverbindung</text>
+  <text x="150" y="488" text-anchor="middle" font-size="13" fill="#2f4b7c">in die CDE</text>
+
+  <!-- Security-impacting -->
+  <rect x="270" y="350" width="200" height="160" rx="10" fill="#e1d5e7" stroke="#9673a6" stroke-width="2"/>
+  <text x="370" y="376" text-anchor="middle" font-weight="bold" fill="#4d2e5c">Security-impacting</text>
+  <rect x="290" y="395" width="160" height="40" rx="8" fill="#ffffff" stroke="#9673a6" stroke-width="2.5"/>
+  <text x="370" y="420" text-anchor="middle" font-weight="bold">Keycloak</text>
+  <text x="370" y="470" text-anchor="middle" font-size="13" fill="#4d2e5c">stellt Logins für</text>
+  <text x="370" y="488" text-anchor="middle" font-size="13" fill="#4d2e5c">CDE-Anwendungen aus</text>
+
+  <!-- Arrows -->
+  <line x1="150" y1="350" x2="150" y2="332" stroke="#6c8ebf" stroke-width="2"/>
+  <line x1="370" y1="350" x2="370" y2="332" stroke="#9673a6" stroke-width="2"/>
+</svg>
