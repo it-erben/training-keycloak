@@ -11,20 +11,20 @@ concurrency:
 
 jobs:
   lint:
-    uses: it-erben/ci/.github/workflows/lint.yml@1.0.0
+    uses: it-erben/ci/.github/workflows/lint.yml@1.0.1
   slides:
-    uses: it-erben/ci/.github/workflows/slides.yml@1.0.0
+    uses: it-erben/ci/.github/workflows/slides.yml@1.0.1
   release:
     needs: [lint, slides]
     permissions:
       contents: write
       issues: write
       pull-requests: write
-    uses: it-erben/ci/.github/workflows/release.yml@1.0.0
+    uses: it-erben/ci/.github/workflows/release.yml@1.0.1
   pages:
     needs: [slides, release]
     if: needs.release.outputs.published == 'true'
     permissions:
       pages: write
       id-token: write
-    uses: it-erben/ci/.github/workflows/pages.yml@1.0.0
+    uses: it-erben/ci/.github/workflows/pages.yml@1.0.1
