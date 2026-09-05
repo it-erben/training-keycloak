@@ -63,3 +63,68 @@ docker compose up -d
 ```
 
 > Achtung: `-v` loescht persistente Daten (Volumes).
+
+## Kubernetes / minikube
+
+Gilt fuer `modul-11-kubernetes`. Das Lab nutzt kein `docker compose`; die Befehle oben greifen dort nicht.
+
+### minikube startet nicht
+
+**Symptom:** `minikube start` bricht mit `Docker Desktop has only ... memory` oder
+`Exiting due to RSRC_INSUFFICIENT_...` ab.
+
+**Ursache:** Docker Desktop stellt weniger RAM oder CPUs bereit, als `--memory=6144 --cpus=4` anfordert.
+
+**Loesung:** In Docker Desktop unter *Settings -> Resources* mindestens 6 GB RAM und 4 CPUs
+freigeben, oder die Compose-Container der vorherigen Uebung mit `docker compose down -v` beenden.
+
+### Keycloak-Pod bleibt Pending
+
+```bash
+kubectl -n keycloak describe pod keycloak-0 | tail -20
+```
+
+`Insufficient memory` oder `Insufficient cpu` in den Events: Die Requests der Keycloak-CR passen
+nicht mehr auf den Knoten. `instances` auf `1` zuruecksetzen oder den Cluster mit mehr Speicher
+neu anlegen (`minikube delete`, dann `minikube start` mit hoeherem `--memory`).
+
+### Keycloak-CR wird nicht Ready
+
+```bash
+kubectl -n keycloak get keycloak keycloak -o jsonpath='{.status.conditions}'
+kubectl -n keycloak logs keycloak-0
+```
+
+Haeufige Ursachen:
+
+- `HasErrors` mit Hinweis auf die Datenbank: `postgres-0` laeuft noch nicht oder das Secret
+  `postgres-credentials` fehlt. Reihenfolge der Manifeste einhalten.
+- `Connection refused` in den Logs beim Start: PostgreSQL ist noch nicht bereit. Keycloak
+  versucht es erneut; ein bis zwei Minuten warten.
+
+### Browser landet auf einer internen Adresse oder meldet "Invalid redirect"
+
+**Ursache:** `hostname.hostname` in `manifests/02-keycloak.yaml` stimmt nicht mit der URL im Browser
+ueberein, oder `proxy.headers` fehlt und Keycloak erzeugt `http://`-URLs hinter dem TLS-Ingress.
+
+**Loesung:** Beide Felder pruefen, Manifest erneut anwenden. Der Operator rollt die Pods neu aus.
+
+### keycloak.mustertech.test ist nicht erreichbar
+
+- **macOS, Windows:** `minikube tunnel` muss in einem eigenen Terminal laufen und darf nicht
+  beendet werden. Es fragt nach dem Administrator-Passwort.
+- **Linux:** Die IP aus `minikube ip` muss in der Hosts-Datei stehen, nicht `127.0.0.1`.
+- Der Ingress-Controller ist bereit, wenn `kubectl -n ingress-nginx get pods` `Running` zeigt.
+- Ein Compose-Lab mit Traefik (Modul 10b) belegt die Ports 80 und 443; erst `docker compose down -v`.
+
+### Realm-Import bleibt haengen
+
+```bash
+kubectl -n keycloak get keycloakrealmimport mustertech -o jsonpath='{.status.conditions}'
+kubectl -n keycloak get jobs
+kubectl -n keycloak logs job/mustertech
+```
+
+Der Import laeuft nur, wenn die Keycloak-CR `Ready` ist. Ein Realm, der bereits existiert, wird
+nicht erneut importiert; dazu die CR loeschen, den Realm in der Admin-Konsole entfernen und die CR
+erneut anwenden.
