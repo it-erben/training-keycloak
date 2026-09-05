@@ -167,3 +167,8 @@ Keycloak-Schulung, zehn Module.
   Labs brechen bei rund 100 um. Pro Datei beim vorhandenen Maß bleiben.
 - **Die CI hat eine `deploy`-Stage, aber keine `training-deploy`-Komponente.**
   Es entsteht ein PDF und ein Release-Tag, aber keine Website.
+- **Die CI läuft auf zwei Plattformen.** `.gitlab-ci.yml` bindet die
+  GitLab-Komponenten ein, `.github/workflows/ci.yml` ruft `lint.yml`,
+  `slides.yml`, `release.yml` und `pages.yml` aus
+  `it-erben/ci`. Die PDFs gehen dort auf
+  GitHub Pages.
