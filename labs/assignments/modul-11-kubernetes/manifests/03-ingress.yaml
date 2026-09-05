@@ -1,0 +1,24 @@
+# TLS-Terminierung am Ingress-Controller (minikube-Addon "ingress", nginx).
+# Das Secret "keycloak-tls" entsteht im Lab aus einem selbstsignierten Zertifikat.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak
+  namespace: keycloak
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - keycloak.mustertech.test
+      secretName: keycloak-tls
+  rules:
+    - host: keycloak.mustertech.test
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak-service
+                port:
+                  number: 8080
