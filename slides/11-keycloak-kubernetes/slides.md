@@ -70,8 +70,8 @@ section {
 
 | Weg | Was du bekommst | Wann sinnvoll |
 | --- | --- | --- |
-| **Keycloak Operator** | Upstream-Projekt, CRDs `Keycloak` und `KeycloakRealmImport`, Rolling Updates | Standardfall |
-| **Helm Chart** (codecentric, Bitnami) | Klassisches Templating, viele Werte | Bestehende Helm-Landschaft, Chart-Pflege eingeplant |
+| **Keycloak Operator** | Upstream, CRDs `Keycloak` und `KeycloakRealmImport`, Rolling Updates | Standardfall |
+| **Helm Chart** (codecentric, Bitnami) | Klassisches Templating, viele Werte | Bestehende Helm-Landschaft |
 | **Eigene Manifeste** | Volle Kontrolle über StatefulSet und Config | Sonderfälle, die die CR nicht abbildet |
 
 Der Bitnami-Katalog liegt seit 2025 im Legacy-Bereich; der codecentric-Chart ist ein Community-Projekt.
@@ -144,7 +144,7 @@ Zwei Muster, wo TLS endet:
 | Muster | Ablauf | Konsequenz |
 | --- | --- | --- |
 | **Terminierung am Ingress** | Ingress entschlüsselt, HTTP im Cluster | Keycloak braucht `proxy.headers: xforwarded` |
-| **Re-Encrypt / Passthrough** | TLS bis zum Pod, `http.tlsSecret` in der CR | Zertifikat muss im Pod liegen und rotiert werden |
+| **Re-Encrypt / Passthrough** | TLS bis zum Pod, `http.tlsSecret` in der CR | Zertifikat liegt im Pod, Rotation nötig |
 
 **cert-manager** stellt Zertifikate aus (Let's Encrypt, interne CA) und erneuert sie als Secret.
 
