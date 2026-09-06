@@ -196,7 +196,7 @@ Hast du schon einmal einen dieser Flows benutzt?
 
 - Wo seid ihr dem Device Flow im Alltag schon begegnet?
 - Warum nutzt der Device Flow Polling und nicht z.B. WebSockets?
-- Was passiert, wenn der Benutzer den Code nie eingibt -- wie verhält sich das
+- Was passiert, wenn der Benutzer den Code nie eingibt? Wie verhält sich das
   Gerät?
 - Welche Risiken seht ihr beim Device Flow, die es beim Authorization Code Flow
   nicht gibt?
@@ -230,7 +230,7 @@ Typische Antworten:
   offene Verbindung pro Gerät halten. Bei Millionen von Geräten (z.B.
   YouTube auf Smart-TVs weltweit) wäre das ein enormer Ressourcenaufwand.
 - **Robustheit:** Wenn die Verbindung kurz unterbrochen wird (WLAN-Wechsel
-  etc.), ist Polling automatisch resilient -- der nächste Request geht
+  etc.), ist Polling automatisch resilient, der nächste Request geht
   einfach durch. Bei WebSockets müsste die Verbindung neu aufgebaut werden.
 
 ### "Was passiert, wenn der Code nie eingegeben wird?"
@@ -239,7 +239,7 @@ Typische Antworten:
   typisch 5-15 Minuten).
 - Nach Ablauf antwortet der Server mit `"error": "expired_token"`.
 - Das Gerät zeigt dem Benutzer dann eine Meldung an (z.B. "Zeitlimit
-  überschritten") und bietet an, den Flow **neu zu starten** -- also
+  überschritten") und bietet an, den Flow **neu zu starten**, also
   einen neuen Device Code und User Code anzufordern.
 - Während der Polling-Phase verbraucht das Gerät nur minimale Ressourcen,
   da zwischen den Requests jeweils das `interval` (z.B. 5 Sekunden)
@@ -254,7 +254,7 @@ Typische Antworten:
   unwissentlich das Gerät des Angreifers. Beim Authorization Code Flow
   ist das schwieriger, weil der Redirect direkt an die richtige App geht.
 - **Keine Gerätebindung:** Der User Code kann von **jedem** eingegeben
-  werden -- es gibt keine kryptographische Bindung zwischen dem Gerät
+  werden, es gibt keine kryptographische Bindung zwischen dem Gerät
   und dem Benutzer wie z.B. bei PKCE im Authorization Code Flow.
 - **Polling als Angriffsfläche:** Ein Angreifer könnte versuchen, den
   Device Code zu erraten und parallel zu pollen. Deshalb müssen Device

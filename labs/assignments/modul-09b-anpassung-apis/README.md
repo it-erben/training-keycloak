@@ -1,4 +1,4 @@
-# Modul 09b: Anpassung -- APIs & Erweiterungen
+# Modul 09b: Anpassung, APIs & Erweiterungen
 
 ## Übungsziel
 
@@ -155,7 +155,7 @@ Beachte die folgenden Felder:
 
 - **`enabled: true`** - aktiviert den Account sofort (ohne dieses Flag wäre der
   User deaktiviert und könnte sich nicht einloggen)
-- **`emailVerified: true`** -- überspringt die E-Mail-Verifizierung (nützlich
+- **`emailVerified: true`:** überspringt die E-Mail-Verifizierung (nützlich
   für Testdaten; in Produktion würde man dies auf `false` setzen)
 - **`attributes`** - benutzerdefinierte Attribute wie die Personalnummer, die
   als Key-Value-Paare mit String-Arrays gespeichert werden

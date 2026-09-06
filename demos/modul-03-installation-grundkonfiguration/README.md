@@ -1,6 +1,6 @@
-# Live-Demo: Modul 03 -- Installation & Grundkonfiguration
+# Live-Demo Modul 03: Installation & Grundkonfiguration
 
-Keycloak mit Docker Compose starten, die Admin-Konsole erkunden und den Realm **mustertech** einrichten -- das ist die
+Keycloak mit Docker Compose starten, die Admin-Konsole erkunden und den Realm **mustertech** einrichten. Das ist die
 Basis für alle folgenden Module.
 
 | Demo   | Thema                             | Dauer |
@@ -31,13 +31,13 @@ Keycloak Admin-Konsole: <http://localhost:9090> (admin / admin)
 
 ## Demo 1: Docker Compose starten
 
-### Schritt 1 -- Container starten
+### Schritt 1: Container starten
 
 ```bash
 docker compose up -d
 ```
 
-### Schritt 2 -- Logs beobachten
+### Schritt 2: Logs beobachten
 
 ```bash
 docker compose logs -f demo-keycloak
@@ -51,7 +51,7 @@ Keycloak 26.0.0 on JVM (powered by Quarkus) started in Xs.
 
 Drücke `Ctrl+C`.
 
-### Schritt 3 -- Status prüfen
+### Schritt 3: Status prüfen
 
 ```bash
 docker compose ps
@@ -69,13 +69,13 @@ docker compose ps
 
 ## Demo 2: Admin-Konsole erkunden
 
-### Schritt 1 -- Login
+### Schritt 1: Login
 
 1. Öffne im Browser: <http://localhost:9090>
 2. Klicke auf **Administration Console**
 3. Login mit `admin` / `admin`
 
-### Schritt 2 -- Navigation zeigen
+### Schritt 2: Navigation zeigen
 
 | Bereich                | Zweck                                 |
 |:-----------------------|:--------------------------------------|
@@ -94,7 +94,7 @@ docker compose ps
 
 ## Demo 3: Realm "mustertech" anlegen
 
-### Schritt 1 -- Realm erstellen
+### Schritt 1: Realm erstellen
 
 1. Klicke oben links auf **master** (Realm-Dropdown)
 2. Klicke auf **Create realm**
@@ -107,7 +107,7 @@ docker compose ps
 
 4. Klicke auf **Create**
 
-### Schritt 2 -- SSL-Pflicht deaktivieren (Dev-Modus)
+### Schritt 2: SSL-Pflicht deaktivieren (Dev-Modus)
 
 1. Navigiere zu **Realm settings** (linke Navigation)
 2. Setze **Require SSL** auf **None**
@@ -116,21 +116,21 @@ docker compose ps
 > **Zeigen:** In Produktion wäre hier "External requests" oder "All requests" richtig.
 > Für unseren lokalen Dev-Modus schalten wir die SSL-Pflicht ab.
 
-### Schritt 3 -- Display Name setzen
+### Schritt 3: Display Name setzen
 
 1. Gib ein:
     - **Display name:** `Mustertech GmbH`
     - **HTML Display name:** `<b>Mustertech</b> GmbH`
 2. Klicke auf **Save**
 
-> **Zeigen:** Jeder Realm ist vollständig isoliert -- eigene User, Clients, Rollen. Der `mustertech`-Realm ist ab jetzt
+> **Zeigen:** Jeder Realm ist vollständig isoliert: eigene User, Clients, Rollen. Der `mustertech`-Realm ist ab jetzt
 > unsere Spielwiese für alle weiteren Module.
 
 ---
 
 ## Demo 4: Realm-Einstellungen konfigurieren
 
-### Schritt 1 -- Login-Optionen
+### Schritt 1: Login-Optionen
 
 1. Navigiere zu **Realm settings** --> Tab **Login**
 2. Aktiviere:
@@ -143,7 +143,7 @@ docker compose ps
 
 3. Klicke auf **Save**
 
-### Schritt 2 -- OIDC Discovery Endpoint zeigen
+### Schritt 2: OIDC Discovery Endpoint zeigen
 
 Öffne im Browser:
 
@@ -151,7 +151,7 @@ docker compose ps
 http://localhost:9090/realms/mustertech/.well-known/openid-configuration
 ```
 
-> **Zeigen:** Jeder Realm hat automatisch alle OIDC-Endpunkte. Die Teilnehmer kennen das aus Modul 02 -- hier sehen sie
+> **Zeigen:** Jeder Realm hat automatisch alle OIDC-Endpunkte. Die Teilnehmer kennen das aus Modul 02, hier sehen sie
 > es für ihren eigenen Realm.
 
 **Diskussionspunkte:**

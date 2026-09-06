@@ -1,6 +1,6 @@
-# Live-Demo: Modul 10 -- Betrieb & Sicherheit
+# Live-Demo Modul 10: Betrieb & Sicherheit
 
-Brute-Force-Detection, Password Policy und Events live konfigurieren und testen -- mit
+Brute-Force-Detection, Password Policy und Events live konfigurieren und testen, mit
 einem dedizierten Demo-User, Fokus auf den Audit-Trail.
 
 | Demo | Thema | Dauer |
@@ -34,12 +34,12 @@ Der Realm **mustertech** wird automatisch importiert (mit User `demo-user` / `de
 
 ## Demo 1: Brute-Force-Detection aktivieren
 
-### Schritt 1 -- Security Defenses öffnen
+### Schritt 1: Security Defenses öffnen
 
 1. Navigiere zu **Realm settings** -> **Security defenses**
 2. Wechsle zum Tab **Brute force detection**
 
-### Schritt 2 -- Konfigurieren
+### Schritt 2: Konfigurieren
 
 | Einstellung | Wert |
 | :--- | :--- |
@@ -58,7 +58,7 @@ Klicke auf **Save**.
 
 ## Demo 2: Password Policy einrichten
 
-### Schritt 1 -- Policies hinzufügen
+### Schritt 1: Policies hinzufügen
 
 1. Navigiere zu **Authentication** -> **Policies** -> **Password policy**
 2. Füge nacheinander hinzu:
@@ -83,14 +83,14 @@ Klicke nach jeder Policy auf **Save**.
 
 ## Demo 3: Events aktivieren
 
-### Schritt 1 -- User Events konfigurieren
+### Schritt 1: User Events konfigurieren
 
 1. Navigiere zu **Realm settings** -> **Events** -> **User events settings**
 2. Aktiviere **Save events:** ON
 3. Setze **Expiration:** `30` Tage
 4. Klicke auf **Save**
 
-### Schritt 2 -- Admin Events konfigurieren
+### Schritt 2: Admin Events konfigurieren
 
 1. Wechsle zum Tab **Admin events settings**
 2. Aktiviere **Save events:** ON
@@ -98,32 +98,32 @@ Klicke nach jeder Policy auf **Save**.
 4. Klicke auf **Save**
 
 > **Zeigen:** "Include representation" speichert den Vorher/Nachher-Zustand bei
-> Admin-Änderungen. Damit kann man nachvollziehen, WAS genau geändert wurde -- nicht nur
+> Admin-Änderungen. Damit kann man nachvollziehen, WAS genau geändert wurde, nicht nur
 > DASS etwas geändert wurde.
 
 ---
 
 ## Demo 4: Brute-Force testen
 
-### Schritt 1 -- Account Console öffnen
+### Schritt 1: Account Console öffnen
 
 1. Öffne ein **Inkognito-Fenster**
 2. Navigiere zu: <http://localhost:9090/realms/mustertech/account>
 
-### Schritt 2 -- Fehlgeschlagene Logins provozieren
+### Schritt 2: Fehlgeschlagene Logins provozieren
 
 1. Gib den Username `demo-user` ein
 2. Gib ein **falsches Passwort** ein
 3. Wiederhole dies **4 Mal**
 
-### Schritt 3 -- Sperre beobachten
+### Schritt 3: Sperre beobachten
 
 Nach dem 3. Fehlversuch zeigt Keycloak: **"Account is temporarily disabled"**
 
-> **Zeigen:** Der 4. Versuch wird sofort abgelehnt -- auch mit dem richtigen Passwort. Das
+> **Zeigen:** Der 4. Versuch wird sofort abgelehnt, auch mit dem richtigen Passwort. Das
 > schützt gegen automatisierte Angriffe.
 
-### Schritt 4 -- Account entsperren
+### Schritt 4: Account entsperren
 
 1. Wechsle zur Admin-Konsole
 2. Navigiere zu **Users** -> `demo-user` öffnen
@@ -133,7 +133,7 @@ Nach dem 3. Fehlversuch zeigt Keycloak: **"Account is temporarily disabled"**
 > **Zeigen:** Der Admin muss aktiv eingreifen (oder die Sperrzeit abwarten). In Produktion
 > sollte es einen Prozess dafür geben.
 
-### Schritt 5 -- Login mit korrektem Passwort
+### Schritt 5: Login mit korrektem Passwort
 
 1. Wechsle zurück zum Inkognito-Fenster
 2. Melde dich mit `demo-user` / `demo1234` an
@@ -143,17 +143,17 @@ Nach dem 3. Fehlversuch zeigt Keycloak: **"Account is temporarily disabled"**
 
 ## Demo 5: Events prüfen (Audit-Trail)
 
-### Schritt 1 -- User Events filtern
+### Schritt 1: User Events filtern
 
 1. Navigiere zu **Realm settings** -> **Events** -> Tab **User events**
 2. Filtere:
    - **Event type:** `LOGIN_ERROR`
 3. Klicke auf **Search**
 
-> **Zeigen:** Jeder fehlgeschlagene Login wird protokolliert -- mit Timestamp, IP-Adresse,
+> **Zeigen:** Jeder fehlgeschlagene Login wird protokolliert, mit Timestamp, IP-Adresse,
 > Username und Error-Details. Das ist der Audit-Trail für Sicherheitsvorfälle.
 
-### Schritt 2 -- Event-Details analysieren
+### Schritt 2: Event-Details analysieren
 
 Klicke auf ein Event und zeige:
 
@@ -164,7 +164,7 @@ Klicke auf ein Event und zeige:
 | IP Address | Von welcher IP? |
 | Error | `invalid_user_credentials` |
 
-### Schritt 3 -- Admin Events prüfen
+### Schritt 3: Admin Events prüfen
 
 1. Wechsle zum Tab **Admin events**
 2. Hier siehst du die Aktionen, die du als Admin durchgeführt hast
