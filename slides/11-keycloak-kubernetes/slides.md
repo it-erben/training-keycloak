@@ -19,7 +19,7 @@ Nach diesem Modul kannst du:
 - Die **Grundarchitektur** eines Keycloak-Deployments auf Kubernetes benennen.
 - Den **Keycloak Operator** und seine Custom Resources einsetzen.
 - **Ingress**, **TLS** und **Hostname** so konfigurieren, dass Redirects und Token stimmen.
-- Eine externe **Datenbank** sicher anbinden.
+- Eine externe **Datenbank** über Secrets anbinden.
 - Keycloak **skalieren** und die **Cluster-Bildung** über Infinispan nachvollziehen.
 - **Backup**, **Upgrades** und **Monitoring** im Cluster planen.
 
@@ -35,7 +35,7 @@ Keycloak ist eine zustandsarme Java-Anwendung: der Zustand liegt in der Datenban
 - **Rolling Updates:** Neue Version ausrollen, ohne dass der Login ausfällt.
 - **Deklarativ:** Die gesamte Konfiguration liegt als YAML im Git-Repository.
 
-> **Merke:** Keycloak selbst ist stateless, die Datenbank nicht. Sie entscheidet über Verfügbarkeit und Backup.
+> **Merke:** Keycloak hält keinen Zustand. Verfügbarkeit und Backup hängen an der Datenbank.
 
 ---
 
@@ -148,8 +148,9 @@ Zwei Muster, wo TLS endet:
 
 **cert-manager** stellt Zertifikate aus (Let's Encrypt, interne CA) und erneuert sie als Secret.
 
-- **Vertrauensfrage:** `proxy.headers` heißt, Keycloak glaubt den Headern.
-- Steht der Pod ohne Ingress im Netz, setzt ein Angreifer `X-Forwarded-*` selbst.
+Mit `proxy.headers` vertraut Keycloak den Headern.
+
+Ein ohne Ingress erreichbarer Pod nimmt deshalb auch gefälschte `X-Forwarded-*`-Header an.
 
 ---
 
@@ -229,7 +230,7 @@ section {
 | **Secrets** | TLS-Zertifikate, DB-Zugang, Signatur-Keys: Sealed Secrets oder External Secrets |
 | **CRs** | Alle Manifeste versioniert; der Cluster ist aus Git wiederherstellbar |
 
-Ein Restore auf ein Testsystem gehört in den regelmäßigen Betrieb, nicht erst in den Notfall.
+Ein Restore auf ein Testsystem gehört in den regelmäßigen Betrieb.
 
 ---
 
@@ -248,6 +249,6 @@ Ein Restore auf ein Testsystem gehört in den regelmäßigen Betrieb, nicht erst
 - **Keycloak ist stateless**, die Datenbank hält den Zustand.
 - Der **Operator** übersetzt die `Keycloak`-CR in StatefulSet, Services und Secrets.
 - **Ingress** terminiert TLS; `proxy.headers` und `hostname` müssen zusammenpassen.
-- **Skalierung** ist eine Zahl in der CR; Infinispan und persistente Sessions machen sie sicher.
+- **Skalierung** ist eine Zahl in der CR; persistente Sessions überstehen den Pod-Wechsel.
 - **Management-Port 9000** trägt Probes und Metriken.
 - **Realm-Konfiguration** liegt als `KeycloakRealmImport` in Git.
