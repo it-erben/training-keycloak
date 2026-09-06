@@ -35,7 +35,7 @@ Er gilt für jede Organisation, die Karteninhaberdaten speichert, verarbeitet od
 - **Version:** 4.0.1, seit Juni 2024. Alle zuvor „future-dated" Anforderungen sind seit März 2025 Pflicht.
 - **Zwölf Anforderungen** in sechs Zielen, von Netzwerksicherheit bis Richtlinien.
 - **Nachweis:** Selbstauskunft (SAQ) oder Prüfung durch einen **QSA** (Qualified Security Assessor).
-- **Wer entscheidet:** Der QSA legt aus, was im Einzelfall genügt. Diese Folien liefern die Zuordnung, nicht das Urteil.
+- **Wer entscheidet:** Der QSA legt aus, was im Einzelfall genügt. Diese Folien ordnen Anforderungen Einstellungen zu.
 
 ---
 <style scoped>
@@ -55,7 +55,7 @@ Im Scope sind zusätzlich:
 - **Connected-to:** Netzverbindung in die CDE.
 - **Security-impacting:** beeinflusst die Sicherheit der CDE.
 
-Ein IdP, der Logins für CDE-Anwendungen ausstellt, ist **security-impacting**: im Scope ohne eigene Kartendaten.
+Ein IdP, der Logins für CDE-Anwendungen ausstellt, ist **security-impacting** und damit im Scope.
 
 ---
 <style scoped>
@@ -150,7 +150,7 @@ Ein `Required` OTP Form erzwingt bei Usern ohne OTP die Einrichtung beim nächst
   - **Rotated Secret Expiration:** Übergangsfrist, in der das alte Secret weiter gilt.
   - Rotation über die Admin-API aus dem Secret-Manager heraus auslösbar.
 
-Alternativ **Client Authentication** per Signed JWT oder mTLS: kein Secret, das rotiert werden muss.
+Alternativ **Client Authentication** per Signed JWT oder mTLS; dann entfällt die Rotation.
 
 ---
 <style scoped>
@@ -215,10 +215,10 @@ section {
 | **Letzter Login am User** | Kein Attribut, nur Events | Workflow `disable-user` oder Skript über Events |
 | **12 Monate Log-Retention** | Realm-Wert, Datenbank wächst | Export nach stdout, Log-System hält 12 Monate |
 | **Zeitsynchronisation** | Keycloak nutzt die Systemzeit | NTP auf Hosts und Knoten |
-| **Rechte-Review** | Kein Report, keine Zertifizierung | Admin-API abfragen, Ergebnis dokumentieren |
+| **Rechte-Review** | Kein eingebauter Report | Admin-API abfragen, Ergebnis dokumentieren |
 | **Prozesse** | Eintritt, Austritt, Ausnahmen | Anforderung 12: Richtlinien der Organisation |
 
-Für jede Zeile gilt: Keycloak liefert die Daten, die Organisation den Prozess.
+In allen fünf Fällen liefert Keycloak die Daten. Den Prozess dahinter regelt die Organisation.
 
 ---
 <style scoped>
@@ -245,7 +245,7 @@ Die ausgefüllte Liste ist das Arbeitsdokument für das Gespräch mit dem QSA.
 ## Zusammenfassung
 
 - Keycloak ist im **Scope**, sobald es Logins für die CDE ausstellt.
-- **Anforderung 8** ist in Keycloak fast vollständig einstellbar: Policy, Sperre, Sessions, MFA.
+- **Anforderung 8** ist bis auf 8.2.6 in Keycloak einstellbar: Policy, Sperre, Sessions, MFA.
 - **Anforderung 7** erfüllen Admin Permissions statt breiter Admin-Rollen.
 - **Anforderung 10** braucht Events plus ein Log-System für die Aufbewahrung.
-- **Nicht in Keycloak:** letzter Login, Zeitsynchronisation, Prozesse. Das steht in der Checkliste.
+- **Nicht in Keycloak:** die fünf Lücken aus Abschnitt 7. Sie stehen in der Checkliste.

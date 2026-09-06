@@ -8,7 +8,7 @@ Am Ende dieser Übung hast du:
 - Passwort-Policy, Sperrverhalten und Session-Timeouts auf die PCI-Grenzwerte gesetzt
 - MFA für alle Benutzer und für die Admin-Konsole erzwungen
 - Einen Helpdesk-Zugang eingerichtet, der nur Passwörter zurücksetzen darf
-- Das Audit-Log vollständig konfiguriert und über die Admin-API abgezogen
+- Alle User- und Admin-Events gespeichert und über die Admin-API abgezogen
 - Die Rotation von Client-Secrets über eine Client Policy erzwungen
 - Die Checkliste mit Soll, Ist und offenen Punkten außerhalb von Keycloak ausgefüllt
 
@@ -132,7 +132,7 @@ oder bis ein Admin sie aufhebt.
 
 `Wait increment` gleich `Max wait` bedeutet: die erste Sperre dauert bereits 30 Minuten. Die
 Variante **Lockout permanently after temporary lockout** erfüllt die Anforderung ebenfalls;
-sie verlagert die Freigabe vollständig zum Admin.
+sie verlagert die Freigabe zum Admin.
 
 ### Schritt 3.2: Sperre auslösen und aufheben
 
@@ -248,14 +248,14 @@ Melde dich im privaten Fenster unter `http://localhost:8080/admin/mustertech/con
 **Details** sind nicht änderbar, **Delete** fehlt.
 
 > **Konzept: Least Privilege** - `query-users` gibt den Einstieg, die Permission gibt die
-> Operationen. Ohne `view` wäre die Benutzerliste leer, ohne `reset-password` griffe der
-> Fallback auf `manage`, und der ist nicht vergeben.
+> Operationen. `view` füllt die Benutzerliste, `reset-password` erlaubt den Reset. Fehlt
+> `reset-password`, prüft Keycloak stattdessen `manage`, und das ist nicht vergeben.
 
 ---
 
 ## Teil 7: Audit-Log (10.2, 10.5)
 
-### Schritt 7.1: Events vollständig
+### Schritt 7.1: Alle Events speichern
 
 1. Navigiere zu **Realm settings** → **Events** → **User events settings**
 2. **Save events** `On`, **Expiration** `90` Days
@@ -363,8 +363,8 @@ steps:
 
 Jede Anmeldung setzt den Zähler zurück (`restart-in-progress`). Nach 76 Tagen ohne Anmeldung
 geht eine Mail an Mailpit (`http://localhost:8025`), nach 90 Tagen ist das Konto deaktiviert.
-Die Grenze der Methode: Benutzer, die sich nach dem Anlegen des Workflows nie angemeldet haben,
-erfasst der Zeitplan erst über `schedule`.
+Benutzer, die sich nach dem Anlegen des Workflows nie angemeldet haben, erfasst nur der Zeitplan
+über `schedule`.
 
 ---
 
@@ -372,7 +372,7 @@ erfasst der Zeitplan erst über `schedule`.
 
 Trage die Werte aus den Teilen 2 bis 8 in die Spalte „Ist nachher" ein. Fülle die Spalte
 „Außerhalb von Keycloak" für die Zeilen 8.2.1, 8.2.5, 10.5.1, 10.6, 4.2.1 und 6.3.3: dort
-bleibt die Organisation in der Pflicht, auch wenn Keycloak korrekt konfiguriert ist.
+bleibt die Organisation in der Pflicht, auch bei passender Keycloak-Konfiguration.
 
 ---
 
@@ -392,7 +392,7 @@ Du hast erfolgreich:
 - [x] Passwort-Policy, Sperrverhalten und Sessions auf die Grenzwerte gesetzt
 - [x] MFA für Benutzer und Admins ohne Ausnahme erzwungen
 - [x] Einen Helpdesk-Zugang mit Admin Permissions auf `reset-password` beschränkt
-- [x] Das Audit-Log vollständig konfiguriert und über die Admin-API abgezogen
+- [x] Alle User- und Admin-Events gespeichert und über die Admin-API abgezogen
 - [x] Client-Secrets über eine Client Policy rotiert
 
 ---
@@ -406,5 +406,5 @@ Siehe zentrales Troubleshooting: [PCI DSS / Admin Permissions](../TROUBLESHOOTIN
 ## Weiterführende Ressourcen
 
 - [PCI Security Standards Council: Document Library](https://www.pcisecuritystandards.org/document_library/)
-- [Keycloak Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/) — Abschnitte
-  Fine-grained admin permissions, Client policies, Auditing and events, Workflows
+- [Keycloak Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/) mit den
+  Abschnitten Fine-grained admin permissions, Client policies, Auditing and events, Workflows
