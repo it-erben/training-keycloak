@@ -1,4 +1,4 @@
-# Live-Demo: Modul 06d -- Client Role Isolation mit Protocol Mappern
+# Live-Demo Modul 06d: Client Role Isolation mit Protocol Mappern
 
 Standardmäßig enthalten Keycloak-Tokens im `resource_access`-Claim die Client Roles **aller** Clients,
 bei denen ein Benutzer Rollen hat. Das ist ein Datenschutz-/Sicherheitsproblem: Die CRM-App sieht
@@ -36,8 +36,8 @@ werden vom Setup-Container erstellt.
 
 | User | Passwort | CRM-Rollen | HR-Rollen |
 | :--- | :--- | :--- | :--- |
-| `alice` | `demo1234` | `crm-editor`, `crm-viewer` | -- |
-| `bob` | `demo1234` | -- | `hr-editor`, `hr-viewer` |
+| `alice` | `demo1234` | `crm-editor`, `crm-viewer` | keine |
+| `bob` | `demo1234` | keine | `hr-editor`, `hr-viewer` |
 | `charlie` | `demo1234` | `crm-viewer` | `hr-viewer`, `hr-admin` |
 
 **Charlie** ist der Schlüssel-Testuser: er hat Rollen in **beiden** Clients.
@@ -46,16 +46,16 @@ werden vom Setup-Container erstellt.
 
 ## Demo 1: Das Problem (~3 Min)
 
-Charlies Token von der CRM-App enthält auch seine HR-Rollen -- die CRM-App sieht Daten, die sie nichts angehen.
+Charlies Token von der CRM-App enthält auch seine HR-Rollen. Die CRM-App sieht Daten, die sie nichts angehen.
 
-### Schritt 1 -- Token evaluieren
+### Schritt 1: Token evaluieren
 
 1. Navigiere zu **Clients** -> **crm-app** -> Tab **Client scopes**
 2. Klicke auf **Evaluate**
 3. Wähle **User:** `charlie`
 4. Klicke auf **Generated access token**
 
-### Schritt 2 -- resource_access analysieren
+### Schritt 2: resource_access analysieren
 
 Suche den Claim `resource_access`:
 
@@ -84,7 +84,7 @@ Suche den Claim `resource_access`:
 
 Wir haben per Setup-Container für jeden Client einen eigenen Client Scope mit einem scoped Role Mapper erstellt.
 
-### Schritt 1 -- Client Scope inspizieren
+### Schritt 1: Client Scope inspizieren
 
 1. Navigiere zu **Client scopes** -> **crm-roles**
 2. Wechsle zum Tab **Mappers**
@@ -99,9 +99,9 @@ Zeige die Konfiguration:
 | Multivalued | ON |
 | Add to access token | ON |
 
-> **Zeigen:** Der Mapper ist auf `clientId = crm-app` eingeschränkt -- er gibt nur CRM-Rollen aus.
+> **Zeigen:** Der Mapper ist auf `clientId = crm-app` eingeschränkt, er gibt nur CRM-Rollen aus.
 
-### Schritt 2 -- Token erneut evaluieren (crm-app)
+### Schritt 2: Token erneut evaluieren (crm-app)
 
 1. Navigiere zu **Clients** -> **crm-app** -> Tab **Client scopes**
 2. Klicke auf **Evaluate** -> **User:** `charlie`
@@ -115,7 +115,7 @@ Suche den neuen Claim `roles`:
 
 > **Zeigen:** Der flache `roles`-Claim enthält nur CRM-Rollen. Keine HR-Rollen sichtbar.
 
-### Schritt 3 -- Vergleich: hr-app
+### Schritt 3: Vergleich: hr-app
 
 1. Navigiere zu **Clients** -> **hr-app** -> Tab **Client scopes**
 2. Klicke auf **Evaluate** -> **User:** `charlie`
@@ -125,7 +125,7 @@ Suche den neuen Claim `roles`:
 "roles": ["hr-viewer", "hr-admin"]
 ```
 
-> **Zeigen:** Gleicher User, anderer Client -- andere Rollen im `roles`-Claim.
+> **Zeigen:** Gleicher User, anderer Client, andere Rollen im `roles`-Claim.
 
 **Diskussionspunkte:**
 
@@ -139,7 +139,7 @@ Suche den neuen Claim `roles`:
 
 Wir verifizieren die Isolation mit echten Tokens.
 
-### Schritt 1 -- CRM Token für Charlie
+### Schritt 1: CRM Token für Charlie
 
 ```bash
 curl -s -X POST http://localhost:9090/realms/mustertech/protocol/openid-connect/token \
@@ -153,7 +153,7 @@ Erwartete Ausgabe:
 ["crm-viewer"]
 ```
 
-### Schritt 2 -- HR Token für Charlie
+### Schritt 2: HR Token für Charlie
 
 ```bash
 curl -s -X POST http://localhost:9090/realms/mustertech/protocol/openid-connect/token \
@@ -167,7 +167,7 @@ Erwartete Ausgabe:
 ["hr-viewer", "hr-admin"]
 ```
 
-### Schritt 3 -- resource_access zeigen
+### Schritt 3: resource_access zeigen
 
 ```bash
 curl -s -X POST http://localhost:9090/realms/mustertech/protocol/openid-connect/token \
@@ -175,7 +175,7 @@ curl -s -X POST http://localhost:9090/realms/mustertech/protocol/openid-connect/
   | jq -r '.access_token' | jq -R 'split(".") | .[1] | @base64d | fromjson | .resource_access'
 ```
 
-> **Zeigen:** `resource_access` enthält weiterhin alle Rollen beider Clients -- das liegt an
+> **Zeigen:** `resource_access` enthält weiterhin alle Rollen beider Clients, das liegt an
 > `fullScopeAllowed: true`. Der scoped Mapper **ergänzt** den flachen `roles`-Claim,
 > entfernt aber nichts aus `resource_access`.
 
@@ -183,7 +183,7 @@ curl -s -X POST http://localhost:9090/realms/mustertech/protocol/openid-connect/
 
 - Soll man `resource_access` entfernen? (Eigenen Mapper mit "Remove from access token" konfigurieren)
 - Spring Security: Welchen Claim nutzt man? (`roles` vs. `resource_access`)
-- `fullScopeAllowed: false` als Alternative -- dann erscheinen nur zugewiesene Scopes
+- `fullScopeAllowed: false` als Alternative, dann erscheinen nur zugewiesene Scopes
 
 ---
 
