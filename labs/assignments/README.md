@@ -8,6 +8,7 @@ vollständiges Mitarbeiterportal mit zentraler Authentifizierung auf.
 - **Docker Desktop** - installiert und gestartet
 - **Browser** - Chrome oder Firefox (für DevTools)
 - **Code-Editor** - VS Code empfohlen
+- **minikube und kubectl** - nur für Modul 11
 
 ## Architektur-Überblick
 
@@ -58,6 +59,9 @@ docker compose up -d
 docker compose down -v
 ```
 
+Modul 11 startet keinen Compose-Stack, sondern einen minikube-Cluster; Start und Abbau stehen in
+dessen README.
+
 > **Wichtig:** Beende immer das aktuelle Modul mit `docker compose down -v`, bevor du ein
 > anderes startest. Alle Module nutzen dieselben Ports.
 
@@ -76,6 +80,8 @@ docker compose down -v
 | 09b | `modul-09b-anpassung-apis/` | Admin REST API und Token Introspection |
 | 10a | `modul-10a-sicherheit/` | Passwort-Policies, Brute-Force-Schutz, Sessions |
 | 10b | `modul-10b-best-practices/` | Produktions-Checkliste und Best Practices |
+| 11 | `modul-11-kubernetes/` | Keycloak mit dem Operator auf minikube deployen |
+| 12 | `modul-12-pci-dss/` | Realm gegen PCI DSS v4.0.1 prüfen und härten |
 
 ## Verzeichnisstruktur
 
@@ -95,6 +101,14 @@ assignments/
 |   +-- realm-import.json
 |   +-- README.md
 +-- ...                                # Weitere Module nach gleichem Muster
++-- modul-11-kubernetes/
+|   +-- manifests/                     # Namespace, PostgreSQL, Keycloak-CR, Ingress, Realm-Import
+|   +-- README.md
++-- modul-12-pci-dss/
+|   +-- docker-compose.yml
+|   +-- realm-import.json
+|   +-- checkliste.md                  # Audit-Tabelle: Soll, Ist, offen
+|   +-- README.md
 +-- images/                            # Bilder für Anleitungen
 ```
 

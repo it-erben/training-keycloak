@@ -49,7 +49,7 @@
 
 ## Folien
 
-Zehn Marp-Decks unter `slides/<NN-thema>/slides.md`. Lehrmaterial, das die
+Zwölf Marp-Decks unter `slides/<NN-thema>/slides.md`. Lehrmaterial, das die
 Pronomen- und Leseransprache-Regel aufhebt.
 
 - **Geduzt.** „du“, „dir“, „dein“. Im gesamten `slides/`-Baum steht keine
@@ -57,7 +57,7 @@ Pronomen- und Leseransprache-Regel aufhebt.
 - Frontmatter: `header: "Modul NN: Thema"`, `footer: "CC BY-NC-SA 4.0,
   Alexander Erben"`, `paginate: true`.
 - Titelfolie ist `# Modul NN`, darunter `## Thema`.
-- `## Lernziele` als zweite Folie in allen zehn Decks, mit der Einleitung
+- `## Lernziele` als zweite Folie in allen zwölf Decks, mit der Einleitung
   „Nach diesem Modul kannst du:“. Jedes Ziel ein Satz mit dem Fachbegriff
   fett.
 - **Folientitel sind hierarchisch nummeriert**: `## 1. Was ist ein Client?`
@@ -74,7 +74,7 @@ Pronomen- und Leseransprache-Regel aufhebt.
 
 ## Lab-Anleitungen
 
-Fünfzehn Übungen unter `labs/assignments/modul-NN[x]-thema/`. Sie bauen
+Siebzehn Übungen unter `labs/assignments/modul-NN[x]-thema/`. Sie bauen
 aufeinander auf: über die ganze Schulung entsteht ein Mitarbeiterportal der
 fiktiven Mustertech GmbH.
 
@@ -83,7 +83,8 @@ fiktiven Mustertech GmbH.
 - `## Übungsziel` mit „Am Ende dieser Übung hast du:“ und Ergebnisliste im
   Perfekt, danach `**Geschätzte Dauer:**` in Minuten.
 - `## Voraussetzungen` startet die Umgebung mit `docker compose up -d` und
-  sagt, woran das Bereitsein erkennbar ist.
+  sagt, woran das Bereitsein erkennbar ist. `modul-11-kubernetes` startet
+  stattdessen minikube; der Zustand kommt dort aus `manifests/`.
 - Ein `> **Hinweis:**`-Blockzitat weist auf den Container-Namenskonflikt mit
   der vorherigen Übung hin und verlinkt nach
   `../TROUBLESHOOTING.md`. Jedes Lab, das eigene Container startet, braucht
@@ -113,7 +114,9 @@ Teilnehmenden.
 - Ein berührtes Lab wirklich hochfahren: `docker compose up -d` im
   Lab-Verzeichnis, die Schritte durchklicken, danach `docker compose down -v`.
   Ohne `-v` bleibt das Volume liegen und das nächste Lab startet mit fremdem
-  Realm-Zustand.
+  Realm-Zustand. Für `modul-11-kubernetes` gilt dasselbe mit `minikube start`
+  und `minikube delete`; die Manifeste zusätzlich mit `kubeconform` gegen die
+  Operator-CRDs prüfen.
 - Nicht „fertig“ behaupten, ohne die Prüfung ausgeführt zu haben. Belege vor
   Behauptungen.
 - Alle TODO-Marker entfernen, die du in deiner Sitzung hinzugefügt hast, und
@@ -126,18 +129,20 @@ Teilnehmenden.
 
 ## Aufbau dieses Repos
 
-Keycloak-Schulung, zehn Module.
+Keycloak-Schulung, zwölf Module.
 
-- `slides/01-…` bis `slides/10-…` — die Decks.
-- `labs/assignments/modul-NN…` — fünfzehn Übungen, je mit
+- `slides/01-…` bis `slides/12-…` — die Decks.
+- `labs/assignments/modul-NN…` — siebzehn Übungen, je mit
   `docker-compose.yml`, meist mit `realm-import.json` und `screenshots/`.
+  `modul-11-kubernetes` hat statt Compose ein `manifests/`-Verzeichnis mit
+  dem Realm als `KeycloakRealmImport`-CR.
 - `labs/assignments/services/` — der Anwendungscode, den alle Labs teilen:
   `portal-frontend` (React SPA mit OIDC und PKCE), `portal-api` (Express,
   Token-Validierung), `sync-service` (Client Credentials), `management-cli`,
   `keycloak`.
 - `labs/assignments/TROUBLESHOOTING.md` — die Sammelstelle für Fehlerbilder.
   Neue Stolpersteine dorthin, nicht in das einzelne Lab.
-- `demos/modul-NN-thema/` — zehn Vorführungen des Trainers.
+- `demos/modul-NN-thema/` — zwölf Vorführungen des Trainers.
 - `materials/` — zwei Vortragsvorlagen zu OAuth-Flows.
 
 ## Fallstricke dieses Repos
@@ -154,7 +159,7 @@ Keycloak-Schulung, zehn Module.
 - **`tools/screenshots/` enthält nur ein ignoriertes `node_modules`.** Es gibt
   keinen versionierten Quellcode für das Screenshot-Werkzeug.
 - **Nicht jedes Lab bringt alles mit.** `modul-03-installation` hat kein
-  `realm-import.json` — dort ist das Aufsetzen die Übung. Vier Labs haben
+  `realm-import.json` — dort ist das Aufsetzen die Übung. Sechs Labs haben
   keine `screenshots/`, eines keine geschätzte Dauer.
 - **Die Modulnummern von Labs und Demos decken sich nicht durchgängig.** Zu
   `demos/modul-06d-client-role-isolation` gehört `labs/assignments/

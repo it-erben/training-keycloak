@@ -93,13 +93,13 @@ import=common/keycloak
 styles=css/styles.css css/mustertech.css
 ```
 
-- **`parent=keycloak.v2`** -- Das Theme erbt von `keycloak.v2`, dem neuen
+- **`parent=keycloak.v2`:** Das Theme erbt von `keycloak.v2`, dem neuen
   Standard-Theme ab Keycloak 26. Dieses basiert auf PatternFly v5 (CSS-Klassen
   `pf-v5-c-*`). Das ältere
   `keycloak`-Parent nutzt noch PatternFly 3/4 und ist veraltet.
-- **`import=common/keycloak`** -- Importiert gemeinsame Ressourcen (Fonts,
+- **`import=common/keycloak`:** Importiert gemeinsame Ressourcen (Fonts,
   Icons) aus dem `common`-Theme.
-- **`styles=...`** -- Definiert die CSS-Dateien, die geladen werden.
+- **`styles=...`:** Definiert die CSS-Dateien, die geladen werden.
   `css/styles.css` stammt aus dem Parent-Theme (`keycloak.v2`),
   `css/mustertech.css` ist unsere eigene Datei mit den Mustertech-Anpassungen.
   Die Reihenfolge ist wichtig: unsere Datei kommt zuletzt und überschreibt damit

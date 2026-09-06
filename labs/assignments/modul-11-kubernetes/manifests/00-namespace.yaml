@@ -1,0 +1,6 @@
+# Der Operator erwartet den Namespace "keycloak": das ClusterRoleBinding in
+# kubernetes.yml verweist fest auf den ServiceAccount in diesem Namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keycloak

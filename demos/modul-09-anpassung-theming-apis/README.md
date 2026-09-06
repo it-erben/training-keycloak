@@ -1,6 +1,6 @@
-# Live-Demo: Modul 09 -- Anpassung, Theming & APIs
+# Live-Demo Modul 09: Anpassung, Theming & APIs
 
-Custom Theme zeigen und die Admin REST API live nutzen -- User erstellen, auflisten und Clients abfragen.
+Custom Theme zeigen und die Admin REST API live nutzen: User erstellen, auflisten und Clients abfragen.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -37,7 +37,7 @@ Der Realm **mustertech** wird automatisch importiert mit:
 
 ## Demo 1: Custom Theme zeigen
 
-### Schritt 1 -- Login-Seite öffnen
+### Schritt 1: Login-Seite öffnen
 
 1. Öffne ein **Inkognito-Fenster**
 2. Navigiere zu: <http://localhost:9090/realms/mustertech/account>
@@ -46,7 +46,7 @@ Der Realm **mustertech** wird automatisch importiert mit:
 > **Zeigen:** Der Realm nutzt das Theme `mustertech`, das per Volume in den Container
 > gemountet wird. Kein Custom Docker Image nötig.
 
-### Schritt 2 -- Theme-Struktur erklären
+### Schritt 2: Theme-Struktur erklären
 
 Die Dateistruktur des Themes:
 
@@ -71,13 +71,13 @@ themes/mustertech/
 > Bilder) und Messages (Übersetzungen). Man erweitert immer ein Parent-Theme
 > (`keycloak.v2`).
 
-### Schritt 3 -- Theme wechseln (Optional)
+### Schritt 3: Theme wechseln (Optional)
 
 1. Wechsle zur Admin-Konsole
 2. Navigiere zu **Realm settings** -> **Themes**
 3. Ändere **Login theme** auf `keycloak` (Standard)
 4. Klicke auf **Save**
-5. Lade die Login-Seite neu -- das Standard-Theme erscheint
+5. Lade die Login-Seite neu, das Standard-Theme erscheint
 6. Wechsle zurück auf `mustertech`
 
 **Diskussionspunkte:**
@@ -87,11 +87,11 @@ themes/mustertech/
 
 ---
 
-## Demo 2: Admin REST API -- Token holen
+## Demo 2: Token über die Admin REST API holen
 
 Bevor wir die API nutzen können, brauchen wir ein Admin-Token.
 
-### Schritt 1 -- Token via curl abrufen
+### Schritt 1: Token via curl abrufen
 
 ```bash
 TOKEN=$(curl -sf -X POST http://localhost:9090/realms/master/protocol/openid-connect/token \
@@ -106,7 +106,7 @@ echo "${TOKEN}"
 > **Zeigen:** Wir authentifizieren uns gegen den **master**-Realm mit dem `admin-cli`-Client.
 > Das Token berechtigt zu allen Admin-Operationen.
 
-### Schritt 2 -- Token prüfen
+### Schritt 2: Token prüfen
 
 ```bash
 curl -sf http://localhost:9090/realms/master/protocol/openid-connect/userinfo \
@@ -115,9 +115,9 @@ curl -sf http://localhost:9090/realms/master/protocol/openid-connect/userinfo \
 
 ---
 
-## Demo 3: Admin REST API -- User verwalten
+## Demo 3: User über die Admin REST API verwalten
 
-### Schritt 1 -- Alle User auflisten
+### Schritt 1: Alle User auflisten
 
 ```bash
 curl -sf http://localhost:9090/admin/realms/mustertech/users \
@@ -126,7 +126,7 @@ curl -sf http://localhost:9090/admin/realms/mustertech/users \
 
 **Erwartete Ausgabe:** `alice`, `bob`
 
-### Schritt 2 -- Neuen User erstellen
+### Schritt 2: Neuen User erstellen
 
 ```bash
 curl -sf -X POST http://localhost:9090/admin/realms/mustertech/users \
@@ -147,7 +147,7 @@ curl -sf -X POST http://localhost:9090/admin/realms/mustertech/users \
   }'
 ```
 
-### Schritt 3 -- User prüfen
+### Schritt 3: User prüfen
 
 ```bash
 curl -sf http://localhost:9090/admin/realms/mustertech/users \
@@ -156,10 +156,10 @@ curl -sf http://localhost:9090/admin/realms/mustertech/users \
 
 **Erwartete Ausgabe:** `alice`, `api-user`, `bob`
 
-> **Zeigen:** Der User wurde per API erstellt -- ohne die Admin-Konsole zu benutzen. Das ist
+> **Zeigen:** Der User wurde per API erstellt, ohne die Admin-Konsole zu benutzen. Das ist
 > die Grundlage für Automatisierung (Provisioning, CI/CD).
 
-### Schritt 4 -- User in Admin-Konsole zeigen
+### Schritt 4: User in Admin-Konsole zeigen
 
 1. Wechsle zur Admin-Konsole
 2. Navigiere zu **Users**
@@ -172,9 +172,9 @@ curl -sf http://localhost:9090/admin/realms/mustertech/users \
 
 ---
 
-## Demo 4: Admin REST API -- Clients abfragen
+## Demo 4: Clients über die Admin REST API abfragen
 
-### Schritt 1 -- Alle Clients auflisten
+### Schritt 1: Alle Clients auflisten
 
 ```bash
 curl -sf http://localhost:9090/admin/realms/mustertech/clients \
@@ -184,7 +184,7 @@ curl -sf http://localhost:9090/admin/realms/mustertech/clients \
 > **Zeigen:** Neben den selbst erstellten Clients gibt es zahlreiche Built-in Clients
 > (`account`, `admin-cli`, `realm-management`, etc.).
 
-### Schritt 2 -- Client-Details abfragen
+### Schritt 2: Client-Details abfragen
 
 ```bash
 CLIENT_UUID=$(curl -sf http://localhost:9090/admin/realms/mustertech/clients \
