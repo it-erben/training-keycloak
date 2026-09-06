@@ -27,13 +27,13 @@ Nach diesem Modul kannst du:
 
 ## 1. Warum Kubernetes?
 
-Keycloak ist eine zustandsarme Java-Anwendung: der Zustand liegt in der Datenbank.
+Keycloak hält seinen Zustand in der Datenbank. Die Pods sind austauschbar.
 
-- **Pods sind austauschbar:** Ein Pod kann jederzeit ersetzt werden, die Daten bleiben.
-- **Skalierung per Zahl:** `instances: 3` statt drei Server aufsetzen.
-- **Self-Healing:** Fällt ein Pod aus, startet Kubernetes ihn neu.
-- **Rolling Updates:** Neue Version ausrollen, ohne dass der Login ausfällt.
-- **Deklarativ:** Die gesamte Konfiguration liegt als YAML im Git-Repository.
+- Ein Pod kann jederzeit ersetzt werden; die Daten bleiben in der Datenbank.
+- Skalierung ist eine Zahl in der Konfiguration (`instances: 3`).
+- Fällt ein Pod aus, startet Kubernetes ihn neu.
+- Ein Rolling Update tauscht die Pods nacheinander; der Login bleibt erreichbar.
+- Die gesamte Konfiguration liegt als YAML im Git-Repository.
 
 > **Merke:** Keycloak hält keinen Zustand. Verfügbarkeit und Backup hängen an der Datenbank.
 
@@ -162,7 +162,7 @@ Keycloak baut aus dem Hostnamen den **Issuer** im Token und jede **Redirect-URL*
 - **`hostname.admin`:** Optional eine separate URL für die Admin-Konsole (z.B. nur intern).
 - **`hostname.strict`:** Ohne Hostname startet Keycloak in Produktion nicht.
 
-Ein falscher Hostname wirkt erst beim Login: Redirect auf eine interne Adresse, Issuer, den keine App akzeptiert.
+Ein falscher Hostname zeigt sich erst beim Login als Redirect auf eine interne Adresse und als Issuer, den keine App kennt.
 
 ---
 

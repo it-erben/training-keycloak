@@ -35,7 +35,7 @@ Er gilt für jede Organisation, die Karteninhaberdaten speichert, verarbeitet od
 - **Version:** 4.0.1, seit Juni 2024. Alle zuvor „future-dated" Anforderungen sind seit März 2025 Pflicht.
 - **Zwölf Anforderungen** in sechs Zielen, von Netzwerksicherheit bis Richtlinien.
 - **Nachweis:** Selbstauskunft (SAQ) oder Prüfung durch einen **QSA** (Qualified Security Assessor).
-- **Wer entscheidet:** Der QSA legt aus, was im Einzelfall genügt. Diese Folien ordnen Anforderungen Einstellungen zu.
+- Der QSA legt aus, was im Einzelfall genügt. Diese Folien ordnen Anforderungen Einstellungen zu.
 
 ---
 <style scoped>
@@ -134,7 +134,7 @@ section {
 - **8.4.3** MFA für Remote-Zugang ins Firmennetz: VPN gegen Keycloak per OIDC oder RADIUS-Bridge.
 - **8.5.1** MFA nicht umgehbar, replay-resistent, zwei verschiedene Faktortypen:
   - **Look ahead window** `1`, **Reusable token** `Off`.
-  - Kein Flow-Pfad ohne zweiten Faktor: Conditional-Subflows deaktivieren.
+  - Conditional-Subflows deaktivieren, damit kein Flow-Pfad ohne zweiten Faktor bleibt.
   - **WebAuthn** erfüllt Besitz und Phishing-Resistenz zugleich.
 
 Ein `Required` OTP Form erzwingt bei Usern ohne OTP die Einrichtung beim nächsten Login.

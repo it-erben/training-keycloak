@@ -79,8 +79,8 @@ Alle Manifeste liegen unter `manifests/` und werden in der Reihenfolge ihrer Num
 kubectl apply -f manifests/00-namespace.yaml
 ```
 
-Der Namespace muss `keycloak` heißen: das `ClusterRoleBinding` des Operators verweist fest auf
-den ServiceAccount `keycloak-operator` in diesem Namespace.
+Der Namespace muss `keycloak` heißen, weil das `ClusterRoleBinding` des Operators fest auf den
+ServiceAccount `keycloak-operator` in diesem Namespace verweist.
 
 ### Schritt 1.2: CRDs und Operator anwenden
 
@@ -156,7 +156,7 @@ steht auf `Bound`.
 | `ingress.enabled` | `false` | Der Ingress wird in Teil 4 selbst angelegt |
 | `additionalOptions` | `metrics-enabled` | Jede `kc.sh`-Option lässt sich hier durchreichen |
 
-Ein falscher `hostname` ist der häufigste Fehler in diesem Setup: Keycloak schickt den Browser
+Ein falscher `hostname` ist der häufigste Fehler in diesem Setup. Keycloak schickt den Browser
 dann auf eine interne Adresse, die von außen nicht erreichbar ist.
 
 ### Schritt 3.2: CR anwenden
