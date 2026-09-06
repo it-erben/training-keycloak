@@ -1,6 +1,6 @@
-# Live-Demo: Modul 12 -- Keycloak und PCI DSS
+# Live-Demo Modul 12: Keycloak und PCI DSS
 
-Ein automatisiertes Audit gegen den Lab-Stack -- einmal vor dem Lab mit roten Zeilen, einmal
+Ein automatisiertes Audit gegen den Lab-Stack, einmal vor dem Lab mit roten Zeilen, einmal
 danach mit grünen. Die Prüfung läuft als Skript gegen die Admin-API.
 
 | Demo | Thema | Dauer |
@@ -31,13 +31,13 @@ Start nach dem Code.
 
 ## Demo 1: Audit-Skript vor dem Lab
 
-### Schritt 1 -- Skript ausführen
+### Schritt 1: Skript ausführen
 
 ```bash
 ./audit.sh
 ```
 
-### Schritt 2 -- Ergebnis lesen
+### Schritt 2: Ergebnis lesen
 
 Die meisten der vierzehn Zeilen sind rot. Auf die Spalte rechts zeigen: sie nennt den Ist-Wert, den das
 Skript aus dem Realm gelesen hat, etwa `length(10)` oder `5 Versuche`.
@@ -49,14 +49,14 @@ Grenzwerten.
 
 ## Demo 2: Eine Prüfung im Skript nachvollziehen
 
-### Schritt 1 -- Rohdaten zeigen
+### Schritt 1: Rohdaten zeigen
 
 ```bash
 docker exec -i assignment-keycloak /opt/keycloak/bin/kcadm.sh get realms/mustertech \
   | grep -E "passwordPolicy|failureFactor|waitIncrementSeconds|ssoSessionIdleTimeout|eventsExpiration"
 ```
 
-### Schritt 2 -- Zuordnung erklären
+### Schritt 2: Zuordnung erklären
 
 Auf `passwordPolicy` zeigen: derselbe String, der in der Admin-Konsole als Liste erscheint. Das
 Skript liest `length(…)` und `passwordHistory(…)` per Regex heraus und vergleicht mit 12 und 4.
@@ -68,7 +68,7 @@ als Abfrage formulieren.
 
 ## Demo 3: Audit-Skript nach dem Lab
 
-### Schritt 1 -- Erneut ausführen
+### Schritt 1: Erneut ausführen
 
 ```bash
 ./audit.sh
@@ -84,14 +84,14 @@ zieht, bricht den Build.
 
 ## Demo 4: Admin Events als Nachweis
 
-### Schritt 1 -- Passwort-Reset des Helpdesks finden
+### Schritt 1: Passwort-Reset des Helpdesks finden
 
 ```bash
 docker exec -i assignment-keycloak /opt/keycloak/bin/kcadm.sh get admin-events \
   -r mustertech -q operationTypes=ACTION -q resourcePath=users/*/reset-password
 ```
 
-### Schritt 2 -- Felder zeigen
+### Schritt 2: Felder zeigen
 
 Auf `authDetails.userId`, `time`, `resourcePath` und `representation` zeigen. Dann den
 `userId` gegen `tom.helpdesk` auflösen:
