@@ -221,7 +221,7 @@ kubectl -n keycloak get ingress
 
 Der Ingress terminiert TLS mit dem Secret `keycloak-tls` und leitet HTTP an `keycloak-service:8080`
 weiter. Der nginx-Controller setzt dabei `X-Forwarded-Proto: https`; nur deshalb erzeugt Keycloak
-trotz HTTP im Cluster korrekte `https://`-URLs.
+trotz HTTP im Cluster `https://`-URLs.
 
 ### Schritt 4.3: Hostnamen auflösen
 
@@ -271,7 +271,7 @@ Melde dich unter `https://keycloak.mustertech.test/realms/mustertech/account/` a
 mit `Muster1234!` an.
 
 > **Konzept: Realm als Ressource** - Die Realm-Konfiguration liegt damit als YAML im
-> Git-Repository und wird wie jedes andere Manifest ausgerollt. Der Import läuft genau einmal;
+> Git-Repository und wird wie jedes andere Manifest ausgerollt. Der Import läuft einmal;
 > Änderungen an der CR führen zu keinem erneuten Import, solange der Realm existiert.
 
 ---
@@ -379,7 +379,7 @@ Du hast erfolgreich:
 
 - [x] Den Keycloak Operator installiert und die CRDs kennengelernt
 - [x] Keycloak über eine `Keycloak`-CR mit externer Datenbank deployt
-- [x] TLS am Ingress terminiert und den Hostnamen korrekt gesetzt
+- [x] TLS am Ingress terminiert und den Hostnamen gesetzt
 - [x] Den Realm `mustertech` als `KeycloakRealmImport` ausgerollt
 - [x] Auf zwei Instanzen skaliert und den Infinispan-Cluster beobachtet
 - [x] Health-Endpoints und Metriken über den Management-Port abgefragt
