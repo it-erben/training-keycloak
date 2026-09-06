@@ -1,7 +1,7 @@
 # Live-Demo: Modul 12 -- Keycloak und PCI DSS
 
 Ein automatisiertes Audit gegen den Lab-Stack -- einmal vor dem Lab mit roten Zeilen, einmal
-danach mit grünen. Zeigt, dass Compliance-Prüfung ein Skript sein kann, kein Klickprotokoll.
+danach mit grünen. Die Prüfung läuft als Skript gegen die Admin-API.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -42,8 +42,8 @@ Start nach dem Code.
 Die meisten der vierzehn Zeilen sind rot. Auf die Spalte rechts zeigen: sie nennt den Ist-Wert, den das
 Skript aus dem Realm gelesen hat, etwa `length(10)` oder `5 Versuche`.
 
-Kernaussage: Der Realm aus Modul 10 ist abgesichert, aber nicht PCI-konform. Der Unterschied
-sind Zahlen, keine Konzepte.
+Der Realm aus Modul 10 ist abgesichert, aber nicht PCI-konform. Die Abweichungen liegen in den
+Grenzwerten.
 
 ---
 
@@ -61,8 +61,8 @@ docker exec -i assignment-keycloak /opt/keycloak/bin/kcadm.sh get realms/mustert
 Auf `passwordPolicy` zeigen: derselbe String, der in der Admin-Konsole als Liste erscheint. Das
 Skript liest `length(…)` und `passwordHistory(…)` per Regex heraus und vergleicht mit 12 und 4.
 
-Kernaussage: Jede Einstellung der Admin-Konsole ist ein Feld in der Admin-API. Was ein QSA
-fragt, lässt sich als Abfrage formulieren.
+Jede Einstellung der Admin-Konsole ist ein Feld in der Admin-API. Was ein QSA fragt, lässt sich
+als Abfrage formulieren.
 
 ---
 
@@ -77,8 +77,8 @@ fragt, lässt sich als Abfrage formulieren.
 Alle Zeilen grün, Exit-Code 0. Bei einer übersprungenen Lab-Aufgabe bleibt die Zeile rot und
 zeigt, welche.
 
-Kernaussage: Das Skript gehört in die CI der Realm-Konfiguration. Ein Merge, der einen Wert
-unter die Grenze zieht, bricht den Build.
+Das Skript gehört in die CI der Realm-Konfiguration. Ein Merge, der einen Wert unter die Grenze
+zieht, bricht den Build.
 
 ---
 
@@ -101,8 +101,8 @@ docker exec -i assignment-keycloak /opt/keycloak/bin/kcadm.sh get users/<userId>
   -r mustertech --fields username
 ```
 
-Kernaussage: Anforderung 10.2.1 verlangt genau diesen Nachweis: wer hat wann welches Credential
-geändert. Ohne `Include representation` fehlt das Was.
+Anforderung 10.2.1 verlangt diesen Nachweis: wer hat wann welches Credential geändert. Ohne
+`Include representation` fehlt die gesendete Representation.
 
 ---
 

@@ -45,7 +45,7 @@ scrollen: `Ready`, `HasErrors`, `RollingUpdate`.
 kubectl -n keycloak get statefulset,service,secret
 ```
 
-Kernaussage: Nichts davon wurde von Hand angelegt. Alles stammt aus der CR.
+Alle drei Ressourcen stammen aus der CR; keine wurde von Hand angelegt.
 
 ### Schritt 3 -- Umgebung eines Pods
 
@@ -69,8 +69,8 @@ kubectl -n keycloak get statefulset,pods -w
 
 ### Schritt 2 -- Beobachten
 
-Innerhalb weniger Sekunden legt der Operator das StatefulSet neu an, der Pod startet.
-Kernaussage: Die CR ist der Soll-Zustand; der Operator stellt ihn her, egal was gelöscht wird.
+Innerhalb weniger Sekunden legt der Operator das StatefulSet neu an, der Pod startet. Der Operator
+stellt den Zustand aus der CR wieder her, auch nach dem Löschen des StatefulSets.
 
 ---
 
@@ -95,7 +95,7 @@ Auf die Mitgliederliste `(2) [keycloak-0-…, keycloak-1-…]` zeigen. Dann den 
 kubectl -n keycloak get endpointslices -l kubernetes.io/service-name=keycloak-discovery
 ```
 
-Kernaussage: Die Pod-IPs kommen aus dem DNS des Headless Service; kein Multicast, keine feste Liste.
+Die Pod-IPs kommen aus dem DNS des Headless Service.
 
 ---
 
@@ -117,7 +117,7 @@ bedient ein Pod den Login. Zwischendurch:
 kubectl -n keycloak get keycloak keycloak -o jsonpath='{.status.conditions[?(@.type=="RollingUpdate")]}'
 ```
 
-Kernaussage: Ein Versions-Upgrade läuft denselben Weg, nur mit `spec.image` statt einer Option.
+Ein Versions-Upgrade läuft denselben Weg, mit `spec.image` statt einer Option.
 
 ---
 
