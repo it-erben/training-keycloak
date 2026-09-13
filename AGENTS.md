@@ -5,6 +5,10 @@ Ton, Schreibweise und Commit-Regeln stehen in der Nutzer-Konfiguration
 "Arbeitsregeln in Repos"). Hier steht nur, was in diesem Repo dazukommt oder
 abweicht.
 
+## Commit-Nachrichten
+
+Commit-Nachrichten sind auf Englisch, einschließlich Betreff und Body.
+
 ## Folien
 
 Zwölf Marp-Decks unter `slides/<NN-thema>/slides.md`. Lehrmaterial, das die
