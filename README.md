@@ -99,7 +99,6 @@ Fehlerbilder zu Container-Namen, belegten Ports, Realm-Imports und minikube steh
 [Troubleshooting](labs/assignments/TROUBLESHOOTING.md). Die einzelnen Lab-Anleitungen beschreiben
 die fachlichen Schritte und die erwarteten Ergebnisse.
 
-Die [Arbeitsregeln](AGENTS.md) halten die Vorgaben für Folien, Labs und Vortragsmaterial fest.
 Nach Änderungen prüft `pre-commit run --all-files` Markdown, YAML und Links. Änderungen an einer
 Übung werden zusätzlich in der laufenden Lab-Umgebung geprüft.
 
