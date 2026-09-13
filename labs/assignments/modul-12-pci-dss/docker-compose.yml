@@ -13,9 +13,9 @@ services:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: keycloak_db_password
     volumes:
-      - assignment_postgres_data:/var/lib/postgresql/data
+      - assignment_postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U keycloak -d keycloak"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,7 +53,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 90s
     networks:
       - assignment-network
 
