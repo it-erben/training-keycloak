@@ -12,7 +12,7 @@ anpassen.
 
 Der Client Credentials Flow ist ein OAuth 2.0 Grant Type für die
 **Machine-to-Machine-Kommunikation (M2M)**. Es gibt keinen Benutzer, der sich
-einloggt -- stattdessen authentifiziert sich eine **Anwendung direkt** beim
+einloggt, stattdessen authentifiziert sich eine **Anwendung direkt** beim
 Authorization Server.
 
 **Kernidee:** Die Anwendung selbst ist der "Benutzer".
@@ -35,7 +35,7 @@ Authorization Server.
 
 ## 2. Ablauf des Flows
 
-Der Client Credentials Flow ist der **einfachste** aller OAuth 2.0 Flows -- er
+Der Client Credentials Flow ist der **einfachste** aller OAuth 2.0 Flows, er
 besteht aus nur einem einzigen Request-Response-Paar:
 
 ```
@@ -96,7 +96,7 @@ grant_type=client_credentials
 }
 ```
 
-> **Wichtig:** Es gibt kein `refresh_token` und kein `id_token` --
+> **Wichtig:** Es gibt kein `refresh_token` und kein `id_token`,
 > beides ergibt ohne Benutzer keinen Sinn.
 
 ### API-Aufruf mit dem Token
@@ -123,7 +123,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ## 5. Sicherheitsaspekte
 
-- Das **Client Secret muss geheim bleiben** -- es darf niemals im Frontend oder
+- Das **Client Secret muss geheim bleiben**, es darf niemals im Frontend oder
   in öffentlich zugänglichem Code stehen.
 - Access Tokens sollten eine **kurze Lebensdauer** haben (z.B. 5 Minuten).
 - Berechtigungen werden über **Scopes** und/oder **Client Roles** in Keycloak
@@ -137,7 +137,7 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 - In welchen Szenarien in eurem Arbeitsalltag würdet ihr den Client Credentials
   Flow einsetzen?
 - Warum gibt es beim Client Credentials Flow kein Refresh Token?
-- Was passiert, wenn das Client Secret kompromittiert wird -- und wie kann man
+- Was passiert, wenn das Client Secret kompromittiert wird, und wie kann man
   sich davor schützen?
 
 ---
@@ -153,14 +153,14 @@ Typische Antworten aus der Praxis:
 - Ein **Nightly-Batch-Job** synchronisiert Daten zwischen zwei Systemen
   (z.B. HR-System und Keycloak).
 - Ein **Microservice A** ruft Microservice B auf, um eine Bestellung
-  weiterzuverarbeiten -- ohne dass ein Benutzer direkt beteiligt ist.
+  weiterzuverarbeiten, ohne dass ein Benutzer direkt beteiligt ist.
 - Ein **CI/CD-Pipeline-Schritt** deployt oder konfiguriert Ressourcen
   über eine geschützte API.
 
 ### "Warum gibt es kein Refresh Token?"
 
 - Der Client hat seine Credentials (client_id + secret) **jederzeit
-  verfügbar** -- er kann sich also jederzeit ein neues Access Token holen.
+  verfügbar**, er kann sich also jederzeit ein neues Access Token holen.
 - Ein Refresh Token würde **keinen Mehrwert** bieten, weil der
   Token-Request genauso einfach ist wie ein Refresh.
 - Beim Authorization Code Flow ist das anders: Dort wurde der Benutzer
@@ -171,14 +171,14 @@ Typische Antworten aus der Praxis:
 ### "Was passiert bei kompromittiertem Client Secret?"
 
 - Ein Angreifer kann sich **als der Client ausgeben** und dessen
-  Berechtigungen (Scopes/Roles) nutzen -- er erhält vollen Zugriff
+  Berechtigungen (Scopes/Roles) nutzen, er erhält vollen Zugriff
   auf alles, was dem Client erlaubt ist.
 - **Sofortmaßnahme:** Secret rotieren (in Keycloak ein neues Secret
   generieren), alle bestehenden Tokens des Clients invalidieren.
 - **Schutzmaßnahmen:**
   - Secrets niemals in Code oder Versionskontrolle speichern, sondern
     in einem **Secret Manager** (z.B. Vault, AWS Secrets Manager).
-  - **Mutual TLS (mTLS)** statt Client Secret verwenden -- ein
+  - **Mutual TLS (mTLS)** statt Client Secret verwenden, ein
     Zertifikat ist schwerer zu kompromittieren.
   - **Least Privilege:** Dem Client nur die minimal nötigen Scopes/Roles
     zuweisen, um den Schaden bei Kompromittierung zu begrenzen.

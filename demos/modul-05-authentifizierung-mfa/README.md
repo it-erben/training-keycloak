@@ -1,7 +1,7 @@
-# Live-Demo: Modul 05 -- Authentifizierung & MFA
+# Live-Demo Modul 05: Authentifizierung & MFA
 
 Den Browser-Flow duplizieren und OTP für **alle User** erzwingen (Required statt
-Conditional) -- im Gegensatz zur Übung, die Conditional OTP nach Rolle konfiguriert.
+Conditional), anders als die Übung, die Conditional OTP nach Rolle konfiguriert.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -34,21 +34,21 @@ Der Realm **mustertech** wird automatisch importiert (mit User `alice` / `demo12
 
 ## Demo 1: Browser-Flow duplizieren
 
-Built-in Flows sollten nie direkt editiert werden -- deshalb duplizieren wir zuerst.
+Built-in Flows sollten nie direkt editiert werden, deshalb duplizieren wir zuerst.
 
-### Schritt 1 -- Flow-Liste öffnen
+### Schritt 1: Flow-Liste öffnen
 
 1. Navigiere zu **Authentication** (linke Navigation)
 2. Du siehst die Liste der vordefinierten Flows
 
-### Schritt 2 -- Browser-Flow duplizieren
+### Schritt 2: Browser-Flow duplizieren
 
 1. Klicke bei **browser** auf die drei Punkte -> **Duplicate**
 2. Gib als Name ein: `Browser mit MFA`
 3. Klicke auf **Duplicate**
 
 > **Zeigen:** Der duplizierte Flow hat dieselbe Struktur wie das Original. Built-in Flows
-> sind schreibgeschützt -- Duplikate können frei bearbeitet werden.
+> sind schreibgeschützt, Duplikate können frei bearbeitet werden.
 
 ---
 
@@ -57,7 +57,7 @@ Built-in Flows sollten nie direkt editiert werden -- deshalb duplizieren wir zue
 In der Übung werden die Teilnehmer *Conditional OTP* (nur für Admins) konfigurieren. Hier
 zeigen wir den Unterschied: **OTP für jeden User erzwingen**.
 
-### Schritt 1 -- Flow-Struktur analysieren
+### Schritt 1: Flow-Struktur analysieren
 
 Öffne den Flow **Browser mit MFA**. Die Struktur:
 
@@ -73,7 +73,7 @@ Browser mit MFA
         +-- OTP Form                          (Required)
 ```
 
-### Schritt 2 -- Conditional OTP auf Required ändern
+### Schritt 2: Conditional OTP auf Required ändern
 
 1. Finde den Subflow **Browser mit MFA Browser - Conditional OTP**
 2. Ändere das Requirement von **Conditional** auf **Required**
@@ -93,7 +93,7 @@ Browser mit MFA
 > **Zeigen:** Der Unterschied zwischen Conditional und Required:
 >
 > - **Conditional:** OTP wird nur abgefragt, wenn der User es bereits konfiguriert hat
-> - **Required:** OTP wird immer abgefragt -- wer es noch nicht hat, muss es einrichten
+> - **Required:** OTP wird immer abgefragt; wer es noch nicht hat, muss es einrichten
 
 **Diskussionspunkte:**
 
@@ -106,7 +106,7 @@ Browser mit MFA
 
 Der neue Flow muss als aktiver Browser-Flow gesetzt werden.
 
-### Schritt 1 -- Flow binden
+### Schritt 1: Flow binden
 
 1. Stelle sicher, dass du den Flow **Browser mit MFA** geöffnet hast
 2. Klicke oben auf **Action** -> **Bind flow**
@@ -119,27 +119,27 @@ Der neue Flow muss als aktiver Browser-Flow gesetzt werden.
 
 ## Demo 4: Login testen
 
-### Schritt 1 -- Account Console öffnen
+### Schritt 1: Account Console öffnen
 
 1. Öffne ein **Inkognito-Fenster**
 2. Navigiere zu: <http://localhost:9090/realms/mustertech/account>
 3. Klicke auf **Sign in**
 
-### Schritt 2 -- Login mit Passwort
+### Schritt 2: Login mit Passwort
 
 1. Gib Username `alice` und Passwort `demo1234` ein
 2. Nach dem erfolgreichen Passwort-Check erscheint die **OTP-Setup-Seite**
 
-### Schritt 3 -- OTP einrichten
+### Schritt 3: OTP einrichten
 
 1. Scanne den QR-Code mit der Authenticator-App
 2. Gib den 6-stelligen Code ein
 3. Klicke auf **Submit**
 
-> **Zeigen:** Jeder User -- unabhängig von seiner Rolle -- muss jetzt OTP einrichten. Das
+> **Zeigen:** Jeder User muss unabhängig von seiner Rolle jetzt OTP einrichten. Das
 > ist der Unterschied zur Übung, wo nur Admins OTP brauchen.
 
-### Schritt 4 -- Re-Login testen
+### Schritt 4: Re-Login testen
 
 1. Melde dich ab
 2. Melde dich erneut an

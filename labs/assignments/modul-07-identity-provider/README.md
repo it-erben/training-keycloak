@@ -52,7 +52,7 @@ Das Skript erstellt in Gitea:
 - Einen Test-User `alice` (Passwort: `demo1234`)
 - Eine OAuth2-Application mit der passenden Redirect URI für Keycloak
 
-Am Ende gibt das Skript die **Client ID** und das **Client Secret** aus -- notiere dir diese
+Am Ende gibt das Skript die **Client ID** und das **Client Secret** aus. Notiere dir diese
 Werte für die nächsten Schritte.
 
 ---
@@ -83,7 +83,7 @@ Gib folgende Werte ein:
 |:-----------------------|:--------------------------------------------------------|
 | **Alias**              | `gitea`                                                 |
 | **Display name**       | `Gitea`                                                 |
-| **Discovery endpoint** | (deaktivieren -- siehe Hinweis unten)                   |
+| **Discovery endpoint** | (deaktivieren, siehe Hinweis unten)                     |
 | **Authorization URL**  | `http://localhost:3000/login/oauth/authorize`           |
 | **Token URL**          | `http://assignment-gitea:3000/login/oauth/access_token` |
 | **User Info URL**      | `http://assignment-gitea:3000/login/oauth/userinfo`     |
