@@ -1,7 +1,7 @@
-# Live-Demo: Modul 07 -- Identity Provider
+# Live-Demo Modul 07: Identity Provider
 
 Gitea als externen OIDC Identity Provider konfigurieren und den First Login Flow erklären.
-Gitea läuft lokal als Container -- kein externer Account nötig.
+Gitea läuft lokal als Container, ein externer Account ist nicht nötig.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -42,7 +42,7 @@ Das `setup.sh`-Skript hat folgende Dinge automatisch erledigt:
 2. Test-User `alice` / `demo1234` in Gitea erstellt
 3. OAuth2-Application "Keycloak Demo" in Gitea registriert
 
-Die Ausgabe des Skripts enthält **Client ID** und **Client Secret** -- diese brauchen wir gleich.
+Die Ausgabe des Skripts enthält **Client ID** und **Client Secret**, diese brauchen wir gleich.
 
 > **Zeigen:** Gitea unter <http://localhost:3000> öffnen, als `gitea-admin` einloggen und
 > die OAuth2-Application zeigen (Avatar oben rechts -> Settings -> Applications).
@@ -51,7 +51,7 @@ Die Ausgabe des Skripts enthält **Client ID** und **Client Secret** -- diese br
 
 ## Demo 2: IdP in Keycloak konfigurieren
 
-### Schritt 1 -- Identity Provider hinzufügen
+### Schritt 1: Identity Provider hinzufügen
 
 1. In der Admin-Konsole: **Identity providers** -> **Add provider** -> **OpenID Connect v1.0**
 2. Konfiguriere:
@@ -60,7 +60,7 @@ Die Ausgabe des Skripts enthält **Client ID** und **Client Secret** -- diese br
 | :--- | :--- |
 | Alias | `gitea` |
 | Display name | `Gitea` |
-| Discovery endpoint | *(leer lassen -- siehe Hinweis)* |
+| Discovery endpoint | *(leer lassen, siehe Hinweis)* |
 | Authorization URL | `http://localhost:3000/login/oauth/authorize` |
 | Token URL | `http://demo-gitea:3000/login/oauth/access_token` |
 | Client ID | *Client ID aus setup.sh* |
@@ -69,14 +69,14 @@ Die Ausgabe des Skripts enthält **Client ID** und **Client Secret** -- diese br
 
 3. Klicke auf **Save**
 
-> **Hinweis -- Warum kein Discovery?**
+> **Hinweis: Warum kein Discovery?**
 > Gitea's Discovery-Dokument liefert alle URLs mit `localhost:3000` (der `ROOT_URL`).
-> Die Authorization URL wird vom **Browser** aufgerufen -- `localhost` funktioniert.
+> Die Authorization URL wird vom **Browser** aufgerufen, `localhost` funktioniert.
 > Die Token URL wird aber **server-seitig von Keycloak** aufgerufen, und innerhalb von
 > Docker ist `localhost` der Keycloak-Container selbst.
 > Deshalb setzen wir die Token URL manuell auf `http://demo-gitea:3000/...` (Docker-Netzwerkname).
 
-### Schritt 2 -- Redirect URI prüfen
+### Schritt 2: Redirect URI prüfen
 
 Nach dem Speichern zeigt Keycloak die **Redirect URI** an:
 
@@ -96,13 +96,13 @@ Diese wurde bereits beim Erstellen der OAuth2-App in Gitea hinterlegt.
 
 ## Demo 3: Login testen & First Login Flow
 
-### Schritt 1 -- Login-Seite öffnen
+### Schritt 1: Login-Seite öffnen
 
 1. Öffne ein **Inkognito-Fenster**
 2. Navigiere zu: <http://localhost:9090/realms/mustertech/account>
 3. Klicke auf **Sign in**
 
-### Schritt 2 -- "Login with Gitea" klicken
+### Schritt 2: "Login with Gitea" klicken
 
 1. Auf der Login-Seite erscheint jetzt ein Button **Gitea**
 2. Klicke darauf
@@ -115,19 +115,19 @@ Diese wurde bereits beim Erstellen der OAuth2-App in Gitea hinterlegt.
 > 2. Wenn nein: Erstellt einen "Schatten-User" und übernimmt die Profildaten
 > 3. Lässt den User die Daten bestätigen/ergänzen
 
-### Schritt 3 -- Profil bestätigen
+### Schritt 3: Profil bestätigen
 
 1. Prüfe die vorausgefüllten Felder (Username, E-Mail)
 2. Klicke auf **Submit**
 
-### Schritt 4 -- User in Admin Console prüfen
+### Schritt 4: User in Admin Console prüfen
 
 1. Wechsle zur Admin-Konsole
 2. **Users** -> Suche den neuen User
 3. Öffne den User -> Tab **Identity provider links**
 
 > **Zeigen:** Der User hat einen **Identity Provider Link** zu Gitea. Bei zukünftigen
-> Logins wird er automatisch verbunden -- ohne erneute Profil-Bestätigung.
+> Logins wird er automatisch verbunden, ohne erneute Profil-Bestätigung.
 
 **Diskussionspunkte:**
 

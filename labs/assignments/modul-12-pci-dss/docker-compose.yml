@@ -1,0 +1,95 @@
+# Keycloak Schulung - Modul 12: PCI DSS
+#
+# Starten:   docker compose up -d
+# Stoppen:   docker compose down
+# Reset:     docker compose down -v && docker compose up -d
+
+services:
+  assignment-postgres:
+    image: postgres:18-alpine
+    container_name: assignment-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_db_password
+    volumes:
+      - assignment_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - assignment-network
+
+  assignment-keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: assignment-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://assignment-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_db_password
+      KC_HOSTNAME: http://localhost:8080
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      # Secret Rotation und Workflows sind in 26.5 Preview-Features
+      KC_FEATURES: client-secret-rotation,workflows
+      # Erfolgreiche Logins landen sonst nur auf DEBUG-Level im Container-Log
+      KC_SPI_EVENTS_LISTENER__JBOSS_LOGGING__SUCCESS_LEVEL: info
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    volumes:
+      - ./realm-import.json:/opt/keycloak/data/import/realm-import.json:ro
+    depends_on:
+      assignment-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - assignment-network
+
+  assignment-setup:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: assignment-setup
+    depends_on:
+      assignment-keycloak:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        /opt/keycloak/bin/kcadm.sh config credentials \
+          --server http://assignment-keycloak:8080 --realm master \
+          --user admin --password admin
+        /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
+        /opt/keycloak/bin/kcadm.sh update users/profile -r mustertech \
+          -s unmanagedAttributePolicy=ADMIN_EDIT
+    networks:
+      - assignment-network
+
+  assignment-mailpit:
+    image: axllent/mailpit:latest
+    container_name: assignment-mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - assignment-network
+
+volumes:
+  assignment_postgres_data:
+    name: assignment-postgres-data
+
+networks:
+  assignment-network:
+    name: assignment-network
