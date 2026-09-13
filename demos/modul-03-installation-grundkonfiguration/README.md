@@ -46,7 +46,7 @@ docker compose logs -f demo-keycloak
 Warte, bis folgende Zeile erscheint:
 
 ```text
-Keycloak 26.0.0 on JVM (powered by Quarkus) started in Xs.
+Keycloak 26.5.7 on JVM (powered by Quarkus) started in Xs.
 ```
 
 Drücke `Ctrl+C`.

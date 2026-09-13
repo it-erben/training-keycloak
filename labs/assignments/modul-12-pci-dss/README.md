@@ -19,6 +19,7 @@ Am Ende dieser Übung hast du:
 ## Voraussetzungen
 
 - Docker Desktop installiert und gestartet
+- Bash und `python3` auf dem Host für die API-Abfragen und das Audit-Skript (unter Windows z.B. in WSL)
 - Eine Authenticator-App auf dem Smartphone (FreeOTP, Google Authenticator, Aegis)
 - Modul 05 (Flows), 06 (Sessions) und 10a (Sicherheit) sind der fachliche Unterbau
 
@@ -244,8 +245,15 @@ bestimmt allein die Permission aus dem nächsten Schritt.
 
 Melde dich im privaten Fenster unter `http://localhost:8080/admin/mustertech/console/` als
 `tom.helpdesk` an. Nach der OTP-Einrichtung siehst du nur den Bereich **Users**. Öffne
-`hans.mueller`: der Tab **Credentials** erlaubt **Reset password**; die Felder unter
-**Details** sind nicht änderbar, **Delete** fehlt.
+`hans.mueller`: Der Tab **Credentials** erlaubt **Reset password**. Setze ein neues
+Passwort mit mindestens zwölf Zeichen und teste die Anmeldung damit.
+
+Prüfe anschließend die Grenze: Ändere unter **Details** vorübergehend den Vornamen
+und klicke auf **Save**. Keycloak 26.5 zeigt die Eingabefelder und den Menüpunkt
+**Action** → **Delete** auch ohne die benötigten Rechte an. Der Speicherversuch muss
+mit HTTP 403 scheitern; nach dem Neuladen ist der ursprüngliche Vorname erhalten.
+Auch ein Löschversuch muss abgewiesen werden. Entscheidend ist die serverseitige
+Prüfung, nicht die Sichtbarkeit eines Bedienelements.
 
 > **Konzept: Least Privilege** - `query-users` gibt den Einstieg, die Permission gibt die
 > Operationen. `view` füllt die Benutzerliste, `reset-password` erlaubt den Reset. Fehlt
@@ -271,7 +279,7 @@ Log-System der Organisation für den Rest des Jahres übernimmt.
 ### Schritt 7.2: Events im Container-Log
 
 ```bash
-docker compose logs assignment-keycloak | grep "type=LOGIN"
+docker compose logs assignment-keycloak | grep 'type="LOGIN'
 ```
 
 Jede Zeile trägt `realmId`, `userId`, `ipAddress`, `clientId` und bei Fehlern `error`. Das
@@ -279,19 +287,31 @@ sind die Felder, die 10.2.2 verlangt: Wer, Was, Wann, Erfolg, Herkunft, Ziel.
 
 ### Schritt 7.3: Events über die Admin-API abziehen
 
+Hole einen frischen Admin-Token mit dem Audit-Skript. `--otp` liest den aktuellen
+Code verdeckt ein; `--token` gibt nur den Token für die Shell-Variable aus. Führe die
+Befehle aus dem Lab-Verzeichnis aus:
+
 ```bash
-docker exec assignment-keycloak /opt/keycloak/bin/kcadm.sh config credentials \
-  --server http://localhost:8080 --realm master --user admin --password admin
+TOKEN=$(../../../demos/modul-12-pci-dss/audit.sh --otp --token)
 docker exec assignment-keycloak /opt/keycloak/bin/kcadm.sh get events \
+  --no-config --server http://localhost:8080 --realm master --token "$TOKEN" \
   -r mustertech --limit 5
 docker exec assignment-keycloak /opt/keycloak/bin/kcadm.sh get admin-events \
+  --no-config --server http://localhost:8080 --realm master --token "$TOKEN" \
   -r mustertech --limit 5
+unset TOKEN
 ```
 
-Da der Admin jetzt ein OTP hat, fragt `kcadm.sh` beim ersten Befehl nach dem aktuellen Code.
-Die zweite Ausgabe zeigt zu jeder Admin-Aktion `operationType`, `resourcePath` und die
-gesendete `representation`: das Passwort-Reset aus Teil 6 steht dort mit `tom.helpdesk` als
-`authDetails.userId`.
+`kcadm.sh config credentials --user admin --password admin` kann den zweiten Faktor
+nicht interaktiv nachfordern. Das Skript sendet Passwort und OTP gemeinsam an den
+Token-Endpunkt; `--no-config` verhindert die Nutzung einer alten CLI-Anmeldung.
+Verwende einen neuen Code, wenn der vorherige gerade zur Anmeldung benutzt wurde.
+
+Die Admin-Events zeigen `operationType`, `resourcePath`, `time` und den handelnden
+Benutzer als `authDetails.userId`. Ein Passwort-Reset enthält auch bei aktiviertem
+**Include representation** keine `representation`; das Passwort wird nicht als
+Request-Inhalt im Audit-Event gespeichert. Suche den Reset aus Teil 6 und löse die
+User-ID zu `tom.helpdesk` auf.
 
 ---
 

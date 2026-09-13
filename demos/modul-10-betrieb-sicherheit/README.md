@@ -97,9 +97,9 @@ Klicke nach jeder Policy auf **Save**.
 3. Aktiviere **Include representation:** ON
 4. Klicke auf **Save**
 
-> **Zeigen:** "Include representation" speichert den Vorher/Nachher-Zustand bei
-> Admin-Änderungen. Damit kann man nachvollziehen, WAS genau geändert wurde, nicht nur
-> DASS etwas geändert wurde.
+> **Zeigen:** "Include representation" speichert bei unterstützten Admin-Operationen
+> die übermittelte JSON-Repräsentation. Es ist kein Vorher/Nachher-Vergleich. Aktionen wie
+> das Löschen der Login-Fehlversuche können ohne Repräsentation protokolliert werden.
 
 ---
 
@@ -118,7 +118,9 @@ Klicke nach jeder Policy auf **Save**.
 
 ### Schritt 3: Sperre beobachten
 
-Nach dem 3. Fehlversuch zeigt Keycloak: **"Account is temporarily disabled"**
+Nach dem 3. Fehlversuch greift die temporäre Sperre. Das Login-Formular zeigt weiterhin
+die allgemeine Meldung **"Invalid username or password"**. Prüfe die Sperre in den
+User Events: Ein weiterer Versuch erzeugt `LOGIN_ERROR` mit `user_temporarily_disabled`.
 
 > **Zeigen:** Der 4. Versuch wird sofort abgelehnt, auch mit dem richtigen Passwort. Das
 > schützt gegen automatisierte Angriffe.

@@ -23,6 +23,21 @@ docker compose down -v
 
 Danach kannst du die aktuelle Uebung normal starten.
 
+## PostgreSQL 18 startet nicht
+
+**Symptom:** PostgreSQL meldet `/var/lib/postgresql/data (unused mount/volume)`.
+
+Die Compose-Dateien verwenden PostgreSQL 18. Das Datenvolume muss auf
+`/var/lib/postgresql` eingebunden sein. Pruefe, ob die aktuelle Compose-Datei verwendet wird.
+Der Healthcheck fragt TCP mit `pg_isready -h 127.0.0.1 -U keycloak -d keycloak` ab,
+damit der temporaere Server waehrend der Initialisierung nicht als bereit gilt.
+
+Ein altes, entbehrliches Kursvolume kannst du im zugehoerigen Lab mit
+`docker compose down -v` entfernen und danach mit `docker compose up -d` neu anlegen.
+Dabei gehen die darin gespeicherten Benutzer und Einstellungen verloren.
+Ein benoetigter Datenbestand braucht eine Sicherung und eine geplante Migration;
+das Aendern des Mountpfads migriert keine bestehende Datenbank.
+
 ## Container starten nicht
 
 ```bash
@@ -163,7 +178,8 @@ docker compose down -v
 docker compose up -d
 ```
 
-### kcadm.sh fragt nach einem Code
+### Audit-Anmeldung nach OTP-Einrichtung
 
-Sobald `admin` ein OTP hat, verlangt `kcadm.sh config credentials` den aktuellen Code. Ihn
-eingeben oder den Befehl mit `--totp <code>` aufrufen.
+Eine reine Passwort-Anmeldung reicht nach der OTP-Einrichtung des Admins nicht mehr aus.
+Verwende das Audit-Skript wie in Modul 12 beschrieben und gib einen frischen Code ein.
+`kcadm.sh config credentials` in der verwendeten Version bietet keinen `--totp`-Parameter.

@@ -13,7 +13,7 @@ danach mit grünen. Die Prüfung läuft als Skript gegen die Admin-API.
 ## Voraussetzungen
 
 - Docker / Podman (Container-Runtime)
-- `python3` auf dem Host
+- Bash und `python3` auf dem Host (unter Windows z.B. in WSL)
 - Lab 12 gestartet (`docker compose up -d` in `labs/assignments/modul-12-pci-dss`)
 
 ## Setup
@@ -23,9 +23,17 @@ cd demos/modul-12-pci-dss
 chmod +x audit.sh
 ```
 
-Das Skript liest den Realm `mustertech` und den Realm `master` über `kcadm.sh` im Container
-`assignment-keycloak`. Sobald der Admin ein OTP hat (Lab Teil 5.3), fragt `kcadm.sh` beim
-Start nach dem Code.
+Das Skript holt bei jedem Start einen frischen Admin-Token und liest beide Realms
+über `kcadm.sh --no-config --token` im Container `assignment-keycloak`. Vor der
+OTP-Einrichtung reicht `./audit.sh`; danach liest `./audit.sh --otp` den aktuellen
+Code verdeckt ein. Passwort und OTP werden gemeinsam an den Token-Endpunkt gesendet.
+Eine fehlgeschlagene Anmeldung beendet das Skript mit Exit-Code 2; fehlgeschlagene
+Audit-Prüfungen liefern Exit-Code 1.
+
+Für abweichende Lab-Adressen gibt es `KEYCLOAK_URL` (vom Host erreichbar),
+`KCADM_SERVER` (im Container erreichbar), `CONTAINER` und `REALM`. Die Lab-Vorgaben
+für `ADMIN_USER` und `ADMIN_PASSWORD` sind jeweils `admin`. Automatisierte Aufrufe
+können `ADMIN_OTP` setzen; ein OTP-Code darf nicht wiederverwendet werden.
 
 ---
 
@@ -52,7 +60,9 @@ Grenzwerten.
 ### Schritt 1: Rohdaten zeigen
 
 ```bash
+TOKEN=$(./audit.sh --token)
 docker exec -i assignment-keycloak /opt/keycloak/bin/kcadm.sh get realms/mustertech \
+  --no-config --server http://localhost:8080 --realm master --token "$TOKEN" \
   | grep -E "passwordPolicy|failureFactor|waitIncrementSeconds|ssoSessionIdleTimeout|eventsExpiration"
 ```
 
@@ -71,7 +81,7 @@ als Abfrage formulieren.
 ### Schritt 1: Erneut ausführen
 
 ```bash
-./audit.sh
+./audit.sh --otp
 ```
 
 Alle Zeilen grün, Exit-Code 0. Bei einer übersprungenen Lab-Aufgabe bleibt die Zeile rot und
@@ -87,22 +97,27 @@ zieht, bricht den Build.
 ### Schritt 1: Passwort-Reset des Helpdesks finden
 
 ```bash
+TOKEN=$(./audit.sh --otp --token)
 docker exec -i assignment-keycloak /opt/keycloak/bin/kcadm.sh get admin-events \
+  --no-config --server http://localhost:8080 --realm master --token "$TOKEN" \
   -r mustertech -q operationTypes=ACTION -q resourcePath=users/*/reset-password
 ```
 
 ### Schritt 2: Felder zeigen
 
-Auf `authDetails.userId`, `time`, `resourcePath` und `representation` zeigen. Dann den
+Auf `authDetails.userId`, `time`, `operationType` und `resourcePath` zeigen. Dann
 `userId` gegen `tom.helpdesk` auflösen:
 
 ```bash
 docker exec -i assignment-keycloak /opt/keycloak/bin/kcadm.sh get users/<userId> \
+  --no-config --server http://localhost:8080 --realm master --token "$TOKEN" \
   -r mustertech --fields username
+unset TOKEN
 ```
 
-Anforderung 10.2.1 verlangt diesen Nachweis: wer hat wann welches Credential geändert. Ohne
-`Include representation` fehlt die gesendete Representation.
+Der Event belegt, wer wann das Credential welches Benutzers geändert hat. Der
+Passwort-Reset enthält auch bei aktiviertem `Include representation` keine
+`representation`. Das Passwort gehört nicht in die protokollierten Request-Daten.
 
 ---
 

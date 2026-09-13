@@ -91,6 +91,7 @@ folgenden Aufbau:
 parent=keycloak.v2
 import=common/keycloak
 styles=css/styles.css css/mustertech.css
+locales=de,en
 ```
 
 - **`parent=keycloak.v2`:** Das Theme erbt von `keycloak.v2`, dem neuen
@@ -138,14 +139,15 @@ Keycloak.
 
 ### `login/resources/img/logo.png`
 
-Das Firmenlogo der Mustertech GmbH. Keycloak zeigt es automatisch auf der
-Login-Seite an, da der Pfad `resources/img/` dem Standard-Theme-Verzeichnis für
-Bilder entspricht.
+Die mitgelieferte Logo-Grafik. `mustertech.css` bindet sie über
+`#kc-header-wrapper::before` als Hintergrundbild oberhalb des Realm-Namens ein.
+Eine Datei unter `resources/img/` allein wird vom Parent-Theme nicht angezeigt.
 
 ### `login/messages/messages_de.properties`
 
 ```properties
 loginTitle=Anmelden bei Mustertech
+loginAccountTitle=Anmelden bei Mustertech
 doLogIn=Anmelden
 doRegister=Registrieren
 ```
@@ -212,6 +214,10 @@ Im Mustertech-Realm:
 | Email theme         | `mustertech` |
 
 3. Klicke auf **Save**
+4. Öffne **Realm settings** -> **Localization**
+5. Aktiviere **Internationalization**, füge `de` und `en` unter **Supported locales** hinzu
+   und setze **Default locale** auf `de`
+6. Klicke auf **Save**
 
 ![Realm Themes Einstellungen](screenshots/01-realm-themes-settings.png)
 
@@ -222,7 +228,8 @@ Im Mustertech-Realm:
 1. Öffne ein Inkognito-Fenster
 2. Gehe zu: <http://localhost:5173>
 3. Klicke auf "Anmelden mit Keycloak"
-4. Die Login-Seite sollte das neue Design zeigen
+4. Wähle bei Bedarf **Deutsch** in der Sprachauswahl
+5. Prüfe Logo, Farben und den Titel "Anmelden bei Mustertech"
 
 ![Login-Seite mit Mustertech Theme](screenshots/03-login-page-themed.png)
 

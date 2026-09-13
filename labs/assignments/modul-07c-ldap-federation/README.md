@@ -230,6 +230,19 @@ Klicke **Save**.
 
 ---
 
+### Schritt 2.3: Vornamen zuordnen
+
+1. Öffne im LDAP-Provider den Tab **Mappers** und den Mapper **first name**.
+2. Setze **LDAP Attribute** auf `givenName`; **User Model Attribute** bleibt `firstName`.
+3. Klicke **Save**.
+
+Der automatisch angelegte Mapper verwendet zunächst `cn`. Im gelieferten Verzeichnis
+enthält `cn` den vollständigen Namen, `givenName` dagegen nur den Vornamen. Nach der
+Synchronisation soll Hans als Vorname `Hans` und als Nachname `Mueller` haben.
+Falls du bereits synchronisiert hast, führe **Sync all users** erneut aus.
+
+---
+
 ## Teil 3: Benutzer synchronisieren und testen
 
 ### Schritt 3.1: Vollständige Synchronisation ausführen
@@ -294,7 +307,7 @@ Die drei LDAP-Benutzer sollten jetzt sichtbar sein: `hans.mueller`,
 ### Schritt 4.2: Gruppen synchronisieren
 
 1. Gehe in die Einstellungen des neuen Mappers.
-2. Klicke im oberen Bereich der Mapper-Seite auf auf **Action** -> **Sync LDAP groups to Keycloak**
+2. Klicke im oberen Bereich der Mapper-Seite auf **Action** -> **Sync LDAP groups to Keycloak**
 
 ### Schritt 4.3: Gruppen in Keycloak prüfen
 

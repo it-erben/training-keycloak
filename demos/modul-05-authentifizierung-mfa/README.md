@@ -59,41 +59,36 @@ zeigen wir den Unterschied: **OTP für jeden User erzwingen**.
 
 ### Schritt 1: Flow-Struktur analysieren
 
-Öffne den Flow **Browser mit MFA**. Die Struktur:
+Öffne den Flow **Browser mit MFA**. Der relevante Ausschnitt unter `forms` sieht
+in Keycloak 26.5 so aus; zusätzliche Zweige wie `Organization` bleiben unverändert:
 
 ```text
-Browser mit MFA
-+-- Cookie                                    (Alternative)
-+-- Kerberos                                  (Disabled)
-+-- Identity Provider Redirector              (Alternative)
-+-- Browser mit MFA forms                     (Alternative)
-    +-- Username Password Form                (Required)
-    +-- Browser mit MFA Browser - Conditional OTP  (Conditional)
-        +-- Condition - User Configured       (Required)
-        +-- OTP Form                          (Required)
+Browser mit MFA forms                         (Alternative)
++-- Username Password Form                    (Required)
++-- Browser mit MFA Browser - Conditional 2FA  (Conditional)
+    +-- Condition - user configured           (Required)
+    +-- Condition - credential                (Required)
+    +-- OTP Form                              (Alternative)
+    +-- WebAuthn Authenticator                (Disabled)
+    +-- Recovery Authentication Code Form     (Disabled)
 ```
 
-### Schritt 2: Conditional OTP auf Required ändern
+### Schritt 2: 2FA-Subflow und OTP-Formular auf Required ändern
 
-1. Finde den Subflow **Browser mit MFA Browser - Conditional OTP**
-2. Ändere das Requirement von **Conditional** auf **Required**
+1. Finde den Subflow **Browser mit MFA Browser - Conditional 2FA**
+2. Ändere dessen Requirement von **Conditional** auf **Required**
+3. Ändere innerhalb dieses Subflows **OTP Form** von **Alternative** auf **Required**
+4. Lass WebAuthn und Recovery Codes auf **Disabled**
 
-**Vorher:**
+| Execution                                    | Vorher      | Nachher      |
+| :------------------------------------------- | :---------- | :----------- |
+| Browser mit MFA Browser - Conditional 2FA    | Conditional | **Required** |
+| OTP Form                                     | Alternative | **Required** |
 
-| Execution | Requirement |
-| :--- | :--- |
-| Browser mit MFA Browser - Conditional OTP | Conditional |
-
-**Nachher:**
-
-| Execution | Requirement |
-| :--- | :--- |
-| Browser mit MFA Browser - Conditional OTP | **Required** |
-
-> **Zeigen:** Der Unterschied zwischen Conditional und Required:
->
-> - **Conditional:** OTP wird nur abgefragt, wenn der User es bereits konfiguriert hat
-> - **Required:** OTP wird immer abgefragt; wer es noch nicht hat, muss es einrichten
+> **Zeigen:** Im bedingten Subflow entscheiden die Conditions, ob 2FA nötig ist.
+> Für OTP bei jedem Passwort-Login müssen sowohl der Subflow als auch das
+> OTP-Formular `Required` sein. Wer noch kein OTP eingerichtet hat, wird dann zur
+> Einrichtung aufgefordert. Nur das Requirement des Subflows zu ändern reicht nicht.
 
 **Diskussionspunkte:**
 
@@ -144,6 +139,7 @@ Der neue Flow muss als aktiver Browser-Flow gesetzt werden.
 1. Melde dich ab
 2. Melde dich erneut an
 3. Nach Username/Passwort wird direkt der OTP-Code abgefragt (kein Setup mehr)
+4. Gib einen neuen Code aus der Authenticator-App ein
 
 ---
 

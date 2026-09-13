@@ -74,8 +74,8 @@ Aktualisieren und `DELETE` zum Löschen.
 
 Die Admin REST API ist durch OAuth 2.0 geschützt. Jeder API-Aufruf muss einen
 gültigen Access Token im `Authorization`-Header mitschicken. Diesen Token holst
-du dir über den Token-Endpoint des **Master-Realms**, da nur dort der
-`admin-cli`-Client und das Admin-Konto existieren.
+du dir hier über den Token-Endpoint des **Master-Realms**, in dem das
+Lab-Administratorkonto `admin` angelegt wurde.
 
 Der folgende Aufruf nutzt den **Resource Owner Password Credentials Grant**
 (`grant_type=password`), um direkt mit Benutzername und Passwort einen Token zu
@@ -333,6 +333,45 @@ Invoke-RestMethod -Uri "http://localhost:8080/realms/mustertech/protocol/openid-
 }
 ```
 
+## Teil 4: Management-CLI erweitern
+
+### Schritt 4.1: Admin-Berechtigung für die CLI-Anmeldung
+
+Das CLI unter `../services/management-cli/src/index.ts` meldet Benutzer bereits per
+Device Authorization Grant an. Behalte diesen Ablauf bei. Öffne in der Admin-Konsole
+**Users** → `max.admin` → **Role mapping** und weise über **Assign role** die Client-Rolle
+`view-users` von `realm-management` zu. Sie erlaubt das Lesen der Benutzer für diesen
+Übungsschritt. `hans.mueller` erhält diese Rolle nicht.
+
+### Schritt 4.2: Benutzerabfrage implementieren
+
+Ergänze nach erfolgreicher Anmeldung eine Funktion, die mit `axios.get` die URL
+`${KEYCLOAK_URL}/admin/realms/${REALM}/users` aufruft. Übergib
+`Authorization: Bearer ${tokens.access_token}` als Header und `max=10` als
+Query-Parameter. Gib für jeden Treffer nur `username` und `email` aus.
+
+Behandle HTTP 403 mit einer verständlichen Meldung zu fehlenden Admin-Rechten.
+Verwende den Access Token aus dem Device Flow; hinterlege weder das Master-Passwort
+noch einen festen Admin-Token im Quellcode.
+
+### Schritt 4.3: Beide Berechtigungsfälle testen
+
+Baue und starte das CLI nach deiner Änderung aus dem Lab-Verzeichnis:
+
+```bash
+docker compose --profile cli build assignment-management-cli
+docker compose --profile cli run --rm assignment-management-cli
+```
+
+Öffne die angezeigte Verifikations-URL im Browser. Ersetze dabei nur den internen
+Host `assignment-keycloak` durch `localhost`, falls er in der URL steht; Pfad und
+`user_code` bleiben unverändert. Melde dich als `max.admin` mit `test1234` an und
+bestätige die Geräteanmeldung. Das CLI soll die Benutzer einschließlich `peter.neu`
+aus Teil 2 auflisten. Starte es erneut und melde dich als `hans.mueller` mit
+`test1234` an: Die Benutzerabfrage soll HTTP 403 melden.
+
+---
+
 ## Teil 5: Weitere API-Endpunkte
 
 ### Schritt 5.1: Sessions verwalten
@@ -350,7 +389,7 @@ curl "http://localhost:8080/admin/realms/mustertech/users/$USER_ID/sessions" \
   -H "Authorization: Bearer $TOKEN"
 
 # Alle Sessions eines Users beenden
-curl -X DELETE "http://localhost:8080/admin/realms/mustertech/users/$USER_ID/sessions" \
+curl -f -X POST "http://localhost:8080/admin/realms/mustertech/users/$USER_ID/logout" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -360,8 +399,8 @@ Invoke-RestMethod -Uri "http://localhost:8080/admin/realms/mustertech/users/$use
   -Headers @{ Authorization = "Bearer $token" }
 
 # Alle Sessions eines Users beenden
-Invoke-WebRequest -Uri "http://localhost:8080/admin/realms/mustertech/users/$userId/sessions" `
-  -Method Delete `
+Invoke-WebRequest -Uri "http://localhost:8080/admin/realms/mustertech/users/$userId/logout" `
+  -Method Post `
   -Headers @{ Authorization = "Bearer $token" }
 ```
 
@@ -390,15 +429,16 @@ Invoke-RestMethod -Uri "http://localhost:8080/admin/realms/mustertech/events?typ
 
 ### Schritt 5.3: Realm-Konfiguration exportieren
 
-Die gesamte Konfiguration eines Realms - inklusive Clients, Rollen, Gruppen und
-Einstellungen - lässt sich über einen einfachen `GET`-Request auf den
-Realm-Endpunkt als JSON exportieren. Das ist nützlich, um Konfigurationen zu
-sichern, zwischen Umgebungen zu übertragen (z.B. von Staging nach Produktion)
-oder um Änderungen im Versionskontrollsystem nachzuverfolgen.
+`GET /admin/realms/mustertech` liefert die Einstellungen des Realms, etwa die
+Passwort-Policy und Session-Timeouts. Clients, Rollen, Gruppen und Benutzer sind
+separate Ressourcen und fehlen in dieser Antwort. Die Datei eignet sich zum
+Vergleichen dieser Einstellungen, aber nicht als vollständiges Realm-Backup.
 
-> **Hinweis:** Dieser Export enthält **keine** User-Daten und keine Secrets.
-> Für einen vollständigen Export inklusive User nutze den
-> `partial-export`-Endpunkt oder das Keycloak CLI.
+Für Clients, Rollen und Gruppen gibt es `POST /admin/realms/mustertech/partial-export`
+mit `exportClients=true&exportGroupsAndRoles=true`. Dieser Teilexport enthält keine
+regulären Benutzer; Service-Account-Benutzer können enthalten sein. Für einen Export
+mit regulären Benutzern verwende `kc.sh export` bei gestopptem Keycloak-Server wie in
+[Modul 10b](../modul-10b-best-practices/README.md).
 
 ```bash
 curl "http://localhost:8080/admin/realms/mustertech" \
