@@ -30,12 +30,12 @@ Nach diesem Modul kannst du:
 Keycloak hält seinen Zustand in der Datenbank. Die Pods sind austauschbar.
 
 - Ein Pod kann jederzeit ersetzt werden; die Daten bleiben in der Datenbank.
-- Skalierung ist eine Zahl in der Konfiguration (`instances: 3`).
+- Skalierung erfolgt konfigurativ (`instances: 3`).
 - Fällt ein Pod aus, startet Kubernetes ihn neu.
 - Ein Rolling Update tauscht die Pods nacheinander; der Login bleibt erreichbar.
 - Die gesamte Konfiguration liegt als YAML im Git-Repository.
 
-> **Merke:** Keycloak hält keinen Zustand. Verfügbarkeit und Backup hängen an der Datenbank.
+> Keycloak hält keinen Zustand. Verfügbarkeit und Backup hängen an der Datenbank.
 
 ---
 
@@ -68,14 +68,14 @@ section {
 
 ## 2. Deployment-Wege
 
-| Weg | Was du bekommst | Wann sinnvoll |
+| Weg | Eigenschaften | Wann sinnvoll |
 | --- | --- | --- |
 | **Keycloak Operator** | Upstream, CRDs `Keycloak` und `KeycloakRealmImport`, Rolling Updates | Standardfall |
 | **Helm Chart** (codecentric, Bitnami) | Klassisches Templating, viele Werte | Bestehende Helm-Landschaft |
 | **Eigene Manifeste** | Volle Kontrolle über StatefulSet und Config | Sonderfälle, die die CR nicht abbildet |
 
 Der Bitnami-Katalog liegt seit 2025 im Legacy-Bereich; der codecentric-Chart ist ein Community-Projekt.
-Der Operator wird vom Keycloak-Team mit jeder Version veröffentlicht.
+Der Operator wird vom Keycloak-Team mit jeder Version veröffentlicht und ist daher sehr empfehlenswert.
 
 ---
 <style scoped>
@@ -139,7 +139,7 @@ section {
 
 ## 3. Ingress und TLS
 
-Zwei Muster, wo TLS endet:
+Es gibt zwei Muster, wie TLS terminiert wird:
 
 | Muster | Ablauf | Konsequenz |
 | --- | --- | --- |
