@@ -32,10 +32,10 @@ Keycloak hält seinen Zustand in der Datenbank. Die Pods sind austauschbar.
 - Ein Pod kann jederzeit ersetzt werden; die Daten bleiben in der Datenbank.
 - Skalierung erfolgt konfigurativ (`instances: 3`).
 - Fällt ein Pod aus, startet Kubernetes ihn neu.
-- Ein Rolling Update tauscht die Pods nacheinander; der Login bleibt erreichbar.
+- Ein Rolling Update tauscht Pods nacheinander; Verfügbarkeit hängt auch von Datenbank, Ingress und Timeouts ab.
 - Die gesamte Konfiguration liegt als YAML im Git-Repository.
 
-> Keycloak hält keinen Zustand. Verfügbarkeit und Backup hängen an der Datenbank.
+> Dauerhafte Daten liegen in der Datenbank; die Pods halten zusätzlich Caches und laufende Anfragen.
 
 ---
 
@@ -55,7 +55,7 @@ section {
 | **Ingress** | Nimmt HTTPS von außen an, terminiert TLS, leitet an den Service weiter |
 | **Service** | Stabiler DNS-Name und Load Balancing auf die Pods |
 | **StatefulSet** | Betreibt die Keycloak-Pods mit stabilen Namen (`keycloak-0`, `keycloak-1`) |
-| **Headless Service** | Liefert die Pod-IPs für die JGroups-Cluster-Bildung |
+| **Headless Service** | Liefert Pod-IPs; die Standard-Discovery nutzt in 26.5 die Datenbank |
 | **Secret** | Datenbank-Zugangsdaten, TLS-Zertifikate, Admin-Passwort |
 | **PostgreSQL** | Außerhalb des Keycloak-StatefulSets: eigener Operator oder externer Dienst |
 
@@ -94,14 +94,14 @@ Ein Operator ist ein Controller, der eine **Custom Resource** in Standard-Ressou
 
 - **StatefulSet, Services, Secrets** aus der CR erzeugen und aktuell halten.
 - **Bootstrap-Admin** als Secret `<name>-initial-admin` anlegen.
-- **Cache-Stack** `kubernetes` und DNS-Discovery konfigurieren.
+- **Cluster-Caches** aktivieren; Keycloak nutzt standardmäßig `jdbc-ping` zur Discovery.
 - **Probes** auf dem Management-Port setzen.
-- **Upgrades** ausrollen und dabei die Kompatibilität der Konfiguration prüfen.
+- **Updates** gemäß `spec.update.strategy` ausrollen.
 
 ---
 <style scoped>
 section {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
 }
 </style>
 
@@ -186,8 +186,8 @@ section {
 ## 5. Skalierung und Hochverfügbarkeit
 
 - **`instances: 3`** startet drei Pods, verteilt über die Knoten.
-- **Infinispan** repliziert Caches; die Mitglieder finden sich per DNS über den Headless Service.
-- **`cache-stack=kubernetes`** und `jgroups.dns.query` setzt der Operator selbst.
+- **Infinispan** verteilt Caches zwischen den Mitgliedern.
+- **`jdbc-ping`** ist der Standard in 26.5: JGroups findet Mitglieder über die Datenbank.
 - **Persistente Sessions:** Seit Keycloak 26 in der Datenbank; ein Pod-Ausfall beendet keine Sitzung.
 - **Sticky Sessions** am Ingress sind nicht mehr nötig, sparen aber Cache-Zugriffe.
 - **PodDisruptionBudget:** Ein Node-Drain trifft nie alle Pods gleichzeitig.
@@ -234,9 +234,14 @@ Ein Restore auf ein Testsystem gehört in den regelmäßigen Betrieb.
 
 ---
 
+<style scoped>
+section { font-size: 1.5rem; }
+</style>
+
 ## 7. Betrieb
 
-- **Upgrades:** Neues Image in der CR; der Operator wählt Rolling Update oder Neustart (`spec.update.strategy`).
+- **Imagewechsel:** `spec.update.strategy` ist standardmäßig **`RecreateOnImageChange`**: alle Pods ersetzen.
+- **`Auto`:** Explizit setzen; der Operator prüft dann, ob ein Rolling Update mit dem neuen Image möglich ist.
 - **Logging:** JSON nach stdout (`log-console-output=json`), eingesammelt vom Cluster-Logging.
 - **Isolation:** Ein Namespace pro Instanz; `spec.networkPolicy` lässt nur Ingress und Monitoring zu.
 - **Secrets extern:** External Secrets Operator holt Zugangsdaten aus Vault oder Cloud-KMS.
@@ -246,7 +251,7 @@ Ein Restore auf ein Testsystem gehört in den regelmäßigen Betrieb.
 
 ## Zusammenfassung
 
-- **Keycloak ist stateless**, die Datenbank hält den Zustand.
+- **Dauerhafte Daten** liegen in der Datenbank; Pods halten Caches und laufende Anfragen.
 - Der **Operator** übersetzt die `Keycloak`-CR in StatefulSet, Services und Secrets.
 - **Ingress** terminiert TLS; `proxy.headers` und `hostname` müssen zusammenpassen.
 - **Skalierung** ist eine Zahl in der CR; persistente Sessions überstehen den Pod-Wechsel.

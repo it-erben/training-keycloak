@@ -1,5 +1,5 @@
 # Realm "mustertech" im Stand von Lab 10b als Custom Resource. Der Operator
-# startet daraus einen Import-Job; die Keycloak-Pods starten danach neu.
+# startet daraus einen Import-Job; die laufenden Keycloak-Pods bleiben bestehen.
 apiVersion: k8s.keycloak.org/v2alpha1
 kind: KeycloakRealmImport
 metadata:

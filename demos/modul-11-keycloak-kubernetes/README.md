@@ -1,7 +1,7 @@
 # Live-Demo Modul 11: Keycloak auf Kubernetes
 
 Operator, Self-Healing und Rolling Update live zeigen, auf dem Cluster aus Lab 11. Der Fokus liegt auf
-das, was der Operator aus der Custom Resource macht.
+dem, was der Operator aus der Custom Resource macht.
 
 | Demo | Thema | Dauer |
 | :--- | :--- | :--- |
@@ -53,7 +53,7 @@ Alle drei Ressourcen stammen aus der CR; keine wurde von Hand angelegt.
 kubectl -n keycloak get pod keycloak-0 -o yaml | grep -A1 "name: KC_"
 ```
 
-Auf `KC_DB_URL_HOST`, `KC_HOSTNAME`, `KC_CACHE_STACK` und `KC_PROXY_HEADERS` zeigen: der Operator
+Auf `KC_DB_URL_HOST`, `KC_HOSTNAME` und `KC_PROXY_HEADERS` zeigen: der Operator
 übersetzt die CR-Felder in dieselben Optionen wie in den Compose-Labs.
 
 ---
@@ -95,7 +95,12 @@ Auf die Mitgliederliste `(2) [keycloak-0-…, keycloak-1-…]` zeigen. Dann den 
 kubectl -n keycloak get endpointslices -l kubernetes.io/service-name=keycloak-discovery
 ```
 
-Die Pod-IPs kommen aus dem DNS des Headless Service.
+Die EndpointSlices zeigen die Pod-IPs hinter dem Headless Service. Zur Cluster-Discovery nutzt
+Keycloak 26.5 standardmäßig die gemeinsame Datenbank (`jdbc-ping`). Zeige den Stack im Log:
+
+```bash
+kubectl -n keycloak logs keycloak-1 | grep "Starting JGroups channel"
+```
 
 ---
 
@@ -110,14 +115,17 @@ kubectl -n keycloak patch keycloak keycloak --type merge \
 
 ### Schritt 2: Im zweiten Terminal beobachten
 
-`keycloak-1` wird beendet und neu gestartet, erst danach `keycloak-0`. Zu jedem Zeitpunkt
-bedient ein Pod den Login. Zwischendurch:
+`keycloak-1` wird beendet und neu gestartet, erst danach `keycloak-0`. Beobachte, ob mindestens
+ein Pod Ready bleibt, und lade parallel die Login-Seite. Kurze Fehler oder Timeouts sind trotz
+Ready-Pod möglich, etwa beim Umschalten des Ingress auf den Ersatz-Pod. Zwischendurch:
 
 ```bash
 kubectl -n keycloak get keycloak keycloak -o jsonpath='{.status.conditions[?(@.type=="RollingUpdate")]}'
 ```
 
-Ein Versions-Upgrade läuft denselben Weg, mit `spec.image` statt einer Option.
+Ein Imagewechsel unterliegt `spec.update.strategy`. Der Standard `RecreateOnImageChange`
+ersetzt alle Pods gemeinsam. Erst mit explizitem `Auto` prüft der Operator, ob das neue Image
+für ein Rolling Update geeignet ist; andernfalls bleibt ein Recreate erforderlich.
 
 ---
 

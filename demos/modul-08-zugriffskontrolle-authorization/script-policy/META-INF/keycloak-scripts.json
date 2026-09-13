@@ -1,0 +1,9 @@
+{
+  "policies": [
+    {
+      "name": "Owner delete",
+      "fileName": "owner-delete.js",
+      "description": "Erlaubt die Permission nur dem Ressourcenbesitzer."
+    }
+  ]
+}

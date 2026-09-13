@@ -27,12 +27,18 @@ Nach diesem Modul kannst du:
 
 Keycloak ist eine Java-Anwendung (basiert auf Quarkus).
 
-- **Java:** JDK 17 oder neuer (nur bei manueller Installation).
+- **Java:** OpenJDK 21 für die manuelle Installation der Kursversion 26.5.7.
 - **RAM:** Min. 512 MB Heap (empfohlen: 1GB+ für Prod).
 - **Datenbank:** H2 (nur Dev/Test), PostgreSQL, MySQL, MariaDB, Oracle, MS SQL.
 - **Netzwerk:** Standard-Port 8080 (HTTP) bzw. 8443 (HTTPS).
 
+Quelle: [Installationsanleitung für 26.5.7](https://github.com/keycloak/keycloak/blob/26.5.7/docs/guides/getting-started/getting-started-zip.adoc).
+
 ---
+
+<style scoped>
+section { font-size: 1.5rem; }
+</style>
 
 ## 2. Installationswege
 

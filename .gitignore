@@ -125,3 +125,6 @@ node_modules
 # Selbstsigniertes Zertifikat aus Lab 11
 labs/assignments/modul-11-kubernetes/tls.crt
 labs/assignments/modul-11-kubernetes/tls.key
+
+# Lokale Sicherungen aus dem Betriebs-Lab
+labs/assignments/modul-10b-best-practices/backup/

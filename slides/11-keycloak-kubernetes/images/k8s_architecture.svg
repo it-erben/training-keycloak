@@ -42,7 +42,7 @@
   <text x="610" y="452" text-anchor="middle">Pod keycloak-1</text>
   <text x="610" y="472" text-anchor="middle" font-size="13">Management :9000</text>
   <line x1="480" y1="456" x2="520" y2="456" stroke="#82b366" stroke-width="2" stroke-dasharray="4,3"/>
-  <text x="500" y="500" text-anchor="middle" font-size="13" fill="#555555">Infinispan über keycloak-discovery (DNS)</text>
+  <text x="500" y="500" text-anchor="middle" font-size="13" fill="#555555">Infinispan; Discovery über Datenbank (jdbc-ping)</text>
 
   <!-- Operator -->
   <rect x="100" y="392" width="150" height="70" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="2"/>

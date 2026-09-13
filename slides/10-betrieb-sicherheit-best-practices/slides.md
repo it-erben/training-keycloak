@@ -46,18 +46,23 @@ bin/kc.sh start --hostname=auth.example.com --https-certificate-file=...
 
 ---
 
+<style scoped>
+section { font-size: 1.5rem; }
+</style>
+
 ## 1.2 Key Rotation
 
 **Signaturschlüssel regelmäßig rotieren** (Realm Settings → Keys)
 
 - Keycloak signiert Tokens mit RSA/EC-Schlüsseln.
-- **Automatische Rotation:** Keycloak erstellt neue Keys, behält alte für Validierung.
-- **Manuelle Rotation:** Bei Verdacht auf Kompromittierung sofort neue Keys generieren.
+- **Rotation auslösen:** Unter **Keys → Providers** einen neuen Schlüsselprovider mit höherer Priorität anlegen.
+- **Zeitplan:** Regelmäßige Rotation über eigene Automation der Admin-API steuern; Keycloak rotiert nicht zeitgesteuert.
+- Alten Provider zur Validierung behalten, bis seine Tokens abgelaufen sind.
 
 **Best Practice:**
 
-- Rotation alle 90 Tage
-- Alte Keys nicht sofort löschen (laufende Tokens müssen noch validiert werden)
+- Intervall und Übergangsfrist anhand der Token-Laufzeiten festlegen.
+- Bei kompromittiertem Schlüssel sofort wechseln und betroffene Tokens/Sitzungen widerrufen.
 
 ---
 
@@ -135,6 +140,10 @@ Content-Security-Policy: frame-ancestors 'self';
 
 ---
 
+<style scoped>
+section { font-size: 1.6rem; }
+</style>
+
 ## 2. Web Security in Keycloak
 
 **CORS konfigurieren** (Clients → dein Client → Web Origins)
@@ -211,7 +220,7 @@ Keycloak bietet detaillierte Protokolle (Realm Settings → Events).
 
 Um Ausfälle zu vermeiden, nutze mehrere Instanzen (Nodes).
 
-- **Discovery:** Nodes müssen sich finden (Standard: JGroups Multicast/UDP. In Cloud/K8s: DNS_PING/TCP).
+- **Discovery:** Keycloak 26.5 nutzt standardmäßig `jdbc-ping`: JGroups findet Mitglieder über die Datenbank.
 - **Load Balancer:** Verteilt Traffic.
 - **Sticky Sessions:** Wichtig für Performance! Der Load Balancer sollte User basierend auf
   `AUTH_SESSION_ID` Cookie immer zum selben Node schicken (vermeidet unnötige

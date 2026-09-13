@@ -254,9 +254,9 @@ kubectl apply -f manifests/04-realm-import.yaml
 kubectl -n keycloak get pods -w
 ```
 
-Der Operator startet einen Job `mustertech-…`, der den Realm in die Datenbank schreibt. Danach
-startet er die Keycloak-Pods neu, damit keine veralteten Caches bleiben. Beende die Beobachtung,
-sobald `keycloak-0` wieder `1/1 Running` zeigt.
+Der Operator startet einen Job `mustertech-…`, der den Realm in die Datenbank schreibt.
+Die laufenden Keycloak-Pods werden dadurch nicht automatisch neu gestartet. Beende die
+Pod-Beobachtung mit `Ctrl+C` und warte auf den abgeschlossenen Import:
 
 ```bash
 kubectl -n keycloak wait --for=condition=Done keycloakrealmimport/mustertech --timeout=300s
@@ -294,9 +294,14 @@ kubectl -n keycloak logs keycloak-1 | grep "cluster view"
 ```
 
 Die Zeile `Received new cluster view for channel ISPN: [keycloak-0-…|1] (2) [keycloak-0-…, keycloak-1-…]`
-zeigt, dass beide Pods einen Infinispan-Cluster gebildet haben. Die Mitglieder haben sich über den
-Headless Service `keycloak-discovery` per DNS gefunden; der Operator setzt dafür
-`cache-stack=kubernetes` und `jgroups.dns.query` automatisch.
+zeigt, dass beide Pods einen Infinispan-Cluster gebildet haben. Keycloak 26.5 verwendet
+standardmäßig `jdbc-ping`: JGroups findet die Mitglieder über die gemeinsame Datenbank.
+Der Headless Service `keycloak-discovery` existiert zusätzlich, ist hier aber nicht die Quelle
+der Cluster-Discovery. Prüfe den tatsächlich verwendeten Stack:
+
+```bash
+kubectl -n keycloak logs keycloak-1 | grep "Starting JGroups channel"
+```
 
 ### Schritt 6.3: Ausfall simulieren
 
@@ -356,9 +361,16 @@ kubectl apply -f manifests/02-keycloak.yaml
 kubectl -n keycloak get pods -w
 ```
 
-Der Operator tauscht die Pods nacheinander aus; mindestens einer bleibt erreichbar. Denselben Weg
-nimmt ein Versions-Upgrade: neues Image in der CR, der Operator prüft die Kompatibilität und
-entscheidet zwischen Rolling Update und Neustart.
+Bei den zwei zuvor gestarteten Instanzen tauscht der Operator die Pods nacheinander aus.
+Prüfe währenddessen die Ready-Zustände und lade das Login-Portal wiederholt. Ein verbleibender
+Ready-Pod allein garantiert keine unterbrechungsfreie HTTP-Antwort; Ingress-Umschaltung und
+laufende Anfragen können kurze Fehler oder Timeouts verursachen.
+
+Für einen Imagewechsel gilt eine eigene Strategie: Standardmäßig verwendet Operator 26.5.7
+`spec.update.strategy: RecreateOnImageChange` und ersetzt dabei alle Pods gemeinsam.
+Mit explizitem `spec.update.strategy: Auto` prüft er die Kompatibilität für ein Rolling Update;
+auch dann kann ein Recreate nötig sein. Plane Versionswechsel mit Backup und Wartungsfenster.
+Siehe [Update-Strategien des Operators](https://www.keycloak.org/operator/rolling-updates).
 
 ---
 
