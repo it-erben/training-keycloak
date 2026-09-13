@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="560" viewBox="0 0 1000 560" font-family="Helvetica, Arial, sans-serif" font-size="16">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333333"/>
+    </marker>
+  </defs>
+
+  <!-- Browser -->
+  <rect x="400" y="20" width="200" height="50" rx="8" fill="#dae8fc" stroke="#6c8ebf" stroke-width="2"/>
+  <text x="500" y="50" text-anchor="middle" font-weight="bold">Browser / Anwendung</text>
+  <text x="640" y="95" font-size="14" fill="#555555">HTTPS keycloak.mustertech.test</text>
+  <line x1="500" y1="70" x2="500" y2="120" stroke="#333333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Cluster -->
+  <rect x="40" y="120" width="920" height="420" rx="12" fill="none" stroke="#999999" stroke-width="2" stroke-dasharray="8,6"/>
+  <text x="60" y="148" font-weight="bold" fill="#666666">Kubernetes-Cluster</text>
+
+  <!-- Ingress -->
+  <rect x="380" y="160" width="240" height="56" rx="8" fill="#ffe6cc" stroke="#d79b00" stroke-width="2"/>
+  <text x="500" y="184" text-anchor="middle" font-weight="bold">Ingress-Controller</text>
+  <text x="500" y="204" text-anchor="middle" font-size="13">TLS-Terminierung, X-Forwarded-*</text>
+  <line x1="500" y1="216" x2="500" y2="262" stroke="#333333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Namespace keycloak -->
+  <rect x="80" y="262" width="840" height="258" rx="10" fill="#f5f5f5" stroke="#666666" stroke-width="1.5"/>
+  <text x="96" y="286" font-weight="bold" fill="#444444">Namespace keycloak</text>
+
+  <!-- Service -->
+  <rect x="380" y="300" width="240" height="44" rx="8" fill="#d5e8d4" stroke="#82b366" stroke-width="2"/>
+  <text x="500" y="327" text-anchor="middle" font-weight="bold">Service keycloak-service :8080</text>
+  <line x1="440" y1="344" x2="380" y2="392" stroke="#333333" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="560" y1="344" x2="620" y2="392" stroke="#333333" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- StatefulSet keycloak -->
+  <rect x="280" y="392" width="440" height="110" rx="8" fill="#ffffff" stroke="#6c8ebf" stroke-width="2"/>
+  <text x="500" y="414" text-anchor="middle" font-weight="bold">StatefulSet keycloak</text>
+  <rect x="300" y="428" width="180" height="56" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5"/>
+  <text x="390" y="452" text-anchor="middle">Pod keycloak-0</text>
+  <text x="390" y="472" text-anchor="middle" font-size="13">Management :9000</text>
+  <rect x="520" y="428" width="180" height="56" rx="6" fill="#dae8fc" stroke="#6c8ebf" stroke-width="1.5"/>
+  <text x="610" y="452" text-anchor="middle">Pod keycloak-1</text>
+  <text x="610" y="472" text-anchor="middle" font-size="13">Management :9000</text>
+  <line x1="480" y1="456" x2="520" y2="456" stroke="#82b366" stroke-width="2" stroke-dasharray="4,3"/>
+  <text x="500" y="500" text-anchor="middle" font-size="13" fill="#555555">Infinispan über keycloak-discovery (DNS)</text>
+
+  <!-- Operator -->
+  <rect x="100" y="392" width="150" height="70" rx="8" fill="#e1d5e7" stroke="#9673a6" stroke-width="2"/>
+  <text x="175" y="418" text-anchor="middle" font-weight="bold">Operator</text>
+  <text x="175" y="440" text-anchor="middle" font-size="13">liest Keycloak-CR,</text>
+  <text x="175" y="456" text-anchor="middle" font-size="13">erzeugt StatefulSet</text>
+  <line x1="250" y1="427" x2="280" y2="427" stroke="#9673a6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Keycloak CR -->
+  <rect x="100" y="300" width="150" height="56" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="2"/>
+  <text x="175" y="324" text-anchor="middle" font-weight="bold">Keycloak-CR</text>
+  <text x="175" y="344" text-anchor="middle" font-size="13">kind: Keycloak</text>
+  <line x1="175" y1="356" x2="175" y2="392" stroke="#9673a6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- PostgreSQL -->
+  <rect x="760" y="392" width="140" height="110" rx="8" fill="#f8cecc" stroke="#b85450" stroke-width="2"/>
+  <text x="830" y="420" text-anchor="middle" font-weight="bold">PostgreSQL</text>
+  <text x="830" y="444" text-anchor="middle" font-size="13">StatefulSet</text>
+  <text x="830" y="462" text-anchor="middle" font-size="13">+ PersistentVolume</text>
+  <text x="830" y="488" text-anchor="middle" font-size="13">Service postgres :5432</text>
+  <line x1="700" y1="456" x2="760" y2="456" stroke="#b85450" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Secrets -->
+  <rect x="760" y="300" width="140" height="56" rx="8" fill="#fff2cc" stroke="#d6b656" stroke-width="2"/>
+  <text x="830" y="324" text-anchor="middle" font-weight="bold">Secrets</text>
+  <text x="830" y="344" text-anchor="middle" font-size="13">DB-Zugang, TLS, Admin</text>
+</svg>

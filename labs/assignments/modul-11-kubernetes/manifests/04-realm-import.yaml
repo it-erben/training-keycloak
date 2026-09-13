@@ -1,0 +1,353 @@
+# Realm "mustertech" im Stand von Lab 10b als Custom Resource. Der Operator
+# startet daraus einen Import-Job; die Keycloak-Pods starten danach neu.
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: KeycloakRealmImport
+metadata:
+  name: mustertech
+  namespace: keycloak
+spec:
+  keycloakCRName: keycloak
+  realm:
+    id: mustertech
+    realm: mustertech
+    displayName: Mustertech GmbH
+    displayNameHtml: <b>Mustertech</b> GmbH
+    enabled: true
+    sslRequired: none
+    registrationAllowed: true
+    loginWithEmailAllowed: true
+    duplicateEmailsAllowed: false
+    resetPasswordAllowed: true
+    editUsernameAllowed: false
+    rememberMe: true
+    bruteForceProtected: true
+    maxFailureWaitSeconds: 900
+    minimumQuickLoginWaitSeconds: 60
+    waitIncrementSeconds: 60
+    quickLoginCheckMilliSeconds: 1000
+    maxDeltaTimeSeconds: 43200
+    failureFactor: 5
+    permanentLockout: false
+    passwordPolicy: length(10) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1) and
+      notUsername and notEmail
+    defaultSignatureAlgorithm: RS256
+    accessTokenLifespan: 300
+    ssoSessionIdleTimeout: 1800
+    ssoSessionMaxLifespan: 36000
+    accessCodeLifespan: 60
+    accessCodeLifespanLogin: 1800
+    eventsEnabled: true
+    eventsExpiration: 604800
+    adminEventsEnabled: true
+    adminEventsDetailsEnabled: true
+    smtpServer:
+      host: assignment-mailpit
+      port: '1025'
+      from: noreply@mustertech.de
+      fromDisplayName: Mustertech GmbH
+    browserFlow: browser-mustertech
+    roles:
+      realm:
+      - name: default-roles-mustertech
+        description: ${role_default-roles}
+        composite: true
+        composites:
+          realm:
+          - offline_access
+          - uma_authorization
+      - name: offline_access
+        description: ${role_offline-access}
+      - name: uma_authorization
+        description: ${role_uma_authorization}
+      - name: mitarbeiter
+        description: Basis-Rolle für alle Mitarbeiter der Mustertech GmbH
+      - name: manager
+        description: Manager mit erweiterten Rechten (z.B. Urlaubsgenehmigung)
+        composite: true
+        composites:
+          realm:
+          - mitarbeiter
+      - name: admin
+        description: Administrator mit vollen Zugriffsrechten
+        composite: true
+        composites:
+          realm:
+          - manager
+      client: {}
+    defaultRole:
+      name: default-roles-mustertech
+      description: ${role_default-roles}
+      composite: true
+    groups:
+    - name: Entwicklung
+      attributes:
+        abteilung:
+        - Entwicklung
+      realmRoles:
+      - mitarbeiter
+    - name: Vertrieb
+      attributes:
+        abteilung:
+        - Vertrieb
+      realmRoles:
+      - mitarbeiter
+    - name: Management
+      attributes:
+        abteilung:
+        - Management
+      realmRoles:
+      - manager
+    clients:
+    - clientId: portal-frontend
+      name: Mustertech Portal
+      description: React Single Page Application für Mitarbeiter
+      enabled: true
+      publicClient: true
+      standardFlowEnabled: true
+      directAccessGrantsEnabled: true
+      rootUrl: http://localhost:5173
+      baseUrl: http://localhost:5173
+      redirectUris:
+      - http://localhost:5173/*
+      webOrigins:
+      - http://localhost:5173
+      protocol: openid-connect
+      attributes:
+        pkce.code.challenge.method: S256
+        post.logout.redirect.uris: http://localhost:5173/*
+      protocolMappers:
+      - name: personalnummer
+        protocol: openid-connect
+        protocolMapper: oidc-usermodel-attribute-mapper
+        config:
+          claim.name: personalnummer
+          user.attribute: personalnummer
+          jsonType.label: String
+          id.token.claim: 'true'
+          access.token.claim: 'false'
+          userinfo.token.claim: 'true'
+          introspection.token.claim: 'true'
+    - clientId: portal-api
+      name: Mustertech Portal API
+      enabled: true
+      publicClient: false
+      standardFlowEnabled: true
+      serviceAccountsEnabled: true
+      authorizationServicesEnabled: true
+      rootUrl: http://localhost:3001
+      redirectUris:
+      - http://localhost:3001/*
+      webOrigins:
+      - +
+      protocol: openid-connect
+      authorizationSettings:
+        allowRemoteResourceManagement: true
+        policyEnforcementMode: ENFORCING
+        resources:
+        - name: urlaubsantrag
+          displayName: Urlaubsantrag
+          type: urn:portal-api:resource:urlaubsantrag
+          uris:
+          - /api/urlaubsantraege/*
+          scopes:
+          - name: view
+          - name: create
+          - name: approve
+        - name: admin-bereich
+          displayName: Admin-Bereich
+          type: urn:portal-api:resource:admin
+          uris:
+          - /api/admin/*
+          scopes:
+          - name: view
+        policies:
+        - name: Mitarbeiter Policy
+          type: role
+          logic: POSITIVE
+          config:
+            roles: '[{"id":"mitarbeiter","required":false}]'
+        - name: Manager Policy
+          type: role
+          logic: POSITIVE
+          config:
+            roles: '[{"id":"manager","required":false}]'
+        - name: Admin Policy
+          type: role
+          logic: POSITIVE
+          config:
+            roles: '[{"id":"admin","required":false}]'
+        - name: View Urlaubsanträge
+          type: scope
+          logic: POSITIVE
+          decisionStrategy: UNANIMOUS
+          config:
+            resources: '["urlaubsantrag"]'
+            scopes: '["view"]'
+            applyPolicies: '["Mitarbeiter Policy"]'
+        - name: Approve Urlaubsanträge
+          type: scope
+          logic: POSITIVE
+          decisionStrategy: UNANIMOUS
+          config:
+            resources: '["urlaubsantrag"]'
+            scopes: '["approve"]'
+            applyPolicies: '["Manager Policy"]'
+        - name: Access Admin
+          type: scope
+          logic: POSITIVE
+          decisionStrategy: UNANIMOUS
+          config:
+            resources: '["admin-bereich"]'
+            scopes: '["view"]'
+            applyPolicies: '["Admin Policy"]'
+        scopes:
+        - name: view
+          displayName: Anzeigen
+        - name: create
+          displayName: Erstellen
+        - name: approve
+          displayName: Genehmigen
+    - clientId: management-cli-app
+      name: Management CLI
+      enabled: true
+      publicClient: true
+      standardFlowEnabled: false
+      directAccessGrantsEnabled: false
+      protocol: openid-connect
+      attributes:
+        oauth2.device.authorization.grant.enabled: 'true'
+    - clientId: sync-service
+      name: Mustertech Sync Service
+      enabled: true
+      publicClient: false
+      standardFlowEnabled: false
+      serviceAccountsEnabled: true
+      protocol: openid-connect
+    users:
+    - username: hans.mueller
+      enabled: true
+      email: hans.mueller@mustertech.de
+      firstName: Hans
+      lastName: Müller
+      emailVerified: true
+      attributes:
+        personalnummer:
+        - M-1001
+      credentials:
+      - type: password
+        value: Muster1234!
+        temporary: false
+      realmRoles:
+      - default-roles-mustertech
+      groups:
+      - Entwicklung
+    - username: anna.schmidt
+      enabled: true
+      email: anna.schmidt@mustertech.de
+      firstName: Anna
+      lastName: Schmidt
+      emailVerified: true
+      attributes:
+        personalnummer:
+        - M-1002
+      credentials:
+      - type: password
+        value: Muster1234!
+        temporary: false
+      realmRoles:
+      - default-roles-mustertech
+      groups:
+      - Vertrieb
+    - username: max.admin
+      enabled: true
+      email: max.admin@mustertech.de
+      firstName: Max
+      lastName: Administrator
+      emailVerified: true
+      attributes:
+        personalnummer:
+        - M-0001
+      credentials:
+      - type: password
+        value: Muster1234!
+        temporary: false
+      realmRoles:
+      - default-roles-mustertech
+      - admin
+      groups:
+      - Management
+    - username: service-account-sync-service
+      enabled: true
+      serviceAccountClientId: sync-service
+      realmRoles:
+      - default-roles-mustertech
+      clientRoles:
+        realm-management:
+        - view-users
+    authenticationFlows:
+    - alias: browser-mustertech
+      description: Mustertech Browser Flow mit Conditional OTP für Admins
+      providerId: basic-flow
+      topLevel: true
+      builtIn: false
+      authenticationExecutions:
+      - authenticator: auth-cookie
+        authenticatorFlow: false
+        requirement: ALTERNATIVE
+        priority: 10
+      - authenticator: auth-spnego
+        authenticatorFlow: false
+        requirement: DISABLED
+        priority: 20
+      - authenticator: identity-provider-redirector
+        authenticatorFlow: false
+        requirement: ALTERNATIVE
+        priority: 25
+      - authenticatorFlow: true
+        requirement: ALTERNATIVE
+        priority: 30
+        flowAlias: browser-mustertech forms
+    - alias: browser-mustertech forms
+      description: Username, password, otp and other auth forms.
+      providerId: basic-flow
+      topLevel: false
+      builtIn: false
+      authenticationExecutions:
+      - authenticator: auth-username-password-form
+        authenticatorFlow: false
+        requirement: REQUIRED
+        priority: 10
+      - authenticatorFlow: true
+        requirement: CONDITIONAL
+        priority: 20
+        flowAlias: browser-mustertech Browser - Conditional OTP
+    - alias: browser-mustertech Browser - Conditional OTP
+      description: Flow to determine if the OTP is required for the authentication
+      providerId: basic-flow
+      topLevel: false
+      builtIn: false
+      authenticationExecutions:
+      - authenticator: conditional-user-configured
+        authenticatorFlow: false
+        requirement: ALTERNATIVE
+        priority: 10
+      - authenticator: conditional-user-role
+        authenticatorConfig: Is Admin
+        authenticatorFlow: false
+        requirement: ALTERNATIVE
+        priority: 20
+      - authenticator: auth-otp-form
+        authenticatorFlow: false
+        requirement: REQUIRED
+        priority: 30
+    authenticatorConfig:
+    - alias: Is Admin
+      config:
+        condUserRole: admin
+        negate: 'false'
+    components:
+      org.keycloak.userprofile.UserProfileProvider:
+      - providerId: declarative-user-profile
+        config:
+          kc.user.profile.config:
+          - '{"attributes":[{"name":"username","displayName":"${username}","validations":{"length":{"min":3,"max":255},"username-prohibited-characters":{},"up-username-not-idn-homograph":{}},"permissions":{"view":["admin","user"],"edit":["admin","user"]},"multivalued":false},{"name":"email","displayName":"${email}","validations":{"email":{},"length":{"max":255}},"required":{"roles":["user"]},"permissions":{"view":["admin","user"],"edit":["admin","user"]},"multivalued":false},{"name":"firstName","displayName":"${firstName}","validations":{"length":{"max":255},"person-name-prohibited-characters":{}},"required":{"roles":["user"]},"permissions":{"view":["admin","user"],"edit":["admin","user"]},"multivalued":false},{"name":"lastName","displayName":"${lastName}","validations":{"length":{"max":255},"person-name-prohibited-characters":{}},"required":{"roles":["user"]},"permissions":{"view":["admin","user"],"edit":["admin","user"]},"multivalued":false},{"name":"personalnummer","displayName":"Personalnummer","permissions":{"view":["admin"],"edit":["admin"]},"multivalued":false}],"unmanagedAttributePolicy":"ADMIN_EDIT"}'
