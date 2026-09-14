@@ -86,6 +86,8 @@ Bei den Modulen 06, 07, 09 und 10 verteilen sich die praktischen Aufgaben auf me
 - [`labs/assignments/`](labs/assignments/) enthält die Übungen mit Compose-Dateien, Realm-Imports
   und Screenshots. Für das Kubernetes-Lab liegen die Ressourcen unter
   [`modul-11-kubernetes/manifests/`](labs/assignments/modul-11-kubernetes/manifests/).
+- [`workshops/`](workshops/) enthält zwei ergänzende Architektur- und Betriebsworkshops mit Kurzfolien,
+  Aufgabenblättern und separaten Trainerunterlagen für jeweils 60 Minuten.
 - [`demos/`](demos/) enthält die Vorführungen für den Trainer, jeweils mit eigener Anleitung.
 - [`materials/`](materials/) enthält Vorlagen für Kurzvorträge zum
   [Client Credentials Flow](materials/oauth2-client-credentials-flow.md) und zum
