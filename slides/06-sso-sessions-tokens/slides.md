@@ -100,9 +100,10 @@ Wichtige Einstellungen (*Realm Settings → Sessions*):
 **Sicherheit durch Rotation:**
 
 - Aktivieren: *Realm Settings → Tokens → "Revoke Refresh Token" = ON*
-- Jeder Refresh Token ist nur **einmal** nutzbar
+- Mit **Refresh Token Max Reuse = 0** ist jeder Refresh Token nur einmal nutzbar
 - Bei Verwendung wird ein neuer Refresh Token ausgestellt
-- Erkennung von Token-Diebstahl: Wird ein bereits verwendeter Token erneut genutzt, wird die gesamte Session ungültig
+- Replay eines verbrauchten Tokens beendet die betroffene **Client-Session**.
+- Die übergeordnete **SSO-Sitzung** kann bestehen bleiben; andere Clients werden dadurch nicht automatisch abgemeldet.
 
 > **Best Practice:** Immer aktivieren!
 

@@ -13,6 +13,8 @@ Gitea läuft lokal als Container, ein externer Account ist nicht nötig.
 
 - Docker / Podman (Container-Runtime)
 - curl, python3 (für setup.sh)
+- Unter Windows: Bash in Ubuntu mit aktivierter Docker-Integration, siehe
+  [Windows-Einrichtung](../../labs/WINDOWS.md)
 
 ## Setup
 
@@ -118,7 +120,8 @@ Diese wurde bereits beim Erstellen der OAuth2-App in Gitea hinterlegt.
 ### Schritt 3: Profil bestätigen
 
 1. Prüfe die vorausgefüllten Felder (Username, E-Mail)
-2. Klicke auf **Submit**
+2. Ergänze die Pflichtfelder **First name** und **Last name**, z.B. `Alice` und `Demo`
+3. Klicke auf **Submit**
 
 ### Schritt 4: User in Admin Console prüfen
 

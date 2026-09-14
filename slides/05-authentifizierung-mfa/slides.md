@@ -37,6 +37,10 @@ Keycloak nutzt ein flexibles System, um zu definieren, wie Benutzer (oder Client
 
 ---
 
+<style scoped>
+section { font-size: 1.6rem; }
+</style>
+
 ## 1.1 Struktur und Komponenten
 
 Ein Flow ist ein Baum aus **Executions** und **Subflows**.
@@ -117,21 +121,27 @@ Ziel: User müssen zusätzlich zum Passwort einen **zweiten Faktor** eingeben.
 
 ---
 
+<style scoped>
+section {
+    font-size: 1.5rem;
+}
+</style>
+
 ## 2.2 WebAuthn / Passkeys
 
-**WebAuthn** ist der moderne Standard für passwortlose Authentifizierung.
+**WebAuthn** unterstützt Security-Keys und Passkeys, als zweiten Faktor oder für passwortlose Flows.
 
-**Vorteile gegenüber OTP:**
+Die Domain-Bindung schützt vor Phishing. Ein Schlüssel ersetzt die Code-Eingabe;
+je nach Gerät ist Biometrie möglich.
 
-- Phishing-resistent (Domain-gebunden)
-- Keine manuelle Code-Eingabe
-- Biometrie möglich (Fingerabdruck, Face ID)
+**Beispiel: Passwort plus WebAuthn**
 
-**Konfiguration:**
+1. `browser` als `browser-webauthn` duplizieren; Subflow `browser-webauthn forms` öffnen.
+2. Dort **WebAuthn Authenticator** hinter **Username Password Form** hinzufügen, **Required** setzen.
+3. Den vorhandenen **Conditional 2FA**-Subflow deaktivieren, damit dieses Beispiel kein OTP zusätzlich verlangt.
+4. Kopie als **Browser Flow** binden. Im privaten Fenster anmelden, Schlüssel registrieren, erneut anmelden.
 
-1. Flow duplizieren
-2. "WebAuthn Authenticator" hinzufügen
-3. Requirement = Required oder Conditional
+**Conditional** gehört auf einen Subflow mit Bedingung. Dieser Ablauf verlangt weiterhin ein Passwort.
 
 ---
 
@@ -169,4 +179,4 @@ Unter *Authentication → Policies → OTP Policy*:
 - **Requirements** (Required, Alternative, Conditional) steuern die Auswertung.
 - **Niemals Built-in Flows editieren** – immer duplizieren!
 - **MFA** via OTP oder WebAuthn einfach aktivierbar.
-- **Conditional** = optional, **Required** = erzwungen.
+- **Conditional** führt einen Subflow bei erfüllter Bedingung aus; **Required** erzwingt einen Schritt.

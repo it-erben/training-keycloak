@@ -181,7 +181,7 @@ section {
 Für Fälle, die mit Standard-Policies nicht abbildbar sind:
 
 ```javascript
-// Beispiel: Nur der Ersteller darf löschen
+// Beispiel: Nur der Ressourcenbesitzer darf löschen
 var context = $evaluation.getContext();
 var identity = context.getIdentity();
 var resource = $evaluation.getPermission().getResource();
@@ -191,8 +191,11 @@ if (resource.getOwner().equals(identity.getId())) {
 }
 ```
 
-> **Sicherheitshinweis:** JS-Policies sind mächtig, aber auch riskant.
-> In Keycloak müssen sie explizit via `--spi-policy-js-enabled=true` aktiviert werden.
+Skript und `META-INF/keycloak-scripts.json` als JAR nach `providers/` kopieren;
+mit **`--features=scripts`** bauen und starten (Preview). Skripte lassen sich nicht inline hochladen.
+
+Ausführbare Owner-/Nicht-Owner-Demo mit Verpackung und Permission:
+[`script-policy`](../../demos/modul-08-zugriffskontrolle-authorization/script-policy/README.md).
 
 ---
 <style scoped>

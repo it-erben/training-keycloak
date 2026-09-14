@@ -30,6 +30,7 @@ Keycloak Admin-Konsole: <http://localhost:9090> (admin / admin)
 Der Realm **mustertech** wird automatisch importiert mit:
 
 - Login Theme: `mustertech` (Custom Theme)
+- Internationalization: aktiviert, Sprachen `de` und `en`, Standardsprache `de`
 - User `alice` / `demo1234`
 - User `bob` / `demo1234`
 
@@ -41,7 +42,8 @@ Der Realm **mustertech** wird automatisch importiert mit:
 
 1. Öffne ein **Inkognito-Fenster**
 2. Navigiere zu: <http://localhost:9090/realms/mustertech/account>
-3. Die Login-Seite zeigt das **Mustertech-Theme** (eigenes Logo, Farben, Texte)
+3. Wähle bei Bedarf **Deutsch** in der Sprachauswahl
+4. Die Login-Seite zeigt das **Mustertech-Theme** (Logo, Farben, deutsche Texte)
 
 > **Zeigen:** Der Realm nutzt das Theme `mustertech`, das per Volume in den Container
 > gemountet wird. Kein Custom Docker Image nötig.
@@ -97,6 +99,7 @@ Bevor wir die API nutzen können, brauchen wir ein Admin-Token.
 TOKEN=$(curl -sf -X POST http://localhost:9090/realms/master/protocol/openid-connect/token \
   -d "grant_type=password" \
   -d "client_id=admin-cli" \
+  -d "scope=openid" \
   -d "username=admin" \
   -d "password=admin" | jq -r '.access_token')
 
@@ -104,7 +107,8 @@ echo "${TOKEN}"
 ```
 
 > **Zeigen:** Wir authentifizieren uns gegen den **master**-Realm mit dem `admin-cli`-Client.
-> Das Token berechtigt zu allen Admin-Operationen.
+> Das Token berechtigt zu allen Admin-Operationen. Der Scope `openid` erlaubt zusätzlich
+> den folgenden Userinfo-Aufruf.
 
 ### Schritt 2: Token prüfen
 

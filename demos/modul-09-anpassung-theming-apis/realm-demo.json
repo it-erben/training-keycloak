@@ -84,5 +84,11 @@
         "default-roles-mustertech"
       ]
     }
-  ]
+  ],
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "de",
+    "en"
+  ],
+  "defaultLocale": "de"
 }

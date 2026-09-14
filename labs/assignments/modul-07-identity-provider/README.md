@@ -16,6 +16,8 @@ Am Ende dieser Übung hast du:
 ## Voraussetzungen
 
 - Docker Desktop installiert und gestartet
+- Für `setup.sh`: Bash, curl und Python 3; unter Windows wie in der
+  [Windows-Einrichtung](../../WINDOWS.md) beschrieben, oder die PowerShell-Variante unten
 
 ### Umgebung starten
 
@@ -289,7 +291,8 @@ Du kannst nun den Account verlinken, mit dem du aktuell in Gitea angemeldet bist
 
 Wenn du möchtest, dass User direkt zu Gitea weitergeleitet werden:
 
-1. Navigiere zu **Authentication** -> **browser** Flow
+1. Navigiere zu **Authentication** -> **browser-mustertech** Flow
+   Dieser Flow ist in diesem Lab als **Browser flow** gebunden.
 2. Finde **Identity Provider Redirector**
 3. Klicke auf das Zahnrad
 4. Setze **Default Identity Provider** auf `gitea`

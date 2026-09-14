@@ -137,6 +137,7 @@ Jetzt simulieren wir den User-Flow:
 1. Melde dich ab (Sign out)
 2. Melde dich erneut als `max.admin` an
 3. Nach Username/Passwort wirst du nach dem OTP-Code gefragt
+4. Warte auf einen neuen Code, falls du den aktuellen gerade zur Einrichtung verwendet hast
 
 ---
 
@@ -172,6 +173,10 @@ Klicke auf **Save**.
 ![Brute-Force-Detection konfiguriert](screenshots/06-brute-force-configured.png)
 
 ### Schritt 3.3: Brute-Force-Protection testen
+
+Aktiviere zuerst die Event-Speicherung aus [Aufgabe 5.1](#aufgabe-51-events-aktivieren-für-audit).
+Nur Ereignisse nach dem Einschalten werden gespeichert; die Fehlversuche aus diesem
+Schritt werden in Aufgabe 5.2 ausgewertet.
 
 1. Öffne ein Inkognito-Fenster
 2. Versuche, dich als `hans.mueller` mit falschem Passwort anzumelden
@@ -235,6 +240,8 @@ beenden, um alle User auszuloggen.
 
 ### Aufgabe 5.1: Events aktivieren (für Audit)
 
+Führe diese Einstellung bereits vor dem Brute-Force-Test in Schritt 3.3 aus.
+
 1. Navigiere zu **Realm settings** → **Events**
 2. Tab **User events settings**:
     - **Save events:** ON
@@ -242,7 +249,7 @@ beenden, um alle User auszuloggen.
     - **Saved types:** Alle relevanten Events aktivieren
 3. Tab **Admin events settings**:
     - **Save events:** ON
-    - **Include representation:** ON (für vollständiges Audit-Log)
+    - **Include representation:** ON (soweit die jeweilige Aktion eine Representation protokolliert)
 4. Klicke auf **Save**
 
 ![Events Einstellungen](screenshots/08-events-settings.png)

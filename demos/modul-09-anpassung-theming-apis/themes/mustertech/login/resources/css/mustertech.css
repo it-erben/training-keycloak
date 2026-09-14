@@ -29,6 +29,16 @@
   text-transform: uppercase;
 }
 
+/* Das Parent-Theme bindet eigene Bilder nicht automatisch ein. */
+#kc-header-wrapper::before {
+  content: "";
+  display: block;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 1rem;
+  background: url("../img/logo.png") no-repeat center / contain;
+}
+
 /* ========== Login-Container ========== */
 #kc-login {
   border-radius: 8px;

@@ -29,6 +29,9 @@ docker compose logs -f demo-keycloak
 
 Keycloak Admin-Konsole: <http://localhost:9090> (admin / admin)
 
+Der Import verwendet die von Keycloak erzeugten Standard-Client-Scopes samt Protocol Mappern.
+`basic` ergänzt unter anderem `sub`; `profile` und `email` liefern die Profildaten des Demo-Users.
+
 ---
 
 ## Demo 1: OIDC Discovery & Authorization Code Flow
@@ -42,7 +45,7 @@ http://localhost:9090/realms/demo/.well-known/openid-configuration
 ```
 
 **Zeigen:** `authorization_endpoint`, `token_endpoint`,
-`supported_scopes`, `grant_types_supported`, `id_token_signing_alg_values_supported`.
+`scopes_supported`, `grant_types_supported`, `id_token_signing_alg_values_supported`.
 
 > Alternativ: In Postman den Request "Discovery Endpoint" absenden.
 
@@ -122,8 +125,11 @@ Das Test-Script zeigt den dekodierten Token in der Postman Console.
 | id_token       | ja                 | **nein**              |
 | refresh_token  | ja                 | **nein**              |
 | sub            | User-ID (demo)     | Service-Account-ID    |
-| User-Claims    | name, email, ...   | keine                 |
+| User-Claims    | name, email, ...   | Service-Account-Daten |
 | Browser nötig? | ja                 | **nein**              |
+
+`preferred_username` bezeichnet in Demo 2 den Service Account, nicht einen angemeldeten Benutzer.
+Die persönlichen Angaben `name` und `email` des Demo-Users sind dort nicht enthalten.
 
 **Diskussionspunkte:**
 

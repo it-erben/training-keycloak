@@ -14,6 +14,9 @@ Für die Compose-Labs werden Docker Desktop mit Docker Compose, ein Browser mit 
 und ein Code-Editor benötigt. Die Compose-Dateien verwenden Keycloak 26.5 und PostgreSQL 18.
 Zusätzliche Werkzeuge stehen in der jeweiligen Lab-Anleitung.
 
+Die [Windows-Einrichtung](labs/WINDOWS.md) beschreibt WSL 2, die Docker-Integration und
+die Wahl der Shell für die Bash-Skripte und das Kubernetes-Lab.
+
 Die erste praktische Übung ist [Modul 03: Installation][03]. Start aus dem Hauptverzeichnis des
 Repositories:
 
