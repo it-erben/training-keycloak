@@ -16,6 +16,8 @@ Am Ende dieser Übung hast du:
 ## Voraussetzungen
 
 - Docker Desktop installiert und gestartet
+- Für `setup.sh`: Bash, curl und Python 3; unter Windows wie in der
+  [Windows-Einrichtung](../../WINDOWS.md) beschrieben, oder die PowerShell-Variante unten
 
 ### Umgebung starten
 

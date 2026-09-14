@@ -2,6 +2,48 @@
 
 Diese Seite gilt fuer alle Module unter `assignments/modul-*`.
 
+## Windows und Bash
+
+### Docker oder Python fehlen in der Shell
+
+Wenn WSL `docker: command not found` meldet, aktiviere in Docker Desktop unter
+**Settings -> Resources -> WSL integration** deine Ubuntu-Distribution und klicke auf
+**Apply**. Prüfe danach `docker version` in Ubuntu; die Ausgabe muss auch den Server enthalten.
+
+Öffnet `python3` in Git Bash den Microsoft Store, verwende Ubuntu unter WSL für die
+Bash-Skripte. Dort müssen `python3 --version` und `curl --version` funktionieren.
+Die vollständigen Schritte stehen in der [Windows-Einrichtung](../WINDOWS.md).
+
+### Bash-Skripte melden pipefail oder bash\r
+
+Fehler wie `set: pipefail: invalid option name`, `$'\r': command not found` oder
+`/usr/bin/env: 'bash\r': No such file or directory` weisen auf CRLF-Zeilenenden hin.
+Die `.gitattributes` des Repositories schreibt LF für `*.sh` vor. Bereits ausgecheckte
+Dateien können nach einem Update noch CRLF enthalten.
+
+Wechsle in PowerShell in das Hauptverzeichnis des Repositories und normalisiere die
+versionierten Bash-Dateien. Der übrige Inhalt einschließlich eigener Änderungen bleibt erhalten:
+
+```powershell
+git ls-files '*.sh' | ForEach-Object {
+  $scriptPath = Join-Path (Get-Location) $_
+  $content = [IO.File]::ReadAllText($scriptPath).Replace("`r`n", "`n")
+  [IO.File]::WriteAllText($scriptPath, $content)
+}
+git ls-files --eol '*.sh'
+```
+
+Die Ausgabe soll für jede Datei `i/lf` und `w/lf` zeigen. Alternativ kannst du im Editor
+die Zeilenenden auf LF umstellen. Ein gewöhnliches `git restore` kann eine inhaltlich
+unveränderte Datei überspringen und dadurch ihre alten CRLF-Zeilenenden erhalten.
+
+### OpenSSL meldet einen ungültigen Subject-Namen
+
+Git Bash kann `-subj /CN=keycloak.mustertech.test` als Windows-Pfad weiterreichen.
+Verwende den PowerShell-Aufruf aus
+[Modul 11](modul-11-kubernetes/README.md#schritt-41-selbstsigniertes-zertifikat-erzeugen).
+Er startet OpenSSL direkt und vermeidet die MSYS-Pfadkonvertierung.
+
 ## Container-Name-Konflikt
 
 **Symptom:** Beim Start erscheint ein Fehler wie:

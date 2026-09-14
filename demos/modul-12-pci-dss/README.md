@@ -13,7 +13,8 @@ danach mit grünen. Die Prüfung läuft als Skript gegen die Admin-API.
 ## Voraussetzungen
 
 - Docker / Podman (Container-Runtime)
-- Bash und `python3` auf dem Host (unter Windows z.B. in WSL)
+- Bash und `python3` auf dem Host; unter Windows Ubuntu mit Docker-Integration nach der
+  [Windows-Einrichtung](../../labs/WINDOWS.md)
 - Lab 12 gestartet (`docker compose up -d` in `labs/assignments/modul-12-pci-dss`)
 
 ## Setup

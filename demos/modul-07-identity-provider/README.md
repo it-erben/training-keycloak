@@ -13,6 +13,8 @@ Gitea läuft lokal als Container, ein externer Account ist nicht nötig.
 
 - Docker / Podman (Container-Runtime)
 - curl, python3 (für setup.sh)
+- Unter Windows: Bash in Ubuntu mit aktivierter Docker-Integration, siehe
+  [Windows-Einrichtung](../../labs/WINDOWS.md)
 
 ## Setup
 

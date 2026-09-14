@@ -21,7 +21,11 @@ Am Ende dieser Übung hast du:
 - Docker Desktop installiert und gestartet, mit mindestens 6 GB RAM für Container
 - [minikube](https://minikube.sigs.k8s.io/docs/start/) und
   [kubectl](https://kubernetes.io/docs/tasks/tools/) installiert
-- `openssl` (unter Windows in der Git Bash enthalten)
+- `openssl` (unter Windows durch Git for Windows installiert)
+
+Unter Windows führst du dieses Lab in PowerShell aus. Verwende bei shellabhängigen
+Befehlen die PowerShell-Blöcke; einfache `kubectl`- und `minikube`-Befehle sind identisch.
+Die [Windows-Einrichtung](../../WINDOWS.md) erklärt die Abgrenzung zu WSL.
 
 Diese Übung nutzt kein `docker compose`. Der Cluster läuft als Container in Docker Desktop.
 
@@ -84,11 +88,22 @@ ServiceAccount `keycloak-operator` in diesem Namespace verweist.
 
 ### Schritt 1.2: CRDs und Operator anwenden
 
+**Bash:**
+
 ```bash
 KC_RES=https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.5.7/kubernetes
 kubectl -n keycloak apply -f $KC_RES/keycloaks.k8s.keycloak.org-v1.yml
 kubectl -n keycloak apply -f $KC_RES/keycloakrealmimports.k8s.keycloak.org-v1.yml
 kubectl -n keycloak apply -f $KC_RES/kubernetes.yml
+```
+
+**PowerShell:**
+
+```powershell
+$kcResources = "https://raw.githubusercontent.com/keycloak/keycloak-k8s-resources/26.5.7/kubernetes"
+kubectl -n keycloak apply -f "$kcResources/keycloaks.k8s.keycloak.org-v1.yml"
+kubectl -n keycloak apply -f "$kcResources/keycloakrealmimports.k8s.keycloak.org-v1.yml"
+kubectl -n keycloak apply -f "$kcResources/kubernetes.yml"
 ```
 
 Die ersten beiden Dateien registrieren die Custom Resource Definitions `Keycloak` und
@@ -188,9 +203,19 @@ kubectl -n keycloak get statefulset,service,secret
 
 ### Schritt 3.4: Admin-Zugangsdaten auslesen
 
+**Bash:**
+
 ```bash
 kubectl -n keycloak get secret keycloak-initial-admin -o jsonpath='{.data.username}' | base64 -d; echo
 kubectl -n keycloak get secret keycloak-initial-admin -o jsonpath='{.data.password}' | base64 -d; echo
+```
+
+**PowerShell:**
+
+```powershell
+$kcSecret = kubectl -n keycloak get secret keycloak-initial-admin -o json | ConvertFrom-Json
+[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($kcSecret.data.username))
+[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($kcSecret.data.password))
 ```
 
 Notiere beide Werte. Der Benutzer ist ein temporärer Bootstrap-Admin; Keycloak blendet nach
@@ -202,11 +227,30 @@ dem Login einen Hinweis ein, einen dauerhaften Admin anzulegen.
 
 ### Schritt 4.1: Selbstsigniertes Zertifikat erzeugen
 
+**Bash unter Linux, macOS oder WSL:**
+
 ```bash
 openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
   -keyout tls.key -out tls.crt \
   -subj "/CN=keycloak.mustertech.test" \
   -addext "subjectAltName=DNS:keycloak.mustertech.test"
+```
+
+**PowerShell mit Git for Windows:**
+
+```powershell
+& "$env:ProgramFiles/Git/usr/bin/openssl.exe" req -x509 -newkey rsa:2048 -nodes -days 365 `
+  -keyout tls.key -out tls.crt `
+  -subj "/CN=keycloak.mustertech.test" `
+  -addext "subjectAltName=DNS:keycloak.mustertech.test"
+```
+
+Passe den Programmpfad an, wenn Git an einem anderen Ort installiert ist. Der direkte
+PowerShell-Aufruf verhindert, dass Git Bash das Subject als Windows-Pfad umschreibt.
+Prüfe den Exitcode des OpenSSL-Aufrufs, bevor du fortfährst. Mit Exitcode `0` legst du
+das Secret an; dieser Befehl ist in beiden Shells identisch:
+
+```bash
 kubectl -n keycloak create secret tls keycloak-tls --cert=tls.crt --key=tls.key
 ```
 
@@ -289,8 +333,26 @@ kubectl -n keycloak get pods -w
 
 ### Schritt 6.2: Cluster-Bildung beobachten
 
+Warte zunächst auf die zweite Instanz:
+
+```bash
+kubectl -n keycloak wait "--for=jsonpath={.spec.replicas}=2" statefulset/keycloak --timeout=300s
+kubectl -n keycloak rollout status statefulset/keycloak --timeout=300s
+```
+
+Der Operator muss zuerst `instances: 2` in das StatefulSet übertragen haben. Ohne diese
+Wartebedingung könnte `rollout status` noch den abgeschlossenen Zustand mit einem Pod melden.
+
+**Bash:**
+
 ```bash
 kubectl -n keycloak logs keycloak-1 | grep "cluster view"
+```
+
+**PowerShell:**
+
+```powershell
+kubectl -n keycloak logs keycloak-1 | Select-String "cluster view"
 ```
 
 Die Zeile `Received new cluster view for channel ISPN: [keycloak-0-…|1] (2) [keycloak-0-…, keycloak-1-…]`
@@ -303,6 +365,12 @@ der Cluster-Discovery. Prüfe den tatsächlich verwendeten Stack:
 kubectl -n keycloak logs keycloak-1 | grep "Starting JGroups channel"
 ```
 
+In PowerShell verwendest du stattdessen:
+
+```powershell
+kubectl -n keycloak logs keycloak-1 | Select-String "Starting JGroups channel"
+```
+
 ### Schritt 6.3: Ausfall simulieren
 
 Bleibe im Account-Portal als `hans.mueller` angemeldet und lösche den ersten Pod:
@@ -311,9 +379,18 @@ Bleibe im Account-Portal als `hans.mueller` angemeldet und lösche den ersten Po
 kubectl -n keycloak delete pod keycloak-0
 ```
 
-Lade das Account-Portal neu. Die Sitzung bleibt bestehen: Keycloak 26 speichert User-Sessions in
-der Datenbank, der zweite Pod bedient die Anfrage. Das StatefulSet startet `keycloak-0` von selbst
-wieder.
+Lade das Account-Portal neu. Während der Ingress auf den verbleibenden Pod umschaltet,
+kann eine Anfrage kurz fehlschlagen oder in einen Timeout laufen. Lade in diesem Fall
+erneut und prüfe, ob du weiterhin als `hans.mueller` angemeldet bist. Keycloak 26 speichert
+User-Sessions in der Datenbank; eine einzelne fehlgeschlagene HTTP-Anfrage belegt keinen
+Verlust der Sitzung. Das StatefulSet startet `keycloak-0` von selbst wieder:
+
+```bash
+kubectl -n keycloak rollout status statefulset/keycloak --timeout=300s
+```
+
+Prüfe danach, dass beide Pods `1/1 Running` zeigen. Dieses lokale Lab demonstriert
+Session-Persistenz und Wiederanlauf; es garantiert keine unterbrechungsfreie Erreichbarkeit.
 
 ---
 
@@ -321,8 +398,16 @@ wieder.
 
 ### Schritt 7.1: Probes im Pod ansehen
 
+**Bash:**
+
 ```bash
 kubectl -n keycloak describe pod keycloak-0 | grep -E "Liveness|Readiness|Startup"
+```
+
+**PowerShell:**
+
+```powershell
+kubectl -n keycloak describe pod keycloak-0 | Select-String "Liveness|Readiness|Startup"
 ```
 
 Der Operator konfiguriert alle drei Probes auf Port `9000`, dem Management-Port. Kubernetes
@@ -334,13 +419,25 @@ nimmt einen Pod erst in den Service auf, wenn `/health/ready` antwortet.
 kubectl -n keycloak port-forward keycloak-0 9000:9000
 ```
 
-In einem zweiten Terminal:
+In einem zweiten Terminal, **Bash**:
 
 ```bash
 curl http://localhost:9000/health/ready
 curl http://localhost:9000/health/live
 curl -s http://localhost:9000/metrics | grep -E "^keycloak_|^jvm_memory_used"
 ```
+
+**PowerShell:**
+
+```powershell
+Invoke-RestMethod http://localhost:9000/health/ready
+Invoke-RestMethod http://localhost:9000/health/live
+curl.exe --fail --silent --show-error http://localhost:9000/metrics |
+  Select-String "^keycloak_|^jvm_memory_used"
+```
+
+`curl.exe` ruft unter Windows das Programm auf; `curl` kann in PowerShell 5.1 ein Alias
+für `Invoke-WebRequest` sein.
 
 `/health/ready` prüft die Datenbankverbindung mit; `/metrics` liefert das Prometheus-Format. Der
 Management-Port ist nicht im Ingress freigegeben und damit von außen nicht erreichbar.
@@ -376,9 +473,20 @@ Siehe [Update-Strategien des Operators](https://www.keycloak.org/operator/rollin
 
 ## Aufräumen
 
+Beende zuvor `minikube tunnel` und das Port-Forwarding jeweils mit `Ctrl+C`.
+
+**Bash:**
+
 ```bash
 minikube delete
 rm tls.key tls.crt
+```
+
+**PowerShell:**
+
+```powershell
+minikube delete
+Remove-Item tls.key, tls.crt
 ```
 
 `minikube delete` entfernt Cluster und Volumes. Der Eintrag in der Hosts-Datei kann bleiben.

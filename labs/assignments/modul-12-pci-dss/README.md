@@ -19,9 +19,12 @@ Am Ende dieser Übung hast du:
 ## Voraussetzungen
 
 - Docker Desktop installiert und gestartet
-- Bash und `python3` auf dem Host für die API-Abfragen und das Audit-Skript (unter Windows z.B. in WSL)
+- Bash und `python3` auf dem Host für die API-Abfragen und das Audit-Skript; unter Windows
+  Ubuntu mit Docker-Integration nach der [Windows-Einrichtung](../../WINDOWS.md)
 - Eine Authenticator-App auf dem Smartphone (FreeOTP, Google Authenticator, Aegis)
 - Modul 05 (Flows), 06 (Sessions) und 10a (Sicherheit) sind der fachliche Unterbau
+
+Die Bash-Blöcke dieses Labs führst du unter Windows in der eingerichteten Ubuntu-Sitzung aus.
 
 ### Umgebung starten
 
