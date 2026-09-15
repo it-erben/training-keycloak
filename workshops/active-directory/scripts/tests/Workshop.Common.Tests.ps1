@@ -9,6 +9,7 @@ Describe 'Get-WorkshopResourceNames' {
         $n.Subnet | Should -Be 'kcad-subnet'
         $n.FirewallLdaps | Should -Be 'kcad-allow-ldaps'
         $n.FirewallIapRdp | Should -Be 'kcad-allow-iap-rdp'
+        $n.FirewallIapSsh | Should -Be 'kcad-allow-iap-ssh'
         $n.InternalAddress | Should -Be 'kcad-dc01-internal'
         $n.ExternalAddress | Should -Be 'kcad-dc01-external'
         $n.DataDisk | Should -Be 'kcad-dc01-data'

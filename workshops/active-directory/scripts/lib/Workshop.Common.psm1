@@ -82,6 +82,7 @@ function Get-WorkshopResourceNames {
         Subnet          = "$Prefix-subnet"
         FirewallLdaps   = "$Prefix-allow-ldaps"
         FirewallIapRdp  = "$Prefix-allow-iap-rdp"
+        FirewallIapSsh  = "$Prefix-allow-iap-ssh"
         InternalAddress = "$Prefix-dc01-internal"
         ExternalAddress = "$Prefix-dc01-external"
         DataDisk        = "$Prefix-dc01-data"

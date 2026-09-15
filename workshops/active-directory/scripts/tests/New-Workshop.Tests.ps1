@@ -84,6 +84,31 @@ Describe 'New-Workshop -PlanOnly' {
     }
 }
 
+Describe 'New-Workshop -TrainerSsh' {
+    It 'plans the ssh rule, the wider IAP condition and metadata' {
+        Set-ReadMocks
+        $common = Get-CommonArgs
+        $key = Join-Path $TestDrive 'id_test.pub'
+        'ssh-ed25519 AAAATESTKEY trainer@example.org' | Set-Content $key
+        $out = & $Script @common -PlanOnly -TrainerSsh -TrainerSshPublicKeyPath $key 6>&1 | Out-String
+        $out | Should -Match 'kcad-allow-iap-ssh'
+        $out | Should -Match 'destination.port == 22'
+        $out | Should -Match 'trainer-ssh-key'
+        Should -Invoke Invoke-GcloudRaw -ModuleName Workshop.Common -Times 0 -ParameterFilter { ($Arguments -join ' ') -match '\b(create|add-metadata)\b' }
+    }
+    It 'rejects a missing public key' {
+        Set-ReadMocks
+        $common = Get-CommonArgs
+        { & $Script @common -PlanOnly -TrainerSsh -TrainerSshPublicKeyPath (Join-Path $TestDrive 'missing.pub') } | Should -Throw '*SSH-Schluessel*'
+    }
+    It 'does not plan the ssh rule without the switch' {
+        Set-ReadMocks
+        $common = Get-CommonArgs
+        $out = & $Script @common -PlanOnly 6>&1 | Out-String
+        $out | Should -Not -Match 'kcad-allow-iap-ssh'
+    }
+}
+
 Describe 'New-Workshop create path' {
     It 'creates resources in order, binds IAP and records the manifest' {
         $global:KcadCalls = [System.Collections.Generic.List[string]]::new()

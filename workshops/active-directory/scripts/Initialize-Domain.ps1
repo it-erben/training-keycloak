@@ -11,12 +11,14 @@ Aufruf in einer PowerShell als Administrator: .\Initialize-Domain.ps1
 #>
 #Requires -RunAsAdministrator
 [CmdletBinding()]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Unattended', Justification = 'in Read-ConfirmedPassword verwendet')]
 param(
     [string]$DomainName = 'ad.mustertech.test',
     [string]$NetbiosName = 'MUSTERTECH',
     [string]$ComputerName = 'dc01',
     [char]$DataDriveLetter = 'D',
-    [string]$StatePath = 'C:\Workshop\state'
+    [string]$StatePath = 'C:\Workshop\state',
+    [switch]$Unattended
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -41,7 +43,13 @@ function Initialize-DataDisk {
 }
 
 function Read-ConfirmedPassword {
+    # Interaktiv mit Wiederholung; mit -Unattended je eine Zeile von stdin (etwa ueber eine SSH-Sitzung, nie aus Metadaten).
     param([string]$Prompt)
+    if ($Unattended) {
+        $line = [Console]::In.ReadLine()
+        if ([string]::IsNullOrEmpty($line) -or $line.Length -lt 14) { throw "Unattended: Passwort fuer '$Prompt' fehlt oder ist kuerzer als 14 Zeichen" }
+        return (ConvertTo-SecureString $line -AsPlainText -Force)
+    }
     while ($true) {
         $a = Read-Host -AsSecureString $Prompt
         $b = Read-Host -AsSecureString 'Wiederholen'
@@ -87,7 +95,8 @@ if ($env:COMPUTERNAME -ne $ComputerName.ToUpper()) {
     Initialize-DataDisk
     Write-State -Phase 'renamed' -Data @{ from = $env:COMPUTERNAME; to = $ComputerName }
     Write-Host 'Neustart. Danach erneut anmelden und dieses Skript erneut ausfuehren.'
-    Rename-Computer -NewName $ComputerName -Force -Restart
+    Rename-Computer -NewName $ComputerName -Force
+    Restart-Computer -Force
     return
 }
 

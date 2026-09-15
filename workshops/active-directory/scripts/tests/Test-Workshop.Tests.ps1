@@ -37,6 +37,26 @@ Describe 'Test-EffectiveFirewall' {
     }
 }
 
+Describe 'Test-EffectiveFirewall trainer ssh' {
+    BeforeAll {
+        $script:fw = @(
+            [pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('203.0.113.0/24'); allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('636') }) },
+            [pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('35.235.240.0/20'); allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('3389') }) },
+            [pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('35.235.240.0/20'); allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('22') }) }
+        )
+    }
+    It 'rejects port 22 unless trainer ssh is declared' {
+        (Test-EffectiveFirewall -Rules $script:fw -AllowedLdapsRanges @('203.0.113.0/24')).Result | Should -Be 'FAIL'
+    }
+    It 'accepts port 22 from the IAP range when declared' {
+        (Test-EffectiveFirewall -Rules $script:fw -AllowedLdapsRanges @('203.0.113.0/24') -AllowIapSsh).Result | Should -Be 'PASS'
+    }
+    It 'still rejects port 22 from elsewhere' {
+        $bad = $script:fw + @([pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('198.51.100.0/24'); allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('22') }) })
+        (Test-EffectiveFirewall -Rules $bad -AllowedLdapsRanges @('203.0.113.0/24') -AllowIapSsh).Result | Should -Be 'FAIL'
+    }
+}
+
 Describe 'Get-ReportExitCode' {
     It 'is 1 when a check fails' {
         Get-ReportExitCode -Report @([pscustomobject]@{ result = 'PASS' }, [pscustomobject]@{ result = 'FAIL' }) | Should -Be 1

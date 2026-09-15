@@ -24,6 +24,8 @@ param(
     [ValidatePattern('^[a-z][a-z0-9]{2,19}$')][string]$AdminUser = 'wsadmin',
     [string]$ManifestPath = (Join-Path $PSScriptRoot '..' '.run' 'manifest.json'),
     [int]$ReadyTimeoutMinutes = 15,
+    [switch]$TrainerSsh,
+    [string]$TrainerSshPublicKeyPath = (Join-Path $HOME '.ssh' 'id_ed25519.pub'),
     [switch]$PlanOnly
 )
 
@@ -36,7 +38,14 @@ if ($PlanOnly) { Enable-WorkshopPlanOnly }
 $IapRange = '35.235.240.0/20'
 $IapRole = 'roles/iap.tunnelResourceAccessor'
 $IapConditionTitle = 'keycloak-ad-workshop rdp'
-$IapConditionExpression = 'destination.port == 3389'
+$IapConditionExpression = if ($TrainerSsh) { 'destination.port == 3389 || destination.port == 22' } else { 'destination.port == 3389' }
+$trainerSshKey = ''
+if ($TrainerSsh) {
+    if (-not (Test-Path $TrainerSshPublicKeyPath)) { throw "Oeffentlicher SSH-Schluessel fehlt: $TrainerSshPublicKeyPath" }
+    $trainerSshKey = (Get-Content $TrainerSshPublicKeyPath -Raw).Trim()
+    if ($trainerSshKey -notmatch '^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp256) ') { throw "Keine OpenSSH-Public-Key-Zeile: $TrainerSshPublicKeyPath" }
+}
+$trainerSshScript = Join-Path $PSScriptRoot 'lib' 'Enable-TrainerSsh.ps1'
 
 function Test-Cidr {
     param([string]$Cidr)
@@ -118,7 +127,7 @@ $manifest.versions = [ordered]@{
     image = $image.name; imageSelfLink = $image.selfLink; machineType = $MachineType
     gcloud = ($gcloudVersion.PSObject.Properties | Where-Object Name -eq 'Google Cloud SDK' | ForEach-Object Value)
 }
-$manifest.network = [ordered]@{ subnetRange = $SubnetRange; internalIp = $InternalIp; ldapsSourceRanges = @($LdapsSourceRanges); iapRange = $IapRange; networkTag = $names.NetworkTag }
+$manifest.network = [ordered]@{ subnetRange = $SubnetRange; internalIp = $InternalIp; ldapsSourceRanges = @($LdapsSourceRanges); iapRange = $IapRange; networkTag = $names.NetworkTag; trainerSsh = [bool]$TrainerSsh }
 
 # --- Ressourcenplan -------------------------------------------------------------------------------
 $plan = @(
@@ -134,6 +143,9 @@ $plan = @(
     [ordered]@{ Key = 'firewallIapRdp'; Name = $names.FirewallIapRdp; Scope = 'global'
         Describe = @('compute', 'firewall-rules', 'describe', $names.FirewallIapRdp, $P)
         Create   = @('compute', 'firewall-rules', 'create', $names.FirewallIapRdp, $P, "--network=$($names.Network)", '--direction=INGRESS', '--action=ALLOW', '--rules=tcp:3389', "--source-ranges=$IapRange", "--target-tags=$($names.NetworkTag)", "--description=$desc") },
+    [ordered]@{ Key = 'firewallIapSsh'; Name = $names.FirewallIapSsh; Scope = 'global'; Optional = (-not $TrainerSsh)
+        Describe = @('compute', 'firewall-rules', 'describe', $names.FirewallIapSsh, $P)
+        Create   = @('compute', 'firewall-rules', 'create', $names.FirewallIapSsh, $P, "--network=$($names.Network)", '--direction=INGRESS', '--action=ALLOW', '--rules=tcp:22', "--source-ranges=$IapRange", "--target-tags=$($names.NetworkTag)", "--description=$desc") },
     [ordered]@{ Key = 'internalAddress'; Name = $names.InternalAddress; Scope = 'region'
         Describe = @('compute', 'addresses', 'describe', $names.InternalAddress, "--region=$Region", $P)
         Create   = @('compute', 'addresses', 'create', $names.InternalAddress, $P, "--region=$Region", "--subnet=$($names.Subnet)", "--addresses=$InternalIp", "--description=$desc") },
@@ -154,6 +166,7 @@ $plan = @(
 )
 
 # Erst alle Existenzpruefungen, damit ein Abbruch keine halbfertigen Ressourcen hinterlaesst.
+$plan = @($plan | Where-Object { -not ($_.Contains('Optional') -and $_.Optional) })
 $state = @{}
 foreach ($item in $plan) {
     $found = Get-GcloudJson -Arguments $item.Describe -IgnoreNotFound
@@ -199,25 +212,41 @@ if (Test-WorkshopPlanOnly) {
 } else {
     $instance = $state['instance']
     $instanceId = [string]$instance.id
-    $existingBinding = @($manifest.iamBindings | Where-Object { $_.principal -eq $TrainerPrincipal -and $_.role -eq $IapRole })
+    $existingBinding = @($manifest.iamBindings | Where-Object { $_.principal -eq $TrainerPrincipal -and $_.role -eq $IapRole -and $_.conditionExpression -eq $IapConditionExpression })
     if (-not $existingBinding) {
         Write-WorkshopStep "IAP-Tunnelzugriff fuer $TrainerPrincipal auf $($names.Instance):3389"
         try {
             $policy = Get-IapTunnelPolicy -ProjectNumber $manifest.projectNumber -Zone $Zone -InstanceId $instanceId
             $bindings = @()
             if ($policy.PSObject.Properties['bindings'] -and $policy.bindings) { $bindings = @($policy.bindings) }
-            $already = $bindings | Where-Object { $_.role -eq $IapRole -and $_.PSObject.Properties['condition'] -and $_.condition.title -eq $IapConditionTitle -and $_.members -contains $TrainerPrincipal }
-            if (-not $already) {
-                $bindings += [pscustomobject]@{ role = $IapRole; members = @($TrainerPrincipal); condition = [pscustomobject]@{ title = $IapConditionTitle; expression = $IapConditionExpression } }
-            }
+            # Eine vorhandene Workshop-Bindung (etwa nur 3389) wird durch die gewuenschte ersetzt.
+            $bindings = @($bindings | Where-Object { -not ($_.role -eq $IapRole -and $_.PSObject.Properties['condition'] -and $_.condition.title -eq $IapConditionTitle -and $_.members -contains $TrainerPrincipal) })
+            $bindings += [pscustomobject]@{ role = $IapRole; members = @($TrainerPrincipal); condition = [pscustomobject]@{ title = $IapConditionTitle; expression = $IapConditionExpression } }
             $newPolicy = [ordered]@{ bindings = $bindings; version = 3 }
             if ($policy.PSObject.Properties['etag']) { $newPolicy.etag = $policy.etag }
             Set-IapTunnelPolicy -ProjectNumber $manifest.projectNumber -Zone $Zone -InstanceId $instanceId -Policy $newPolicy | Out-Null
-            $manifest.iamBindings = @($manifest.iamBindings) + @([ordered]@{ principal = $TrainerPrincipal; role = $IapRole; conditionTitle = $IapConditionTitle; conditionExpression = $IapConditionExpression; instanceId = $instanceId; resource = (Get-IapTunnelResourceUrl -ProjectNumber $manifest.projectNumber -Zone $Zone -InstanceId $instanceId) })
+            $manifest.iamBindings = @($manifest.iamBindings | Where-Object { -not ($_.principal -eq $TrainerPrincipal -and $_.role -eq $IapRole) }) + @([ordered]@{ principal = $TrainerPrincipal; role = $IapRole; conditionTitle = $IapConditionTitle; conditionExpression = $IapConditionExpression; instanceId = $instanceId; resource = (Get-IapTunnelResourceUrl -ProjectNumber $manifest.projectNumber -Zone $Zone -InstanceId $instanceId) })
             Save-WorkshopManifest -Manifest $manifest -Path $ManifestPath
         } catch {
             Save-WorkshopManifest -Manifest $manifest -Path $ManifestPath
             throw "IAP-Bindung fehlgeschlagen (fehlt roles/iap.admin oder Owner?). Ressourcen sind angelegt und im Manifest erfasst. Fehler: $($_.Exception.Message)"
+        }
+    }
+}
+
+# --- Trainer-SSH ueber Startskript (nur oeffentlicher Schluessel in den Metadaten) ----------------
+if ($TrainerSsh) {
+    if (Test-WorkshopPlanOnly) {
+        Write-Host "[plan] Metadaten windows-startup-script-ps1 (Enable-TrainerSsh.ps1) und trainer-ssh-key auf $($names.Instance)" -ForegroundColor Yellow
+    } else {
+        $items = @()
+        if ($state['instance'].metadata.PSObject.Properties['items'] -and $state['instance'].metadata.items) { $items = @($state['instance'].metadata.items) }
+        $hasKey = $items | Where-Object { $_.key -eq 'trainer-ssh-key' -and $_.value.Trim() -eq $trainerSshKey }
+        $hasScript = $items | Where-Object { $_.key -eq 'windows-startup-script-ps1' }
+        if (-not ($hasKey -and $hasScript)) {
+            Invoke-GcloudChange -Arguments @('compute', 'instances', 'add-metadata', $names.Instance, "--zone=$Zone", $P, "--metadata=trainer-ssh-key=$trainerSshKey", "--metadata-from-file=windows-startup-script-ps1=$trainerSshScript") -Description 'Trainer-SSH-Startskript und Schluessel in Metadaten setzen' | Out-Null
+            $manifest.domain.trainerSshMetadataAt = (Get-Date).ToUniversalTime().ToString('o')
+            Save-WorkshopManifest -Manifest $manifest -Path $ManifestPath
         }
     }
 }
@@ -262,3 +291,7 @@ Write-Host "  Manifest:     $ManifestPath"
 Write-Host "  Externe IP:   $externalIp   Interne IP: $InternalIp"
 Write-Host "  RDP-Tunnel:   gcloud compute start-iap-tunnel $($names.Instance) 3389 --local-host-port=localhost:33389 --zone=$Zone $P"
 Write-Host "  Naechster Schritt: RDP auf localhost:33389 als $AdminUser, dann Initialize-Domain.ps1 im Gast."
+if ($TrainerSsh) {
+    Write-Host "  SSH-Tunnel:   gcloud compute start-iap-tunnel $($names.Instance) 22 --local-host-port=localhost:2222 --zone=$Zone $P"
+    Write-Host "  Danach: ssh -p 2222 Administrator@localhost; das Startskript wirkt nach dem naechsten Neustart der VM."
+}

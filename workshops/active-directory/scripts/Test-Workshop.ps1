@@ -71,7 +71,7 @@ function Test-PortCovered {
 function Test-EffectiveFirewall {
     # $Rules: Objekte mit direction, sourceRanges, allowed[] (IPProtocol, ports). Firewall-Policy-Regeln werden
     # vorher in dieselbe Form gebracht.
-    param([Parameter(Mandatory)]$Rules, [Parameter(Mandatory)][string[]]$AllowedLdapsRanges, [string]$IapRange = '35.235.240.0/20')
+    param([Parameter(Mandatory)]$Rules, [Parameter(Mandatory)][string[]]$AllowedLdapsRanges, [string]$IapRange = '35.235.240.0/20', [switch]$AllowIapSsh)
     $problems = @()
     $ldapsSeen = $false
     $rdpSeen = $false
@@ -85,14 +85,15 @@ function Test-EffectiveFirewall {
             if ($proto -notin 'tcp', 'all') { continue }
             $ports = $null
             if ($a.PSObject.Properties['ports']) { $ports = $a.ports }
-            foreach ($port in 636, 3389) {
+            foreach ($port in 636, 3389, 22) {
                 if (-not (Test-PortCovered -Ports $ports -Port $port)) { continue }
                 if ($sources -contains '0.0.0.0/0') { $problems += "Port $port aus 0.0.0.0/0 erlaubt"; continue }
+                if ($port -eq 22 -and -not $AllowIapSsh) { $problems += "Port 22 aus $($sources -join ',') erlaubt, Trainer-SSH ist nicht vorgesehen"; continue }
                 $allowed = if ($port -eq 636) { $AllowedLdapsRanges } else { @($IapRange) }
                 foreach ($s in $sources) {
                     if ($allowed -notcontains $s) { $problems += "Port $port aus unerwarteter Quelle $s erlaubt" }
                 }
-                if ($port -eq 636) { $ldapsSeen = $true } else { $rdpSeen = $true }
+                if ($port -eq 636) { $ldapsSeen = $true } elseif ($port -eq 3389) { $rdpSeen = $true }
             }
         }
     }
@@ -201,7 +202,8 @@ if ($Mode -eq 'Trainer') {
         if ($eff.PSObject.Properties['firewallPolicys'] -and $eff.firewallPolicys) {
             foreach ($pol in $eff.firewallPolicys) { foreach ($rule in $pol.rules) { $rules += ConvertFrom-FirewallPolicyRule -PolicyRule $rule } }
         }
-        $r = Test-EffectiveFirewall -Rules $rules -AllowedLdapsRanges @($m.network.ldapsSourceRanges)
+        $sshAllowed = $m.network.ContainsKey('trainerSsh') -and [bool]$m.network.trainerSsh
+        $r = Test-EffectiveFirewall -Rules $rules -AllowedLdapsRanges @($m.network.ldapsSourceRanges) -AllowIapSsh:$sshAllowed
         if ($r.Result -ne 'PASS') { throw $r.Detail }
         $r.Detail
     }
@@ -225,9 +227,9 @@ if ($Mode -eq 'Trainer') {
         if ($r.ExitCode -eq 0 -and $r.Output -match 'Verification: OK') { throw 'Verbindung ohne CA wurde akzeptiert' }
         "abgelehnt (Exit $($r.ExitCode))"
     }
-    Add-Check -Id 'T09' -Name 'TCP 3389 direkt geschlossen' -Test {
-        if (Test-TcpOpen -TargetHost $externalIp -Port 3389) { throw "${externalIp}:3389 ist direkt erreichbar" }
-        "${externalIp}:3389 nicht erreichbar"
+    Add-Check -Id 'T09' -Name 'TCP 3389 und 22 direkt geschlossen' -Test {
+        foreach ($port in 3389, 22) { if (Test-TcpOpen -TargetHost $externalIp -Port $port) { throw "${externalIp}:$port ist direkt erreichbar" } }
+        "${externalIp}:3389 und :22 nicht erreichbar"
     }
 
     foreach ($t in $Teams) {

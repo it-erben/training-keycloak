@@ -117,7 +117,8 @@ foreach ($key in 'externalAddress', 'internalAddress') {
     $n = Get-ResourceName $key
     Remove-Resource -Key $key -DescribeArgs @('compute', 'addresses', 'describe', $n, $R, $P) -DeleteArgs @('compute', 'addresses', 'delete', $n, $R, $P) -ExpectedSelfLink (Get-ResourceSelfLink $key)
 }
-foreach ($key in 'firewallLdaps', 'firewallIapRdp') {
+foreach ($key in 'firewallLdaps', 'firewallIapRdp', 'firewallIapSsh') {
+    if ($key -eq 'firewallIapSsh' -and -not $m.resources.ContainsKey($key)) { continue }
     $n = Get-ResourceName $key
     Remove-Resource -Key $key -DescribeArgs @('compute', 'firewall-rules', 'describe', $n, $P) -DeleteArgs @('compute', 'firewall-rules', 'delete', $n, $P) -ExpectedSelfLink (Get-ResourceSelfLink $key)
 }
