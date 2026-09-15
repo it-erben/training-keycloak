@@ -29,6 +29,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if (-not (Get-Module -Name Workshop.Common)) { Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Workshop.Common.psm1')) }
 $runRoot = [System.IO.Path]::Combine($PSScriptRoot, '..', '.run')
+# Ueber pwsh -File kommt die Liste als ein kommagetrennter String an.
+$Prefixes = @($Prefixes | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 if (-not $Prefixes -or $Prefixes.Count -eq 0) { $Prefixes = 1..$Count | ForEach-Object { "kcad$_" } }
 $fleetFile = Join-Path $runRoot 'fleet.json'
 
@@ -81,7 +83,7 @@ switch ($Action) {
             & pwsh -NoProfile -File (Join-Path $PSScriptRoot 'Test-Workshop.ps1') @testArgs | Out-Null
             if ($LASTEXITCODE -ne 0) { throw "Trainerpruefung fuer $p fehlgeschlagen" }
         }
-        & pwsh -NoProfile -File $PSCommandPath -Action Packages -Prefixes $Prefixes
+        & pwsh -NoProfile -File $PSCommandPath -Action Packages -Prefixes ($Prefixes -join ',')
     }
     'Test' {
         foreach ($e in Get-Envs) {
@@ -119,7 +121,7 @@ switch ($Action) {
             }
             Write-Host ("{0,-8} LDAPS {1}" -f $e.Prefix, $(if ($open) { 'erreichbar' } else { 'NICHT erreichbar' }))
         }
-        & pwsh -NoProfile -File $PSCommandPath -Action Test -Prefixes $Prefixes
+        & pwsh -NoProfile -File $PSCommandPath -Action Test -Prefixes ($Prefixes -join ',')
     }
     'Remove' {
         if (-not $PlanOnly -and -not $PSCmdlet.ShouldProcess(($Prefixes -join ', '), 'Alle Umgebungen abbauen')) { return }
