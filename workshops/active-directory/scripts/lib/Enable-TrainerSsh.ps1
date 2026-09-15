@@ -29,21 +29,9 @@ if (-not (Get-NetFirewallRule -Name 'Workshop-Trainer-SSH' -ErrorAction Silently
         -Protocol TCP -LocalPort 22 -Action Allow -RemoteAddress 35.235.240.0/20 | Out-Null
 }
 
-# Vor der Promotion ist das eingebaute Administratorkonto deaktiviert; fuer die Schluesselanmeldung
-# braucht es ein gesetztes Passwort. Initialize-Domain.ps1 ersetzt es spaeter durch das gewaehlte.
-try {
-    $admin = Get-LocalUser -Name Administrator -ErrorAction Stop
-    if (-not $admin.Enabled) {
-        $bytes = [byte[]]::new(24)
-        [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
-        $pw = ([Convert]::ToBase64String($bytes) -replace '[^A-Za-z0-9]', 'x') + 'Q7!'
-        Set-LocalUser -Name Administrator -Password (ConvertTo-SecureString $pw -AsPlainText -Force)
-        Enable-LocalUser -Name Administrator
-    }
-} catch {
-    # Auf einem Domain Controller gibt es keine lokalen Konten; der Domaenen-Administrator ist bereits aktiv.
-    Write-Verbose "Get-LocalUser nicht verfuegbar: $($_.Exception.Message)"
-}
-
+# Vor der Promotion meldet sich der Trainer als das per gcloud angelegte lokale Konto an (Mitglied
+# von Administrators, deshalb gilt administrators_authorized_keys). Das eingebaute Administratorkonto
+# aktiviert Initialize-Domain.ps1 in Phase 2 mit dem gewaehlten Passwort; danach gilt der Schluessel
+# fuer den Domaenen-Administrator.
 Set-Service -Name sshd -StartupType Automatic
 if ((Get-Service sshd).Status -ne 'Running') { Start-Service sshd } else { Restart-Service sshd }

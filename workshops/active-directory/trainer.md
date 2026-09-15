@@ -51,6 +51,25 @@ foreach ($f in 'Initialize-Domain.ps1', 'Initialize-Workshop.ps1', 'Reset-Team.p
 }
 ```
 
+### Ohne RDP: SSH über IAP
+
+Mit `-TrainerSsh` legt `New-Workshop.ps1` zusätzlich die Firewallregel `kcad-allow-iap-ssh` (TCP 22 nur aus
+dem IAP-Bereich) an, erweitert die IAP-Bedingung auf 3389 und 22 und hinterlegt das Startskript
+`scripts/lib/Enable-TrainerSsh.ps1` samt dem öffentlichen Schlüssel aus `~/.ssh/id_ed25519.pub` in den
+Instanz-Metadaten. Das Startskript installiert den Windows-OpenSSH-Server und wirkt nach dem nächsten
+Neustart der VM (`gcloud compute instances reset`). Geheimnisse liegen dabei nicht in den Metadaten.
+
+```powershell
+gcloud compute start-iap-tunnel kcad-dc01 22 --local-host-port=localhost:2222 --zone=europe-west3-a --project=<projekt>
+ssh -p 2222 wsadmin@127.0.0.1                  # vor der Promotion
+ssh -p 2222 Administrator@127.0.0.1            # nach der Promotion, Domaenen-Administrator
+scp -O -P 2222 scripts/Initialize-Domain.ps1 wsadmin@127.0.0.1:C:/Workshop/scripts/
+```
+
+`Initialize-Domain.ps1 -Unattended` liest die beiden Passwörter (Administrator, DSRM) als je eine Zeile
+von stdin, etwa `Get-Content pw.txt | ssh -p 2222 wsadmin@127.0.0.1 "powershell -ExecutionPolicy Bypass -File C:\Workshop\scripts\Initialize-Domain.ps1 -Unattended"`.
+Der Probelauf lief vollständig über diesen Weg; das RDP-Verfahren bleibt der Standard für Trainer mit RDP-Client.
+
 `Initialize-Domain.ps1` läuft dreimal, jeweils in einer PowerShell als Administrator:
 
 1. Phase 1 formatiert die 20-GiB-Datendisk als `D:` und benennt den Rechner in `dc01` um. Neustart.
