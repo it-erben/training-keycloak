@@ -1,34 +1,36 @@
-# LDAP, Active Directory und Keycloak verstehen
+# Begleitmaterial zu Modul 07: LDAP und Active Directory
 
-Wie findet Keycloak einen Benutzer im LDAP, wer prüft sein Passwort und wann kommen
-geänderte Gruppenrechte bei der Anwendung an? Diese 90-Minuten-Einheit vertieft Modul 07
-anhand des [OpenLDAP-Labs 07c][lab]. Anschließend behandelt sie die Unterschiede zu Active Directory.
+Die LDAP-/AD-Inhalte gehören zum [Foliensatz von Modul 07][folien]. Dieses Verzeichnis
+enthält den Trainerleitfaden und die Gegenproben zum [OpenLDAP-Lab 07c][lab].
+Für den LDAP-/AD-Block sind 90 Minuten einschließlich Lab vorgesehen; der Einstieg und
+die anschließenden Brokering-Themen kommen im Modul hinzu.
 
 ## Ablauf
 
-| Minuten | Inhalt                                       | Durchführung                                  |
-| ------- | -------------------------------------------- | --------------------------------------------- |
-| 0-15    | Verzeichnisbaum, DN, Suchbasis, Filter, Bind | Folien 1-5; Suchergebnisse vorhersagen lassen |
-| 15-30   | Login, lokale Daten und Synchronisierung     | Folien 6-9; Ablauf gemeinsam zeichnen         |
-| 30-60   | LDAP anbinden und Gruppen auf Rollen mappen  | Teilnehmer bearbeiten Lab 07c                 |
-| 60-75   | Gegenproben zu Suche und Gruppenrechten      | Zusatzaufgabe, in Zweiergruppen               |
-| 75-90   | AD, TLS, Kerberos und Lebenszyklus           | Folien 12-17; Transferfragen auswerten        |
+| Minuten | Inhalt                                         | Durchführung                                     |
+| ------- | ---------------------------------------------- | ------------------------------------------------ |
+| 0-15    | Verzeichnisbaum, DN, Suchbasis, Filter         | Folien 6-8 (2.1-2.3); Suchergebnisse vorhersagen |
+| 15-30   | Bind, Login, lokale Daten und Synchronisierung | Folien 9-12 (2.4-2.7); Ablauf gemeinsam erklären |
+| 30-60   | LDAP anbinden und Gruppen auf Rollen mappen    | Folie 13 (2.8); Teilnehmer bearbeiten Lab 07c    |
+| 60-75   | Gegenproben zu Suche und Gruppenrechten        | Folie 14 (2.9); Zusatzaufgabe in Zweiergruppen   |
+| 75-90   | AD, TLS, Kerberos und Lebenszyklus             | Folien 15-20 (2.10-2.15); Fragen auswerten       |
 
-Die Folien 10 und 11 leiten die Arbeitsphasen ein. Folie 18 enthält Quellen.
+Der LDAP-Block beginnt nach dem Vergleich von Federation und Brokering. Ab Folie 21
+geht es im selben Deck mit dem Brokering-Flow, der IdP-Konfiguration, Entra ID,
+Social Login und First Broker Login weiter. Folie 28 enthält die Quellen.
 Kennt die Gruppe LDAP bereits, bleibt mehr Zeit für die Fehlersuche und die AD-Fragen.
 Die 15 Minuten für Gegenproben setzen ein fertig eingerichtetes Lab voraus.
 
 ## Bearbeitbare Unterlagen
 
-- [Folien](slides.md): vom LDAP-Login bis zu Kontosperren und Windows-SSO
+- [Modul-07-Folien][folien]: vollständiges Modul einschließlich LDAP und AD
 - [Teilnehmeraufgabe](aufgabe.md): zwei Gegenproben nach Lab 07c und Fragen zu AD
 - [Trainerleitfaden](trainer.md): Erklärungen zum Vortragen, Musterlösungen und Rückfragen
-- [Login-Diagramm](images/ldap-login.svg): direkt bearbeitbare SVG-Datei
+- [Login-Diagramm](../../slides/07-identity-provider-foederation/images/ldap-login.svg): bearbeitbare SVG-Datei
 - [LDIF-Dateien](ldif/): Gruppenänderung und Rücknahme im lokalen Übungsverzeichnis
 
-Für diesen Schwerpunkt die Vertiefungsfolien statt der knappen LDAP-Übersicht in Modul 07
-verwenden. Identity Brokering bleibt im ursprünglichen Modul. Die Abläufe beziehen sich
-auf Keycloak 26.5 und die Konfiguration von Lab 07c.
+Alle Folien werden direkt im Hauptdeck bearbeitet. Die LDAP-Abläufe beziehen sich auf
+Keycloak 26.5 und die Konfiguration von Lab 07c.
 
 ## Vorbereitung
 
@@ -49,11 +51,12 @@ werden anhand von Fragen besprochen; ein AD-Server gehört nicht zu dieser Übun
 Mit installiertem Marp CLI aus dem Kurs-Repository:
 
 ```bash
-marp workshops/ldap-ad/slides.md --pdf --allow-local-files -o /tmp/ldap-ad.pdf
+marp slides/07-identity-provider-foederation/slides.md --pdf --allow-local-files -o /tmp/modul-07.pdf
 ```
 
-Unter PowerShell statt `/tmp/ldap-ad.pdf` einen Pfad in einem vorhandenen
+Unter PowerShell statt `/tmp/modul-07.pdf` einen Pfad in einem vorhandenen
 Ausgabeverzeichnis verwenden. Nach Änderungen an Text oder Diagramm die Folien rendern
 und ansehen. `pre-commit run --all-files` prüft Markdown, YAML und Links.
 
 [lab]: ../../labs/assignments/modul-07c-ldap-federation/README.md
+[folien]: ../../slides/07-identity-provider-foederation/slides.md
