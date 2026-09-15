@@ -79,7 +79,7 @@ dessen README.
 | 09a | `modul-09a-anpassung-theming/` | Login-Seite mit Firmen-Branding und E-Mail-Templates |
 | 09b | `modul-09b-anpassung-apis/` | Admin REST API und Token Introspection |
 | 10a | `modul-10a-sicherheit/` | Passwort-Policies, Brute-Force-Schutz, Sessions |
-| 10b | `modul-10b-best-practices/` | Produktions-Checkliste und Best Practices |
+| 10b | `modul-10b-best-practices/` | HTTPS, Wiederherstellung und Ausfalldiagnose |
 | 11 | `modul-11-kubernetes/` | Keycloak mit dem Operator auf minikube deployen |
 | 12 | `modul-12-pci-dss/` | Realm gegen PCI DSS v4.0.1 prüfen und härten |
 
