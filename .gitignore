@@ -136,6 +136,7 @@ workshops/active-directory/lab/certs/*
 !workshops/active-directory/lab/certs/.gitkeep
 workshops/active-directory/lab/secrets/*
 !workshops/active-directory/lab/secrets/.gitkeep
+
 # Lokale Proxy-Konfiguration aus Lab 10b
 labs/assignments/modul-10b-best-practices/docker-compose.override.yml
 labs/assignments/modul-10b-best-practices/traefik-dynamic.yml

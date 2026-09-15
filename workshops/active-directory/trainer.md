@@ -253,6 +253,28 @@ LDIF 04, 05, 06, Users DN zurück auf `OU=Users`, Sync und "Beende alle Sitzunge
 200 auf `/api/urlaubsantraege` und 403 auf `/alle`, Anna 200 auf beiden. Hans behält die neue Keycloak-ID
 aus Aufgabe 4. `Reset-Baseline.ps1` ändert danach nichts mehr.
 
+### Zweiter Probelauf: ein DC je Person
+
+Am 15.09.2026 abends mit zwei Umgebungen (`kcad1`, `kcad2`) über `Invoke-WorkshopFleet.ps1 -Action Deploy
+-Count 2`: Anlegen je rund sechs Minuten, danach beide Gastseiten parallel über SSH per IAP in rund
+15 Minuten bis zur Gastprüfung (je 10 PASS), Trainerprüfung je 14 PASS und 1 SKIP (IAP-Tunnel ohne
+Schalter). `-Action Stop` setzte beide VMs in rund eine Minute auf TERMINATED, `-Action Start` brachte
+LDAPS in rund 90 Sekunden zurück; externe Adressen blieben erhalten, Trainerprüfung danach wieder 14 PASS.
+
+Der vollständige Teilnehmerlauf nach `aufgabe.md` gegen `kcad1` von diesem Laptop (Stack frisch mit
+`docker compose down -v` und `up -d --build`, Bash- und PowerShell-Befehle, Provider und Mapper mit den
+Werten aus den Tabellen über die Admin-API) lieferte dieselben Ergebnisse wie der erste Probelauf:
+Aufgabe 3 direkt 403 und rekursiv 200, Hans 403, ohne Token 401; Aufgabe 4 `user_not_found`, gelöschter
+Import, neue Keycloak-ID mit gleicher `LDAP_ID`; Aufgabe 5 alter Token 200 bis `exp`, Refresh vor dem
+Sync erfolgreich, nach dem Sync "User disabled"; Aufgabe 6 Hans 200 und 403, Anna 200 und 200, Hans
+zurück in `OU=Users` mit `userAccountControl` 66048. `Reset-Baseline.ps1` stellte zwischen den Läufen den
+Ausgangszustand her. Der Authorization Code Flow mit PKCE lieferte für Hans einen Token mit `portal-api`
+in `aud` und die API-Codes 200, 200, 403.
+
+Ein Detail für eigene Skripte: Die erzeugten Passwörter enthalten Zeichen wie `%`. Wer Passwörter per
+`curl -d` an den Token-Endpunkt schickt, braucht `--data-urlencode`; Browserformulare, `save-secret`
+und `Invoke-RestMethod -Body @{...}` kodieren selbst.
+
 ### Anmeldung, Delegation und Netz
 
 Der Authorization Code Flow mit PKCE (S256) wurde vom Portal bis zur Keycloak-Anmeldeseite im Browser und
