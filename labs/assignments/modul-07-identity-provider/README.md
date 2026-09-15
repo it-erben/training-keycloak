@@ -16,8 +16,8 @@ Am Ende dieser Übung hast du:
 ## Voraussetzungen
 
 - Docker Desktop installiert und gestartet
-- Für `setup.sh`: Bash, curl und Python 3; unter Windows wie in der
-  [Windows-Einrichtung](../../WINDOWS.md) beschrieben, oder die PowerShell-Variante unten
+- Unter Windows: PowerShell für `setup.ps1`; Python ist dafür nicht erforderlich
+- Für `setup.sh`: Bash, curl und Python 3; siehe [Windows-Einrichtung](../../WINDOWS.md)
 
 ### Umgebung starten
 
@@ -36,16 +36,22 @@ vorherigen Modulen.
 
 ### Gitea einrichten
 
-Sobald die Container laufen, führe das Setup-Skript aus:
+Sobald die Container laufen, führe das passende Setup-Skript im Übungsordner aus.
 
-```bash
-bash setup.sh
-```
+**Unter Windows verwende PowerShell und `setup.ps1`.** Diese Variante funktioniert ohne
+zusätzliche Python-Installation. Git Bash allein reicht für `setup.sh` nicht aus, da das
+Bash-Skript auch Python 3 benötigt.
 
-Unter Windows (PowerShell):
+Windows (PowerShell):
 
 ```powershell
 .\setup.ps1
+```
+
+Linux/macOS (Bash, curl und Python 3 erforderlich):
+
+```bash
+bash setup.sh
 ```
 
 Das Skript erstellt in Gitea:
