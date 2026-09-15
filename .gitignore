@@ -129,6 +129,14 @@ labs/assignments/modul-11-kubernetes/tls.key
 # Lokale Sicherungen aus dem Betriebs-Lab
 labs/assignments/modul-10b-best-practices/backup/
 
+# AD-Workshop: lokale Laufzeitdaten, Zertifikat und Geheimnisse
+workshops/active-directory/.run/
+workshops/active-directory/lab/.env
+workshops/active-directory/lab/certs/*
+!workshops/active-directory/lab/certs/.gitkeep
+workshops/active-directory/lab/secrets/*
+!workshops/active-directory/lab/secrets/.gitkeep
+
 # Lokale Proxy-Konfiguration aus Lab 10b
 labs/assignments/modul-10b-best-practices/docker-compose.override.yml
 labs/assignments/modul-10b-best-practices/traefik-dynamic.yml

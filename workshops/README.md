@@ -5,17 +5,22 @@ für die fiktive Mustertech GmbH und plant die Übernahme einer Keycloak-Install
 Dafür genügen Whiteboard oder Papier. Außerdem liegt hier das Begleitmaterial zum
 LDAP-/AD-Block in Modul 07 mit Trainerleitfaden und Gegenproben für das OpenLDAP-Lab.
 
-| Einheit                                              | Voraussetzung                       | Dauer   |
-| ---------------------------------------------------- | ----------------------------------- | ------- |
-| [LDAP und Active Directory](ldap-ad/README.md)       | Modul 07, Docker Compose            | 90 Min. |
-| [Mandantenfähigkeit](mandantenfaehigkeit/aufgabe.md) | Realms, Clients, Federation, Rollen | 60 Min. |
-| [Betriebsübernahme](betriebsuebernahme/aufgabe.md)   | Betrieb, Kubernetes und Operator    | 60 Min. |
+| Einheit                                                | Voraussetzung                       | Dauer   |
+| ------------------------------------------------------ | ----------------------------------- | ------- |
+| [LDAP und Active Directory](ldap-ad/README.md)         | Modul 07, Docker Compose            | 90 Min. |
+| [Active Directory auf GCP](active-directory/README.md) | Modul 06b, Modul 07 mit Lab 07c     | 90 Min. |
+| [Mandantenfähigkeit](mandantenfaehigkeit/aufgabe.md)   | Realms, Clients, Federation, Rollen | 60 Min. |
+| [Betriebsübernahme](betriebsuebernahme/aufgabe.md)     | Betrieb, Kubernetes und Operator    | 60 Min. |
 
 ## Einsatz im Kurs
 
 Der LDAP-/AD-Block ist direkt in die [Folien von Modul 07](../slides/07-identity-provider-foederation/slides.md)
 integriert. Zwei Gegenproben machen Suchfehler und verzögert sichtbare Gruppenänderungen
 im Lab nachvollziehbar. Die 90 Minuten beziehen sich auf diesen Block einschließlich Lab 07c.
+
+Die AD-Einheit ist eine optionale Vertiefung für Tag 3. Sie braucht einen vom Trainer
+vorbereiteten Windows-Server mit Active Directory auf Google Cloud; ohne Freigabe der
+Cloud-Ressourcen bleibt das OpenLDAP-Lab 07c der Ersatz.
 
 Mandantenfähigkeit passt nach Modul 07 oder als Vertiefung an Tag 3. Betriebsübernahme
 schließt an die Module 10 und 11 an. Modul 12 bleibt ein eigener Schwerpunkt.
