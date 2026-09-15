@@ -1,0 +1,4 @@
+dn: cn=entwicklung,ou=groups,dc=mustertech,dc=de
+changetype: modify
+add: member
+member: uid=anna.schmidt,ou=users,dc=mustertech,dc=de

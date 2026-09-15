@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="610" viewBox="0 0 1200 610" role="img" aria-labelledby="title desc">
+<title id="title">LDAP-Passwortanmeldung über Keycloak</title>
+<desc id="desc">Logischer Ablauf: Browser übergibt Zugangsdaten an Keycloak. Keycloak bindet das technische Konto, sucht den Benutzer und prüft sein Passwort mit einem Benutzer-Bind. Danach wird der OIDC-Flow fortgesetzt.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#315d7d"/></marker></defs>
+<rect width="1200" height="610" fill="white"/>
+<g font-family="Arial,sans-serif" fill="#263748">
+<text x="36" y="39" font-size="28" font-weight="bold">2. Anmeldung mit LDAP Simple Bind</text>
+<rect x="60" y="67" width="200" height="52" rx="8" fill="#e5eef5" stroke="#315d7d"/>
+<text x="160" y="100" text-anchor="middle" font-size="23">Browser</text>
+<path d="M160,120 V540" stroke="#9dacb8" stroke-dasharray="6 6"/>
+<rect x="455" y="67" width="200" height="52" rx="8" fill="#e5eef5" stroke="#315d7d"/>
+<text x="555" y="100" text-anchor="middle" font-size="23">Keycloak</text>
+<path d="M555,120 V540" stroke="#9dacb8" stroke-dasharray="6 6"/>
+<rect x="940" y="67" width="200" height="52" rx="8" fill="#e5eef5" stroke="#315d7d"/>
+<text x="1040" y="100" text-anchor="middle" font-size="23">LDAP / AD</text>
+<path d="M1040,120 V540" stroke="#9dacb8" stroke-dasharray="6 6"/>
+<text x="357.5" y="152" text-anchor="middle" font-size="19">1. Benutzername + Passwort an Keycloak</text>
+<path d="M160,168 H555" stroke="#315d7d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="797.5" y="219" text-anchor="middle" font-size="19">2. Technischer Bind: Verzeichniszugriff</text>
+<path d="M555,235 H1040" stroke="#315d7d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="797.5" y="286" text-anchor="middle" font-size="19">3. Suche: Basis, Scope, Filter → Benutzer-DN</text>
+<path d="M555,302 H1040" stroke="#315d7d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="797.5" y="353" text-anchor="middle" font-size="19">4. Benutzer-Bind: Passwortprüfung</text>
+<path d="M555,369 H1040" stroke="#315d7d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="797.5" y="420" text-anchor="middle" font-size="19">5. Ergebnis; Attribute über Provider / Mapper</text>
+<path d="M1040,436 H555" stroke="#315d7d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="357.5" y="487" text-anchor="middle" font-size="19">6. OIDC-Flow fortsetzen, ggf. weitere Schritte</text>
+<path d="M555,503 H160" stroke="#315d7d" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="36" y="575" font-size="18">Logische Schritte, kein vollständiger Netzwerk-Trace. Produktiv beide Verbindungen mit TLS schützen.</text>
+</g></svg>

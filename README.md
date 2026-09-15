@@ -88,6 +88,8 @@ Bei den Modulen 06, 07, 09 und 10 verteilen sich die praktischen Aufgaben auf me
   [`modul-11-kubernetes/manifests/`](labs/assignments/modul-11-kubernetes/manifests/).
 - [`workshops/`](workshops/) enthält zwei ergänzende Architektur- und Betriebsworkshops mit Kurzfolien,
   Aufgabenblättern und separaten Trainerunterlagen für jeweils 60 Minuten.
+  Die [LDAP-/AD-Vertiefung](workshops/ldap-ad/README.md) bietet außerdem einen 90-Minuten-Schwerpunkt
+  zu Modul 07 mit Folien, Gegenproben und Musterantworten.
 - [`demos/`](demos/) enthält die Vorführungen für den Trainer, jeweils mit eigener Anleitung.
 - [`materials/`](materials/) enthält Vorlagen für Kurzvorträge zum
   [Client Credentials Flow](materials/oauth2-client-credentials-flow.md) und zum
