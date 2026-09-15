@@ -1,0 +1,6 @@
+# Versuch 4: Hans von OU=Users nach OU=Moved verschieben. DN aendert sich, objectGUID bleibt.
+dn: CN=Hans Mueller,OU=Users,OU=Team02,OU=Workshop,DC=ad,DC=mustertech,DC=test
+changetype: modrdn
+newrdn: CN=Hans Mueller
+deleteoldrdn: 1
+newsuperior: OU=Moved,OU=Team02,OU=Workshop,DC=ad,DC=mustertech,DC=test

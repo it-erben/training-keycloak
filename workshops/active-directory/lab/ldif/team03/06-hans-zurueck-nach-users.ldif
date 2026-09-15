@@ -1,0 +1,6 @@
+# Versuch 6: Ruecknahme des OU-Wechsels.
+dn: CN=Hans Mueller,OU=Moved,OU=Team03,OU=Workshop,DC=ad,DC=mustertech,DC=test
+changetype: modrdn
+newrdn: CN=Hans Mueller
+deleteoldrdn: 1
+newsuperior: OU=Users,OU=Team03,OU=Workshop,DC=ad,DC=mustertech,DC=test

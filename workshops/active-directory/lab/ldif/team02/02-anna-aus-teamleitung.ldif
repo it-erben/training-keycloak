@@ -1,0 +1,5 @@
+# Versuch 5: Anna verliert die indirekte Managerzuordnung ueber Teamleitung.
+dn: CN=Teamleitung,OU=Groups,OU=Team02,OU=Workshop,DC=ad,DC=mustertech,DC=test
+changetype: modify
+delete: member
+member: CN=Anna Schmidt,OU=Users,OU=Team02,OU=Workshop,DC=ad,DC=mustertech,DC=test
