@@ -1,17 +1,17 @@
 <#
 .SYNOPSIS
-Bereitet Workshop-CA, LDAPS-Zertifikat, Team-OUs, Konten und Delegation auf dem DC vor.
+Bereitet Workshop-CA, LDAPS-Zertifikat, OU-Struktur, Konten und Delegation auf dem DC vor.
 
 .DESCRIPTION
 Laeuft auf dem Domain Controller als Domaenen-Administrator, nachdem Initialize-Domain.ps1
-die Phase "ready" gemeldet hat. Wiederholte Aufrufe legen nur Fehlendes an; Passwoerter
-werden nur mit -ResetPasswords neu gesetzt. Geheimnisse landen ausschliesslich in
-$SecretsPath mit eingeschraenkter ACL, das oeffentliche CA-Zertifikat in $OutputPath.
+die Phase "ready" gemeldet hat. Jeder DC gehoert genau einer Person; deshalb gibt es eine
+Workshop-OU ohne Teampraefix. Wiederholte Aufrufe legen nur Fehlendes an; Passwoerter werden
+nur mit -ResetPasswords neu gesetzt. Geheimnisse landen ausschliesslich in $SecretsPath mit
+eingeschraenkter ACL, das oeffentliche CA-Zertifikat in $OutputPath.
 #>
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 param(
-    [ValidatePattern('^\d{2}$')][string[]]$Teams = @('01', '02'),
     [Parameter(Mandatory)][datetime]$CertificateValidUntil,
     [string]$DcFqdn = 'dc01.ad.mustertech.test',
     [string]$OutputPath = 'C:\Workshop\out',
@@ -55,6 +55,7 @@ function Get-OrCreateCa {
         $ca = New-SelfSignedCertificate -Subject 'CN=Keycloak Workshop CA' -KeyAlgorithm RSA -KeyLength 4096 -HashAlgorithm SHA256 `
             -KeyUsage CertSign, CRLSign, DigitalSignature -KeyExportPolicy NonExportable -NotAfter $CertificateValidUntil `
             -CertStoreLocation Cert:\LocalMachine\My -TextExtension @('2.5.29.19={critical}{text}ca=true&pathlength=0')
+        $ca = Get-Item "Cert:\LocalMachine\My\$($ca.Thumbprint)"
     }
     $root = [System.Security.Cryptography.X509Certificates.X509Store]::new('Root', 'LocalMachine')
     $root.Open('ReadWrite')
@@ -177,62 +178,53 @@ if (-not $server -or -not $server.PSObject.Properties['Thumbprint']) { throw 'Se
 $fingerprint = Export-CaPem -Ca $ca
 $servedThumbprint = Test-Ldaps
 if ($servedThumbprint -ne [string]$server.Thumbprint) { throw "LDAPS liefert Zertifikat $servedThumbprint, erwartet $($server.Thumbprint). Neustart des Dienstes oder der VM noetig." }
+
 Confirm-Ou -Name 'Workshop' -Parent $domain.DistinguishedName | Out-Null
+$usersDn = Confirm-Ou -Name 'Users' -Parent $baseDn
+$movedDn = Confirm-Ou -Name 'Moved' -Parent $baseDn
+$groupsDn = Confirm-Ou -Name 'Groups' -Parent $baseDn
+$svcDn = Confirm-Ou -Name 'ServiceAccounts' -Parent $baseDn
+
+$secretFile = Join-Path $SecretsPath 'workshop.json'
+if ((Test-Path $secretFile) -and -not $ResetPasswords) {
+    $secrets = Get-Content $secretFile -Raw | ConvertFrom-Json
+} else {
+    $secrets = [ordered]@{
+        hans = New-WorkshopPassword $PasswordLength; anna = New-WorkshopPassword $PasswordLength
+        bind = New-WorkshopPassword $PasswordLength; operator = New-WorkshopPassword $PasswordLength
+    }
+}
+
+$hans = Confirm-User -Sam 'hans' -Given 'Hans' -Surname 'Mueller' -Path $usersDn -Password $secrets.hans
+$anna = Confirm-User -Sam 'anna' -Given 'Anna' -Surname 'Schmidt' -Path $usersDn -Password $secrets.anna
+$bind = Confirm-User -Sam 'bind' -Given 'Bind' -Surname 'Keycloak' -Path $svcDn -Password $secrets.bind -Service
+$operator = Confirm-User -Sam 'operator' -Given 'Operator' -Surname 'Workshop' -Path $svcDn -Password $secrets.operator -Service
+
+$staff = Confirm-Group -Name 'Mitarbeiter' -Sam 'staff' -Path $groupsDn
+$leads = Confirm-Group -Name 'Teamleitung' -Sam 'leads' -Path $groupsDn
+$managers = Confirm-Group -Name 'Manager' -Sam 'managers' -Path $groupsDn
+Confirm-Member -Group $staff -Member $hans
+Confirm-Member -Group $staff -Member $anna
+Confirm-Member -Group $leads -Member $anna
+Confirm-Member -Group $managers -Member $leads
+
+Grant-Delegation -Operator 'operator' -UsersDn $usersDn -MovedDn $movedDn -GroupsDn $groupsDn
+
+$secrets | ConvertTo-Json | Set-Content $secretFile -Encoding utf8
+Protect-SecretFile -Path $secretFile
 
 $summary = [ordered]@{
     dcFqdn = $DcFqdn; domain = $domain.DNSRoot; baseDn = $baseDn
+    usersDn = $usersDn; movedDn = $movedDn; groupsDn = $groupsDn; serviceAccountsDn = $svcDn
+    bindUpn = $bind.UserPrincipalName; operatorUpn = $operator.UserPrincipalName
+    users = [ordered]@{ hans = $hans.DistinguishedName; anna = $anna.DistinguishedName }
+    groups = [ordered]@{ Mitarbeiter = $staff.DistinguishedName; Teamleitung = $leads.DistinguishedName; Manager = $managers.DistinguishedName }
     caSubject = $ca.Subject; caFingerprintSha256 = $fingerprint; caNotAfter = $ca.NotAfter.ToString('o')
     serverCertThumbprint = $server.Thumbprint; serverCertNotAfter = $server.NotAfter.ToString('o')
-    preparedAt = (Get-Date).ToUniversalTime().ToString('o'); teams = [ordered]@{}
+    preparedAt = (Get-Date).ToUniversalTime().ToString('o')
 }
-
-foreach ($t in $Teams) {
-    Write-Host "Team $t"
-    $teamDn = Confirm-Ou -Name "Team$t" -Parent $baseDn
-    $usersDn = Confirm-Ou -Name 'Users' -Parent $teamDn
-    $movedDn = Confirm-Ou -Name 'Moved' -Parent $teamDn
-    $groupsDn = Confirm-Ou -Name 'Groups' -Parent $teamDn
-    $svcDn = Confirm-Ou -Name 'ServiceAccounts' -Parent $teamDn
-
-    $secretFile = Join-Path $SecretsPath "team$t.json"
-    if ((Test-Path $secretFile) -and -not $ResetPasswords) {
-        $secrets = Get-Content $secretFile -Raw | ConvertFrom-Json
-    } else {
-        $secrets = [ordered]@{
-            team = $t
-            hans = New-WorkshopPassword $PasswordLength; anna = New-WorkshopPassword $PasswordLength
-            bind = New-WorkshopPassword $PasswordLength; operator = New-WorkshopPassword $PasswordLength
-        }
-    }
-
-    $hans = Confirm-User -Sam "t$t.hans" -Given 'Hans' -Surname 'Mueller' -Path $usersDn -Password $secrets.hans
-    $anna = Confirm-User -Sam "t$t.anna" -Given 'Anna' -Surname 'Schmidt' -Path $usersDn -Password $secrets.anna
-    $bind = Confirm-User -Sam "t$t.bind" -Given 'Bind' -Surname "Team$t" -Path $svcDn -Password $secrets.bind -Service
-    $operator = Confirm-User -Sam "t$t.operator" -Given 'Operator' -Surname "Team$t" -Path $svcDn -Password $secrets.operator -Service
-
-    $staff = Confirm-Group -Name 'Mitarbeiter' -Sam "t$t.staff" -Path $groupsDn
-    $leads = Confirm-Group -Name 'Teamleitung' -Sam "t$t.leads" -Path $groupsDn
-    $managers = Confirm-Group -Name 'Manager' -Sam "t$t.managers" -Path $groupsDn
-    Confirm-Member -Group $staff -Member $hans
-    Confirm-Member -Group $staff -Member $anna
-    Confirm-Member -Group $leads -Member $anna
-    Confirm-Member -Group $managers -Member $leads
-
-    Grant-Delegation -Operator "t$t.operator" -UsersDn $usersDn -MovedDn $movedDn -GroupsDn $groupsDn
-
-    $secrets | ConvertTo-Json | Set-Content $secretFile -Encoding utf8
-    Protect-SecretFile -Path $secretFile
-
-    $summary.teams["team$t"] = [ordered]@{
-        ou = $teamDn; usersDn = $usersDn; movedDn = $movedDn; groupsDn = $groupsDn; serviceAccountsDn = $svcDn
-        bindUpn = $bind.UserPrincipalName; operatorUpn = $operator.UserPrincipalName
-        users = [ordered]@{ hans = $hans.DistinguishedName; anna = $anna.DistinguishedName }
-        groups = [ordered]@{ Mitarbeiter = $staff.DistinguishedName; Teamleitung = $leads.DistinguishedName; Manager = $managers.DistinguishedName }
-    }
-}
-
 $summary | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $OutputPath 'workshop-ad.json') -Encoding utf8
 Write-Host ''
 Write-Host "CA-Fingerprint SHA256: $fingerprint"
 Write-Host "Oeffentlich: $OutputPath\workshop-ca.crt, $OutputPath\workshop-ad.json"
-Write-Host "Geheim:      $SecretsPath\team<NN>.json (nur Administrators und SYSTEM)"
+Write-Host "Geheim:      $SecretsPath\workshop.json (nur Administrators und SYSTEM)"

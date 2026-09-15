@@ -1,6 +1,0 @@
-# Aufgabe 5: Konto deaktivieren. Hans liegt zu diesem Zeitpunkt in OU=Moved.
-# 66048 = NORMAL_ACCOUNT (512) + DONT_EXPIRE_PASSWORD (65536); 66050 zusaetzlich ACCOUNTDISABLE (2).
-dn: CN=Hans Mueller,OU=Moved,OU=Team02,OU=Workshop,DC=ad,DC=mustertech,DC=test
-changetype: modify
-replace: userAccountControl
-userAccountControl: 66050

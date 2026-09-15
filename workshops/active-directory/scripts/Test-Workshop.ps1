@@ -1,23 +1,22 @@
 <#
 .SYNOPSIS
-Prueft den AD-Workshop vom Trainerrechner (-Mode Trainer) oder auf dem DC (-Mode Guest).
+Prueft eine Workshop-Umgebung vom Trainerrechner (-Mode Trainer) oder auf dem DC (-Mode Guest).
 
 .DESCRIPTION
-Trainer: Manifest, Instanz, Metadaten, effektive Firewall, TCP/TLS/Namenspruefung ueber den
-Werkzeugcontainer, LDAP-Suche und delegierte Schreibgrenzen je Team, optional IAP-Tunnel.
+Trainer: Manifest, Instanz, Metadaten, effektive Firewall, TCP/TLS/Namenspruefung ueber das
+LDAP-Werkzeugimage, LDAP-Suche und delegierte Schreibgrenzen, optional IAP-Tunnel. Die
+LDAP-Aufrufe laufen in einem eigenen Container mit der IP aus dem Manifest und dem CA-Zertifikat
+aus dem Laufzeitverzeichnis; der Teilnehmer-Stack wird dafuer nicht angefasst.
 Guest: Domaene, Datentraeger, DNS, KMS, Zeitquelle, LDAPS-Zertifikat, AD-Objekte, Delegation.
 Schreibt einen JSON-Bericht und beendet sich mit Exit-Code 1 bei mindestens einem FAIL.
 #>
 [CmdletBinding()]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'ReportPath', Justification = 'in Save-Report verwendet')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'IapLocalPort', Justification = 'in T15 verwendet')]
 param(
     [Parameter(Mandatory)][ValidateSet('Trainer', 'Guest')][string]$Mode,
-    [string]$ManifestPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run', 'manifest.json')),
-    [ValidatePattern('^\d{2}$')][string[]]$Teams = @('01', '02'),
-    [string]$SecretsPath = '',
+    [ValidatePattern('^[a-z][a-z0-9]{2,11}$')][string]$Prefix = 'kcad',
+    [string]$RunPath = '',
     [string]$LabPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', 'lab')),
-    [string]$ReportPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run')),
     [string]$DcFqdn = 'dc01.ad.mustertech.test',
     [string]$BaseDn = 'DC=ad,DC=mustertech,DC=test',
     [int]$IapLocalPort = 33389,
@@ -130,49 +129,44 @@ function Test-TcpOpen {
 }
 
 function Save-Report {
-    param([string]$ModeName)
-    New-Item -ItemType Directory -Path $ReportPath -Force | Out-Null
-    $file = Join-Path $ReportPath ("report-{0}-{1}.json" -f $ModeName.ToLower(), (Get-Date -Format 'yyyyMMdd-HHmm'))
+    param([string]$ModeName, [string]$Directory)
+    New-Item -ItemType Directory -Path $Directory -Force | Out-Null
+    $file = Join-Path $Directory ("report-{0}-{1}.json" -f $ModeName.ToLower(), (Get-Date -Format 'yyyyMMdd-HHmm'))
     [ordered]@{ mode = $ModeName; at = (Get-Date).ToUniversalTime().ToString('o'); checks = $script:Report } | ConvertTo-Json -Depth 5 | Set-Content $file -Encoding utf8
     return $file
 }
 
 if ($HelpersOnly) { return }
 
+$reportDir = if ($RunPath) { $RunPath } elseif ($Mode -eq 'Guest') { 'C:\Workshop\out' } else { [System.IO.Path]::Combine($PSScriptRoot, '..', '.run', $Prefix) }
+
 # =====================================================================================================
 if ($Mode -eq 'Trainer') {
     if (-not (Get-Module -Name Workshop.Common)) { Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Workshop.Common.psm1')) }
-    if (-not $SecretsPath) { $SecretsPath = Join-Path (Split-Path -Parent $ManifestPath) 'secrets' }
-    $m = Read-WorkshopManifest -Path $ManifestPath
+    $paths = Get-WorkshopRunPaths -Prefix $Prefix -RunRoot ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run'))
+    if ($RunPath) { $paths = Get-WorkshopRunPaths -Prefix $Prefix -RunRoot (Split-Path -Parent $RunPath) }
+    $m = Read-WorkshopManifest -Path $paths.Manifest
     $P = "--project=$($m.projectId)"
     $Z = "--zone=$($m.zone)"
     $instanceName = $m.resources.instance.name
     $externalIp = $m.network.externalIp
-    $compose = Join-Path $LabPath 'docker-compose.yml'
-    $labSecrets = Join-Path $LabPath 'secrets'
+    $caPath = Join-Path $paths.Run 'workshop-ca.crt'
+    $secretFile = Join-Path $paths.Secrets 'workshop.json'
+    $toolImage = 'keycloak-ad-workshop-ldap-tools'
+    $tmpSecrets = Join-Path $paths.Run 'test-secrets'
 
+    & docker image inspect $toolImage 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Baue Werkzeugimage $toolImage"
+        & docker build -q -t $toolImage (Join-Path $LabPath 'ldap-tools') | Out-Null
+    }
     function Invoke-LabTool {
+        # Eigener Container je Aufruf: Hosteintrag auf die Manifest-IP, CA und Passwortdateien nur lesend.
         param([string[]]$ToolArgs, [string]$Stdin)
-        $out = if ($null -ne $Stdin) { $Stdin | & docker compose -f $compose exec -T ldap-tools @ToolArgs 2>&1 } else { & docker compose -f $compose exec -T ldap-tools @ToolArgs 2>&1 }
+        $dockerArgs = @('run', '--rm', '-i', '--add-host', "${DcFqdn}:${externalIp}", '-e', 'LDAPTLS_REQCERT=demand', '-e', 'LDAPTLS_CACERT=/certs/workshop-ca.crt',
+            '-v', "${caPath}:/certs/workshop-ca.crt:ro", '-v', "${tmpSecrets}:/secrets:ro", $toolImage) + $ToolArgs
+        $out = if ($null -ne $Stdin) { $Stdin | & docker @dockerArgs 2>&1 } else { & docker @dockerArgs 2>&1 }
         return [pscustomobject]@{ ExitCode = $LASTEXITCODE; Output = (@($out) | ForEach-Object { [string]$_ }) -join "`n" }
-    }
-    function Get-TeamSecret {
-        param([string]$Team)
-        $f = Join-Path $SecretsPath "team$Team.json"
-        if (-not (Test-Path $f)) { throw "Geheimnisdatei fehlt: $f (vom DC aus C:\Workshop\secrets kopieren)" }
-        return Get-Content $f -Raw | ConvertFrom-Json -AsHashtable
-    }
-    function Write-TempSecret {
-        param([string]$Name, [string]$Value)
-        $path = Join-Path $labSecrets "test-$Name.pw"
-        [System.IO.File]::WriteAllText($path, $Value)
-        if ($IsLinux -or $IsMacOS) { & chmod 600 $path }
-        return "/secrets/test-$Name.pw"
-    }
-    function Get-NeighborTeam {
-        param([string]$Team)
-        $idx = [array]::IndexOf($Teams, $Team)
-        return $Teams[($idx + 1) % $Teams.Count]
     }
 
     Add-Check -Id 'T01' -Name 'Projektnummer entspricht Manifest' -Test {
@@ -211,83 +205,85 @@ if ($Mode -eq 'Trainer') {
         if (-not (Test-TcpOpen -TargetHost $externalIp -Port 636)) { throw "keine Verbindung zu ${externalIp}:636 (Quell-IP freigegeben?)" }
         "${externalIp}:636 offen"
     }
-    $tlsBase = @('openssl', 's_client', '-connect', "${DcFqdn}:636", '-servername', $DcFqdn, '-verify_return_error', '-brief')
-    Add-Check -Id 'T06' -Name 'TLS mit Workshop-CA und richtigem Namen' -Test {
-        $r = Invoke-LabTool -ToolArgs ($tlsBase + @('-CAfile', '/certs/workshop-ca.crt', '-verify_hostname', $DcFqdn)) -Stdin ''
-        if ($r.ExitCode -ne 0 -or $r.Output -notmatch 'Verification: OK') { throw "openssl Exit $($r.ExitCode): $($r.Output -split "`n" | Select-Object -First 3)" }
-        'Verification: OK'
-    }
-    Add-Check -Id 'T07' -Name 'TLS mit falschem Hostnamen scheitert' -Test {
-        $r = Invoke-LabTool -ToolArgs ($tlsBase + @('-CAfile', '/certs/workshop-ca.crt', '-verify_hostname', 'wrong.example')) -Stdin ''
-        if ($r.ExitCode -eq 0 -and $r.Output -match 'Verification: OK') { throw 'Verbindung mit falschem Namen wurde akzeptiert' }
-        "abgelehnt (Exit $($r.ExitCode))"
-    }
-    Add-Check -Id 'T08' -Name 'TLS ohne Workshop-CA scheitert' -Test {
-        $r = Invoke-LabTool -ToolArgs ($tlsBase + @('-verify_hostname', $DcFqdn, '-CAfile', '/dev/null')) -Stdin ''
-        if ($r.ExitCode -eq 0 -and $r.Output -match 'Verification: OK') { throw 'Verbindung ohne CA wurde akzeptiert' }
-        "abgelehnt (Exit $($r.ExitCode))"
+    if (-not (Test-Path $caPath)) {
+        Add-Skip -Id 'T06' -Name 'TLS-Pruefungen' -Reason "CA-Zertifikat fehlt: $caPath"
+    } else {
+        New-Item -ItemType Directory -Path $tmpSecrets -Force | Out-Null
+        $tlsBase = @('openssl', 's_client', '-connect', "${DcFqdn}:636", '-servername', $DcFqdn, '-verify_return_error', '-brief')
+        Add-Check -Id 'T06' -Name 'TLS mit Workshop-CA und richtigem Namen' -Test {
+            $r = Invoke-LabTool -ToolArgs ($tlsBase + @('-CAfile', '/certs/workshop-ca.crt', '-verify_hostname', $DcFqdn)) -Stdin ''
+            if ($r.ExitCode -ne 0 -or $r.Output -notmatch 'Verification: OK') { throw "openssl Exit $($r.ExitCode): $($r.Output -split "`n" | Select-Object -First 3)" }
+            'Verification: OK'
+        }
+        Add-Check -Id 'T07' -Name 'TLS mit falschem Hostnamen scheitert' -Test {
+            $r = Invoke-LabTool -ToolArgs ($tlsBase + @('-CAfile', '/certs/workshop-ca.crt', '-verify_hostname', 'wrong.example')) -Stdin ''
+            if ($r.ExitCode -eq 0 -and $r.Output -match 'Verification: OK') { throw 'Verbindung mit falschem Namen wurde akzeptiert' }
+            "abgelehnt (Exit $($r.ExitCode))"
+        }
+        Add-Check -Id 'T08' -Name 'TLS ohne Workshop-CA scheitert' -Test {
+            $r = Invoke-LabTool -ToolArgs ($tlsBase + @('-verify_hostname', $DcFqdn, '-CAfile', '/dev/null')) -Stdin ''
+            if ($r.ExitCode -eq 0 -and $r.Output -match 'Verification: OK') { throw 'Verbindung ohne CA wurde akzeptiert' }
+            "abgelehnt (Exit $($r.ExitCode))"
+        }
     }
     Add-Check -Id 'T09' -Name 'TCP 3389 und 22 direkt geschlossen' -Test {
         foreach ($port in 3389, 22) { if (Test-TcpOpen -TargetHost $externalIp -Port $port) { throw "${externalIp}:$port ist direkt erreichbar" } }
         "${externalIp}:3389 und :22 nicht erreichbar"
     }
 
-    foreach ($t in $Teams) {
-        $teamDn = "OU=Team$t,OU=Workshop,$BaseDn"
-        $usersDn = "OU=Users,$teamDn"
-        $bindUpn = "t$t.bind@ad.mustertech.test"
-        $operatorUpn = "t$t.operator@ad.mustertech.test"
+    if (-not (Test-Path $secretFile) -or -not (Test-Path $caPath)) {
+        Add-Skip -Id 'T10' -Name 'LDAP-Pruefungen' -Reason "Geheimnisdatei $secretFile oder CA $caPath fehlt"
+    } else {
+        $secret = Get-Content $secretFile -Raw | ConvertFrom-Json
+        $workshopDn = "OU=Workshop,$BaseDn"
+        $usersDn = "OU=Users,$workshopDn"
+        $bindUpn = "bind@ad.mustertech.test"
+        $operatorUpn = "operator@ad.mustertech.test"
         $ldapUrl = "ldaps://${DcFqdn}:636"
-        $secret = $null
-        try { $secret = Get-TeamSecret -Team $t } catch { Add-Skip -Id "T10-$t" -Name "Team $t" -Reason $_.Exception.Message; continue }
-        $bindPw = Write-TempSecret -Name "$t-bind" -Value $secret.bind
-        $opPw = Write-TempSecret -Name "$t-operator" -Value $secret.operator
+        [System.IO.File]::WriteAllText((Join-Path $tmpSecrets 'bind.pw'), [string]$secret.bind)
+        [System.IO.File]::WriteAllText((Join-Path $tmpSecrets 'operator.pw'), [string]$secret.operator)
+        if ($IsLinux -or $IsMacOS) { & chmod -R go-rwx $tmpSecrets }
         try {
-            Add-Check -Id "T10-$t" -Name "Team $t`: Bind-Suche liefert genau Hans und Anna" -Test {
-                $r = Invoke-LabTool -ToolArgs @('ldapsearch', '-LLL', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', $bindPw, '-b', $teamDn, "(|(sAMAccountName=t$t.hans)(sAMAccountName=t$t.anna))", 'sAMAccountName')
+            Add-Check -Id 'T10' -Name 'Bind-Suche liefert genau Hans und Anna' -Test {
+                $r = Invoke-LabTool -ToolArgs @('ldapsearch', '-LLL', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', '/secrets/bind.pw', '-b', $workshopDn, '(|(sAMAccountName=hans)(sAMAccountName=anna))', 'sAMAccountName')
                 if ($r.ExitCode -ne 0) { throw "ldapsearch Exit $($r.ExitCode): $($r.Output)" }
                 $found = @($r.Output -split "`n" | Where-Object { $_ -match '^sAMAccountName: ' } | ForEach-Object { $_ -replace '^sAMAccountName: ', '' } | Sort-Object)
-                if (($found -join ',') -ne "t$t.anna,t$t.hans") { throw "gefunden: $($found -join ',')" }
+                if (($found -join ',') -ne 'anna,hans') { throw "gefunden: $($found -join ',')" }
                 $found -join ', '
             }
-            Add-Check -Id "T11-$t" -Name "Team $t`: Users-OU enthaelt keine Dienstkonten" -Test {
-                $r = Invoke-LabTool -ToolArgs @('ldapsearch', '-LLL', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', $bindPw, '-b', $usersDn, '(objectClass=user)', 'sAMAccountName')
+            Add-Check -Id 'T11' -Name 'Users-OU enthaelt keine Dienstkonten' -Test {
+                $r = Invoke-LabTool -ToolArgs @('ldapsearch', '-LLL', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', '/secrets/bind.pw', '-b', $usersDn, '(objectClass=user)', 'sAMAccountName')
                 if ($r.ExitCode -ne 0) { throw "ldapsearch Exit $($r.ExitCode): $($r.Output)" }
                 $found = @($r.Output -split "`n" | Where-Object { $_ -match '^sAMAccountName: ' } | ForEach-Object { $_ -replace '^sAMAccountName: ', '' })
-                if ($found | Where-Object { $_ -match '\.(bind|operator)$' }) { throw "Dienstkonto unter Users: $($found -join ',')" }
+                if ($found | Where-Object { $_ -in 'bind', 'operator' }) { throw "Dienstkonto unter Users: $($found -join ',')" }
                 "unter Users: $($found -join ', ')"
             }
-            $hansDn = $null
-            $r = Invoke-LabTool -ToolArgs @('ldapsearch', '-LLL', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', $bindPw, '-b', $teamDn, "(sAMAccountName=t$t.hans)", 'dn')
+            $r = Invoke-LabTool -ToolArgs @('ldapsearch', '-LLL', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', '/secrets/bind.pw', '-b', $workshopDn, '(sAMAccountName=hans)', 'dn')
             $hansDn = ($r.Output -split "`n" | Where-Object { $_ -match '^dn: ' } | Select-Object -First 1) -replace '^dn: ', ''
+            $bindDn = "CN=Bind Keycloak,OU=ServiceAccounts,$workshopDn"
             $ldifSet = "dn: $hansDn`nchangetype: modify`nreplace: description`ndescription: workshop-test`n"
             $ldifClear = "dn: $hansDn`nchangetype: modify`ndelete: description`n"
-            Add-Check -Id "T12-$t" -Name "Team $t`: Bind-Konto darf nicht schreiben" -Test {
-                $r = Invoke-LabTool -ToolArgs @('ldapmodify', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', $bindPw) -Stdin $ldifSet
+            Add-Check -Id 'T12' -Name 'Bind-Konto darf nicht schreiben' -Test {
+                $r = Invoke-LabTool -ToolArgs @('ldapmodify', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', '/secrets/bind.pw') -Stdin $ldifSet
                 if ($r.ExitCode -eq 0) { throw 'Bind-Konto konnte description setzen' }
                 if ($r.ExitCode -ne 50) { throw "unerwarteter Exit $($r.ExitCode): $($r.Output)" }
                 'Exit 50 insufficientAccessRights'
             }
-            $neighbor = Get-NeighborTeam -Team $t
-            $nHans = "CN=Hans Mueller,OU=Users,OU=Team$neighbor,OU=Workshop,$BaseDn"
-            $rn = Invoke-LabTool -ToolArgs @('ldapsearch', '-LLL', '-x', '-H', $ldapUrl, '-D', $bindUpn, '-y', $bindPw, '-b', "OU=Team$neighbor,OU=Workshop,$BaseDn", "(sAMAccountName=t$neighbor.hans)", 'dn')
-            $nFound = ($rn.Output -split "`n" | Where-Object { $_ -match '^dn: ' } | Select-Object -First 1) -replace '^dn: ', ''
-            if ($nFound) { $nHans = $nFound }
-            Add-Check -Id "T13-$t" -Name "Team $t`: Uebungskonto darf Team $neighbor nicht aendern" -Test {
-                $r = Invoke-LabTool -ToolArgs @('ldapmodify', '-x', '-H', $ldapUrl, '-D', $operatorUpn, '-y', $opPw) -Stdin "dn: $nHans`nchangetype: modify`nreplace: description`ndescription: workshop-test`n"
-                if ($r.ExitCode -eq 0) { throw "Uebungskonto konnte $nHans aendern" }
+            Add-Check -Id 'T13' -Name 'Uebungskonto darf Dienstkonten nicht aendern' -Test {
+                $r = Invoke-LabTool -ToolArgs @('ldapmodify', '-x', '-H', $ldapUrl, '-D', $operatorUpn, '-y', '/secrets/operator.pw') -Stdin "dn: $bindDn`nchangetype: modify`nreplace: description`ndescription: workshop-test`n"
+                if ($r.ExitCode -eq 0) { throw "Uebungskonto konnte $bindDn aendern" }
                 if ($r.ExitCode -ne 50) { throw "unerwarteter Exit $($r.ExitCode): $($r.Output)" }
                 'Exit 50 insufficientAccessRights'
             }
-            Add-Check -Id "T14-$t" -Name "Team $t`: Uebungskonto darf eigenen Hans aendern" -Test {
-                $r = Invoke-LabTool -ToolArgs @('ldapmodify', '-x', '-H', $ldapUrl, '-D', $operatorUpn, '-y', $opPw) -Stdin $ldifSet
+            Add-Check -Id 'T14' -Name 'Uebungskonto darf Hans aendern' -Test {
+                $r = Invoke-LabTool -ToolArgs @('ldapmodify', '-x', '-H', $ldapUrl, '-D', $operatorUpn, '-y', '/secrets/operator.pw') -Stdin $ldifSet
                 if ($r.ExitCode -ne 0) { throw "setzen Exit $($r.ExitCode): $($r.Output)" }
-                $r = Invoke-LabTool -ToolArgs @('ldapmodify', '-x', '-H', $ldapUrl, '-D', $operatorUpn, '-y', $opPw) -Stdin $ldifClear
+                $r = Invoke-LabTool -ToolArgs @('ldapmodify', '-x', '-H', $ldapUrl, '-D', $operatorUpn, '-y', '/secrets/operator.pw') -Stdin $ldifClear
                 if ($r.ExitCode -ne 0) { throw "loeschen Exit $($r.ExitCode): $($r.Output)" }
                 'description gesetzt und entfernt'
             }
         } finally {
-            Remove-Item (Join-Path $labSecrets "test-$t-bind.pw"), (Join-Path $labSecrets "test-$t-operator.pw") -ErrorAction SilentlyContinue
+            Remove-Item $tmpSecrets -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
 
@@ -307,9 +303,10 @@ if ($Mode -eq 'Trainer') {
 # =====================================================================================================
 if ($Mode -eq 'Guest') {
     Import-Module ActiveDirectory
-    if (-not $SecretsPath) { $SecretsPath = 'C:\Workshop\secrets' }
+    $secretFile = 'C:\Workshop\secrets\workshop.json'
     $domain = Get-ADDomain
     $expectedDomain = ($DcFqdn -split '\.', 2)[1]
+    $workshopDn = "OU=Workshop,$($domain.DistinguishedName)"
 
     Add-Check -Id 'G01' -Name 'Domaene und Hostname' -Test {
         if ($domain.DNSRoot -ne $expectedDomain) { throw "Domaene ist $($domain.DNSRoot)" }
@@ -357,6 +354,28 @@ if ($Mode -eq 'Guest') {
             "Aussteller $($cert.Issuer), gueltig bis $($cert.NotAfter.ToString('u'))"
         } finally { $client.Close() }
     }
+    Add-Check -Id 'G07' -Name 'Workshop-OU: Objekte und Baseline' -Test {
+        foreach ($ou in 'Users', 'Moved', 'Groups', 'ServiceAccounts') {
+            if (-not (Get-ADOrganizationalUnit -LDAPFilter "(ou=$ou)" -SearchBase $workshopDn -SearchScope OneLevel)) { throw "OU $ou fehlt" }
+        }
+        $hans = Get-ADUser -LDAPFilter '(sAMAccountName=hans)' -SearchBase $workshopDn
+        $anna = Get-ADUser -LDAPFilter '(sAMAccountName=anna)' -SearchBase $workshopDn
+        $bind = Get-ADUser -LDAPFilter '(sAMAccountName=bind)' -SearchBase "OU=ServiceAccounts,$workshopDn"
+        $op = Get-ADUser -LDAPFilter '(sAMAccountName=operator)' -SearchBase "OU=ServiceAccounts,$workshopDn"
+        if (-not ($hans -and $anna -and $bind -and $op)) { throw 'Konto fehlt' }
+        if (-not ($hans.Enabled -and $anna.Enabled)) { throw 'Testbenutzer deaktiviert' }
+        if ($hans.DistinguishedName -notlike "*,OU=Users,$workshopDn") { throw "Hans liegt in $($hans.DistinguishedName)" }
+        $staff = Get-ADGroup -LDAPFilter '(sAMAccountName=staff)' -SearchBase $workshopDn
+        $leads = Get-ADGroup -LDAPFilter '(sAMAccountName=leads)' -SearchBase $workshopDn
+        $managers = Get-ADGroup -LDAPFilter '(sAMAccountName=managers)' -SearchBase $workshopDn
+        $staffM = @(Get-ADGroupMember $staff | ForEach-Object SamAccountName | Sort-Object)
+        $leadsM = @(Get-ADGroupMember $leads | ForEach-Object SamAccountName)
+        $mgrM = @(Get-ADGroupMember $managers | ForEach-Object SamAccountName)
+        if (($staffM -join ',') -ne 'anna,hans') { throw "Mitarbeiter: $($staffM -join ',')" }
+        if (($leadsM -join ',') -ne 'anna') { throw "Teamleitung: $($leadsM -join ',')" }
+        if (($mgrM -join ',') -ne 'leads') { throw "Manager: $($mgrM -join ',')" }
+        'OUs, 4 Konten, 3 Gruppen, Baseline-Mitgliedschaften'
+    }
     Add-Check -Id 'G10' -Name 'Firewallregel LDAPS aktiv' -Test {
         $rule = Get-NetFirewallRule | Where-Object { $_.Enabled -eq 'True' -and $_.Direction -eq 'Inbound' -and $_.Action -eq 'Allow' } | Where-Object {
             ($_ | Get-NetFirewallPortFilter).LocalPort -contains '636'
@@ -364,51 +383,25 @@ if ($Mode -eq 'Guest') {
         if (-not $rule) { throw 'keine aktive Eingangsregel fuer TCP 636' }
         $rule.DisplayName
     }
-
-    foreach ($t in $Teams) {
-        $teamDn = "OU=Team$t,OU=Workshop,$($domain.DistinguishedName)"
-        Add-Check -Id "G07-$t" -Name "Team $t`: Objekte und Baseline" -Test {
-            foreach ($ou in 'Users', 'Moved', 'Groups', 'ServiceAccounts') {
-                if (-not (Get-ADOrganizationalUnit -LDAPFilter "(ou=$ou)" -SearchBase $teamDn -SearchScope OneLevel)) { throw "OU $ou fehlt" }
-            }
-            $hans = Get-ADUser -LDAPFilter "(sAMAccountName=t$t.hans)" -SearchBase $teamDn
-            $anna = Get-ADUser -LDAPFilter "(sAMAccountName=t$t.anna)" -SearchBase $teamDn
-            $bind = Get-ADUser -LDAPFilter "(sAMAccountName=t$t.bind)" -SearchBase "OU=ServiceAccounts,$teamDn"
-            $op = Get-ADUser -LDAPFilter "(sAMAccountName=t$t.operator)" -SearchBase "OU=ServiceAccounts,$teamDn"
-            if (-not ($hans -and $anna -and $bind -and $op)) { throw 'Konto fehlt' }
-            if (-not ($hans.Enabled -and $anna.Enabled)) { throw 'Testbenutzer deaktiviert' }
-            if ($hans.DistinguishedName -notlike "*,OU=Users,$teamDn") { throw "Hans liegt in $($hans.DistinguishedName)" }
-            $staff = Get-ADGroup -LDAPFilter "(sAMAccountName=t$t.staff)" -SearchBase $teamDn
-            $leads = Get-ADGroup -LDAPFilter "(sAMAccountName=t$t.leads)" -SearchBase $teamDn
-            $managers = Get-ADGroup -LDAPFilter "(sAMAccountName=t$t.managers)" -SearchBase $teamDn
-            $staffM = @(Get-ADGroupMember $staff | ForEach-Object SamAccountName | Sort-Object)
-            $leadsM = @(Get-ADGroupMember $leads | ForEach-Object SamAccountName)
-            $mgrM = @(Get-ADGroupMember $managers | ForEach-Object SamAccountName)
-            if (($staffM -join ',') -ne "t$t.anna,t$t.hans") { throw "Mitarbeiter: $($staffM -join ',')" }
-            if (($leadsM -join ',') -ne "t$t.anna") { throw "Teamleitung: $($leadsM -join ',')" }
-            if (($mgrM -join ',') -ne "t$t.leads") { throw "Manager: $($mgrM -join ',')" }
-            'OUs, 4 Konten, 3 Gruppen, Baseline-Mitgliedschaften'
-        }
-        $secretFile = Join-Path $SecretsPath "team$t.json"
-        if (-not (Test-Path $secretFile)) { Add-Skip -Id "G08-$t" -Name "Team $t`: Delegation" -Reason "Geheimnisdatei $secretFile fehlt"; continue }
+    if (-not (Test-Path $secretFile)) {
+        Add-Skip -Id 'G08' -Name 'Delegation' -Reason "Geheimnisdatei $secretFile fehlt"
+    } else {
         # Windows PowerShell 5.1 kennt -AsHashtable nicht; Eigenschaftszugriff genuegt hier.
         $secret = Get-Content $secretFile -Raw | ConvertFrom-Json
-        $cred = [pscredential]::new("$($domain.NetBIOSName)\t$t.operator", (ConvertTo-SecureString $secret.operator -AsPlainText -Force))
-        Add-Check -Id "G08-$t" -Name "Team $t`: Uebungskonto aendert eigene Objekte" -Test {
-            $hans = Get-ADUser -LDAPFilter "(sAMAccountName=t$t.hans)" -SearchBase $teamDn
-            $leads = Get-ADGroup -LDAPFilter "(sAMAccountName=t$t.leads)" -SearchBase $teamDn
+        $cred = [pscredential]::new("$($domain.NetBIOSName)\operator", (ConvertTo-SecureString $secret.operator -AsPlainText -Force))
+        Add-Check -Id 'G08' -Name 'Uebungskonto aendert eigene Objekte' -Test {
+            $hans = Get-ADUser -LDAPFilter '(sAMAccountName=hans)' -SearchBase $workshopDn
+            $leads = Get-ADGroup -LDAPFilter '(sAMAccountName=leads)' -SearchBase $workshopDn
             Set-ADUser -Identity $hans -Description 'workshop-test' -Credential $cred
             Set-ADUser -Identity $hans -Clear description -Credential $cred
             Add-ADGroupMember -Identity $leads -Members $hans -Credential $cred
             Remove-ADGroupMember -Identity $leads -Members $hans -Credential $cred -Confirm:$false
             'description und member gesetzt und zurueckgenommen'
         }
-        $idx = [array]::IndexOf($Teams, $t)
-        $neighbor = $Teams[($idx + 1) % $Teams.Count]
-        Add-Check -Id "G09-$t" -Name "Team $t`: Uebungskonto scheitert an Team $neighbor und Dienstkonten" -Test {
-            $nHans = Get-ADUser -LDAPFilter "(sAMAccountName=t$neighbor.hans)" -SearchBase "OU=Team$neighbor,OU=Workshop,$($domain.DistinguishedName)"
-            $bind = Get-ADUser -LDAPFilter "(sAMAccountName=t$t.bind)" -SearchBase $teamDn
-            foreach ($target in $nHans, $bind) {
+        Add-Check -Id 'G09' -Name 'Uebungskonto scheitert an Dienstkonten und Domaenen-Admin' -Test {
+            $bind = Get-ADUser -LDAPFilter '(sAMAccountName=bind)' -SearchBase $workshopDn
+            $admin = Get-ADUser -Identity 'Administrator'
+            foreach ($target in $bind, $admin) {
                 $denied = $false
                 try { Set-ADUser -Identity $target -Description 'workshop-test' -Credential $cred } catch { $denied = $_.Exception.Message -match 'Insufficient access rights|Zugriff verweigert|Access is denied' }
                 if (-not $denied) { Set-ADUser -Identity $target -Clear description; throw "Aenderung an $($target.SamAccountName) wurde nicht verweigert" }
@@ -418,7 +411,7 @@ if ($Mode -eq 'Guest') {
     }
 }
 
-$file = Save-Report -ModeName $Mode
+$file = Save-Report -ModeName $Mode -Directory $reportDir
 Write-Host ''
 $script:Report | Format-Table -AutoSize id, result, name | Out-String -Width 160 | Write-Host
 Write-Host "Bericht: $file"

@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
-# Trainerloesung: LDAP-Provider fuer ein Team per kcadm anlegen und umstellen.
+# Trainerloesung: LDAP-Provider fuer den eigenen DC per kcadm anlegen und umstellen.
 # Aufruf im Keycloak-Container:
-#   TEAM=01 bash /workshop/solution/apply-solution.sh <befehl> [arg]
-#   Befehle: create | strategy direct|recursive | users-dn users|team | sync | logout-sessions | status | delete
+#   bash /workshop/solution/apply-solution.sh <befehl> [arg]
+#   Befehle: create | strategy direct|recursive | users-dn users|workshop | sync | logout-sessions | status | delete
 set -euo pipefail
 
-TEAM="${TEAM:?TEAM=01|02 setzen}"
 REALM=mustertech
 KCADM=/opt/keycloak/bin/kcadm.sh
 BASE="DC=ad,DC=mustertech,DC=test"
-TEAM_DN="OU=Team${TEAM},OU=Workshop,${BASE}"
-USERS_DN="OU=Users,${TEAM_DN}"
-GROUPS_DN="OU=Groups,${TEAM_DN}"
-BIND_DN="t${TEAM}.bind@ad.mustertech.test"
+WORKSHOP_DN="OU=Workshop,${BASE}"
+USERS_DN="OU=Users,${WORKSHOP_DN}"
+GROUPS_DN="OU=Groups,${WORKSHOP_DN}"
+BIND_DN="bind@ad.mustertech.test"
 BIND_PW_FILE="${BIND_PW_FILE:-/workshop/secrets/bind.pw}"
-PROVIDER_NAME="ad-team${TEAM}"
+PROVIDER_NAME="ad-workshop"
 
 login() {
   "$KCADM" config credentials --server http://localhost:8080 --realm master --user admin --password admin >/dev/null
@@ -64,7 +63,7 @@ create() {
     -s 'config.usernameLDAPAttribute=["userPrincipalName"]' -s 'config.rdnLDAPAttribute=["cn"]' \
     -s 'config.uuidLDAPAttribute=["objectGUID"]' \
     -s 'config.userObjectClasses=["person, organizationalPerson, user"]' \
-    -s "config.customUserSearchFilter=[\"(|(sAMAccountName=t${TEAM}.hans)(sAMAccountName=t${TEAM}.anna))\"]" \
+    -s 'config.customUserSearchFilter=["(|(sAMAccountName=hans)(sAMAccountName=anna))"]' \
     -s 'config.pagination=["true"]' -s 'config.batchSizeForSync=["1000"]' -s 'config.trustEmail=["false"]' \
     -s 'config.cachePolicy=["DEFAULT"]' -s 'config.fullSyncPeriod=["-1"]' -s 'config.changedSyncPeriod=["-1"]' \
     -s 'config.allowKerberosAuthentication=["false"]' -s 'config.useKerberosForPasswordAuthentication=["false"]' \
@@ -103,8 +102,8 @@ users_dn() {
   require_provider
   case "${1:-}" in
     users) "$KCADM" update "components/${PID}" -r "$REALM" -s "config.usersDn=[\"${USERS_DN}\"]" ;;
-    team) "$KCADM" update "components/${PID}" -r "$REALM" -s "config.usersDn=[\"${TEAM_DN}\"]" ;;
-    *) echo "users-dn users|team" >&2; exit 2 ;;
+    workshop) "$KCADM" update "components/${PID}" -r "$REALM" -s "config.usersDn=[\"${WORKSHOP_DN}\"]" ;;
+    *) echo "users-dn users|workshop" >&2; exit 2 ;;
   esac
   echo "Users DN: $1"
 }
@@ -126,8 +125,8 @@ status() {
   "$KCADM" get "components/${MID}" -r "$REALM" \
     --fields 'config(user.roles.retrieve.strategy,groups.dn,preserve.group.inheritance)'
   for u in hans anna; do
-    echo "--- t${TEAM}.${u}@ad.mustertech.test"
-    uid="$("$KCADM" get users -r "$REALM" -q "username=t${TEAM}.${u}@ad.mustertech.test" -q exact=true \
+    echo "--- ${u}@ad.mustertech.test"
+    uid="$("$KCADM" get users -r "$REALM" -q "username=${u}@ad.mustertech.test" -q exact=true \
       --fields id --format csv --noquotes | head -n1)"
     if [ -n "$uid" ]; then
       "$KCADM" get "users/${uid}/groups" -r "$REALM" --fields name --format csv --noquotes
@@ -153,7 +152,7 @@ case "${1:-}" in
   status) status ;;
   delete) delete_provider ;;
   *)
-    echo "Befehle: create | strategy direct|recursive | users-dn users|team | sync |" >&2
+    echo "Befehle: create | strategy direct|recursive | users-dn users|workshop | sync |" >&2
     echo "         logout-sessions | status | delete" >&2
     exit 2 ;;
 esac

@@ -2,79 +2,76 @@
 
 ## Vorbereitung
 
-Die Umgebung entsteht am Vortag, der vollständige Probelauf gehört dazu. Vor der Bereitstellung
+Jede Person bekommt einen eigenen Domain Controller. Die Umgebungen entstehen am Vortag mit dem
+Flotten-Skript, werden über Nacht gestoppt und am Kursmorgen gestartet. Vor der Bereitstellung
 müssen vorliegen: Projekt-ID mit aktivierter Abrechnung, Compute Engine API und IAP API, Region
-und Zone, die öffentlichen Ausgangs-IPs der Schulungsräume oder Gruppen als CIDR (höchstens `/24`),
-der eigene Principal für den IAP-Tunnel und der Abbauzeitpunkt (höchstens 48 Stunden nach dem Start).
+und Zone, die öffentliche Ausgangs-IP des Schulungsraums als CIDR (höchstens `/24`), der eigene
+Principal für den IAP-Tunnel und ein öffentlicher SSH-Schlüssel (`~/.ssh/id_ed25519.pub`).
 `New-Workshop.ps1` bricht bei fehlenden APIs, fehlender Abrechnung oder zu weiten Quellnetzen ab
 und aktiviert nichts von selbst.
 
-Je Team gehen an die Gruppe: Teamnummer, externe IP des DC, CA-Fingerprint, Passwörter für
-`t<NN>.hans`, `t<NN>.anna`, `t<NN>.bind` und `t<NN>.operator`. Die Werte stammen aus
-`C:\Workshop\out\workshop-ad.json` und `C:\Workshop\secrets\team<NN>.json` auf dem DC.
-Das CA-Zertifikat `workshop-ca.crt` wird als Datei verteilt, etwa über den Kurschat.
+Je Person gehen an sie: IP des eigenen DC, die Datei `workshop-ca.crt`, der CA-Fingerprint und die
+Passwörter für `hans`, `anna`, `bind` und `operator`. `Invoke-WorkshopFleet.ps1 -Action Packages`
+zeigt alle Werte je Umgebung; die Dateien liegen unter `.run/<präfix>/`.
 
 ## Bereitstellung
 
-Alle Befehle aus `workshops/active-directory/scripts` in PowerShell 7. Beispielwerte:
+Alle Befehle aus `workshops/active-directory/scripts` in PowerShell 7. Beispiel für fünf Personen:
 
 ```powershell
 gcloud auth login
-./New-Workshop.ps1 -ProjectId <projekt> -Region europe-west3 -Zone europe-west3-a `
-  -LdapsSourceRanges @('203.0.113.0/24') -TrainerPrincipal 'user:trainer@example.org' `
-  -ExpiresAt (Get-Date).AddHours(36) -PlanOnly
-./New-Workshop.ps1 -ProjectId <projekt> -Region europe-west3 -Zone europe-west3-a `
-  -LdapsSourceRanges @('203.0.113.0/24') -TrainerPrincipal 'user:trainer@example.org' `
-  -ExpiresAt (Get-Date).AddHours(36)
+./Invoke-WorkshopFleet.ps1 -Action Deploy -Count 5 -ProjectId <projekt> -Zone europe-west3-a `
+  -LdapsSourceRanges 203.0.113.0/24 -TrainerPrincipal 'user:trainer@example.org' `
+  -ExpiresAt (Get-Date).AddHours(36) -CertificateValidUntil (Get-Date).AddDays(7) -PlanOnly
+./Invoke-WorkshopFleet.ps1 -Action Deploy -Count 5 -ProjectId <projekt> -Zone europe-west3-a `
+  -LdapsSourceRanges 203.0.113.0/24 -TrainerPrincipal 'user:trainer@example.org' `
+  -ExpiresAt (Get-Date).AddHours(36) -CertificateValidUntil (Get-Date).AddDays(7)
 ```
 
-Das Skript wartet, bis Windows sein erstes Setup gemeldet hat, legt das lokale Konto `wsadmin`
-an und schreibt dessen Passwort nach `.run/secrets/wsadmin.json`. Das Manifest `.run/manifest.json`
-enthält Projekt, Zone, Ressourcen mit selfLinks, IPs, Image-Version und die IAP-Bindung; es
-ist Grundlage für Test und Abbau. Ein abgebrochener Lauf lässt sich mit demselben Aufruf
-fortsetzen: vorhandene Ressourcen mit passender `run-id` werden übernommen, fremde führen zum Abbruch.
+Deploy legt die Umgebungen `kcad1` bis `kcad5` nacheinander mit `New-Workshop.ps1 -TrainerSsh` an
+(je rund sechs Minuten bis Windows bereit ist) und führt danach die Gastseite aller Umgebungen
+parallel über `lib/Invoke-GuestSetup.ps1` aus: Neustart für das SSH-Startskript, die drei Phasen
+von `Initialize-Domain.ps1` mit lokal erzeugten Passwörtern, `Protect-Workshop.ps1`,
+`Initialize-Workshop.ps1`, Abholen von CA, Zusammenfassung und Geheimnissen, Gastprüfung. Zum Schluss
+läuft die Trainerprüfung je Umgebung. Logs liegen unter `.run/<präfix>/setup.log`; ein erneuter
+Aufruf setzt fehlgeschlagene Umgebungen dort fort, wo der Gast steht.
 
-RDP läuft ausschließlich über IAP:
+Danach:
 
 ```powershell
-gcloud compute start-iap-tunnel kcad-dc01 3389 --local-host-port=localhost:33389 --zone=europe-west3-a --project=<projekt>
+./Invoke-WorkshopFleet.ps1 -Action Packages          # Werte je Person
+./Invoke-WorkshopFleet.ps1 -Action Stop              # am Vorabend
+./Invoke-WorkshopFleet.ps1 -Action Start             # am Kursmorgen, wartet auf LDAPS und prueft
+./Invoke-WorkshopFleet.ps1 -Action Status            # Instanzzustand und IPs
 ```
 
-Danach mit dem RDP-Client auf `localhost:33389` als `wsadmin` verbinden. Die Skripte kommen per
-Zwischenablage oder direkt aus dem öffentlichen Repository in den Gast:
+Das Manifest jeder Umgebung (`.run/<präfix>/manifest.json`) enthält Projekt, Zone, Ressourcen mit
+selfLinks, IPs, Image-Version und die IAP-Bindung; es ist Grundlage für Test und Abbau. Daneben liegen
+`workshop-ca.crt`, `workshop-ad.json`, `secrets/workshop.json` (die vier Passwörter),
+`secrets/domain-admin.json` (Administrator und DSRM) und `secrets/wsadmin.json`.
+
+### Einzelne Umgebung von Hand
+
+Die Einzelskripte funktionieren weiterhin, jeweils mit `-Prefix`:
+`New-Workshop.ps1 -Prefix kcad1 ...`, `Protect-Workshop.ps1 -Prefix kcad1`, `Test-Workshop.ps1 -Mode
+Trainer -Prefix kcad1`, `Remove-Workshop.ps1 -Prefix kcad1`. Für den Gast gibt es zwei Wege:
+
+**RDP über IAP** (ohne `-TrainerSsh`):
+
+```powershell
+gcloud compute start-iap-tunnel kcad1-dc01 3389 --local-host-port=localhost:33389 --zone=europe-west3-a --project=<projekt>
+```
+
+Mit dem RDP-Client auf `localhost:33389` als `wsadmin` (Passwort in `.run/kcad1/secrets/wsadmin.json`).
+Die Skripte kommen per Zwischenablage oder direkt aus dem öffentlichen Repository in den Gast:
 
 ```powershell
 $base = 'https://raw.githubusercontent.com/it-erben/training-keycloak/main/workshops/active-directory/scripts'
 New-Item -ItemType Directory -Path C:\Workshop\scripts -Force | Out-Null
-foreach ($f in 'Initialize-Domain.ps1', 'Initialize-Workshop.ps1', 'Reset-Team.ps1', 'Test-Workshop.ps1') {
+foreach ($f in 'Initialize-Domain.ps1', 'Initialize-Workshop.ps1', 'Reset-Baseline.ps1', 'Test-Workshop.ps1') {
   Invoke-WebRequest "$base/$f" -OutFile "C:\Workshop\scripts\$f"
 }
 ```
-
-### Ohne RDP: SSH über IAP
-
-Mit `-TrainerSsh` legt `New-Workshop.ps1` zusätzlich die Firewallregel `kcad-allow-iap-ssh` (TCP 22 nur aus
-dem IAP-Bereich) an, erweitert die IAP-Bedingung auf 3389 und 22 und hinterlegt das Startskript
-`scripts/lib/Enable-TrainerSsh.ps1` samt dem öffentlichen Schlüssel aus `~/.ssh/id_ed25519.pub` in den
-Instanz-Metadaten. Das Startskript installiert den Windows-OpenSSH-Server und wirkt nach dem nächsten
-Neustart der VM (`gcloud compute instances reset`). Geheimnisse liegen dabei nicht in den Metadaten.
-
-```powershell
-gcloud compute start-iap-tunnel kcad-dc01 22 --local-host-port=localhost:2222 --zone=europe-west3-a --project=<projekt>
-ssh -p 2222 wsadmin@127.0.0.1                  # vor der Promotion
-ssh -p 2222 Administrator@127.0.0.1            # nach der Promotion, Domaenen-Administrator
-scp -O -P 2222 scripts/Initialize-Domain.ps1 wsadmin@127.0.0.1:C:/Workshop/scripts/
-```
-
-`Initialize-Domain.ps1 -Unattended` liest die beiden Passwörter (Administrator, DSRM) als je eine Zeile
-von stdin:
-
-```powershell
-Get-Content pw.txt | ssh -p 2222 wsadmin@127.0.0.1 `
-  "powershell -ExecutionPolicy Bypass -File C:\Workshop\scripts\Initialize-Domain.ps1 -Unattended"
-```
-
-Der Probelauf lief vollständig über diesen Weg; das RDP-Verfahren bleibt der Standard für Trainer mit RDP-Client.
 
 `Initialize-Domain.ps1` läuft dreimal, jeweils in einer PowerShell als Administrator:
 
@@ -86,21 +83,38 @@ Der Probelauf lief vollständig über diesen Weg; das RDP-Verfahren bleibt der S
    `metadata.google.internal`, prüft die LDAPS-Firewallregel und die Erreichbarkeit von
    `kms.windows.googlecloud.com`.
 
-Erst wenn die Anmeldung als `MUSTERTECH\Administrator` über RDP funktioniert, vom Trainerrechner
-aus `./Protect-Workshop.ps1` ausführen. Es setzt `disable-account-manager=true`; ein späteres
-`reset-windows-password` kann dann keine Domänenkonten mehr anlegen oder ändern.
+Erst wenn die Anmeldung als `MUSTERTECH\Administrator` funktioniert, vom Trainerrechner aus
+`./Protect-Workshop.ps1 -Prefix kcad1` ausführen. Es setzt `disable-account-manager=true`; ein
+späteres `reset-windows-password` kann dann keine Domänenkonten mehr anlegen oder ändern.
 
-`Initialize-Workshop.ps1 -CertificateValidUntil (Get-Date).AddDays(3)` im Gast erzeugt die
-Workshop-CA, das LDAPS-Zertifikat mit `dc01.ad.mustertech.test` im SAN, die OU-Struktur, Gruppen,
-Konten, Passwörter und die Delegation per `dsacls`. Wiederholte Aufrufe ergänzen nur Fehlendes;
-`-ResetPasswords` setzt alle Passwörter neu. Anschließend vom DC holen: `C:\Workshop\out\workshop-ca.crt`
-nach `lab/certs/`, `workshop-ad.json` und die `team<NN>.json` nach `.run/secrets/`.
+`Initialize-Workshop.ps1 -CertificateValidUntil (Get-Date).AddDays(7)` im Gast erzeugt die
+Workshop-CA, das LDAPS-Zertifikat mit `dc01.ad.mustertech.test` im SAN, die OU `Workshop` mit
+`Users`, `Moved`, `Groups` und `ServiceAccounts`, Gruppen, Konten, Passwörter und die Delegation per
+`dsacls`. Wiederholte Aufrufe ergänzen nur Fehlendes; `-ResetPasswords` setzt alle Passwörter neu.
+Anschließend vom DC holen: `C:\Workshop\out\workshop-ca.crt`, `workshop-ad.json` und
+`C:\Workshop\secrets\workshop.json` nach `.run/kcad1/`.
 
-Prüfung: `Test-Workshop.ps1 -Mode Guest` auf dem DC, dann lokal
-`./Test-Workshop.ps1 -Mode Trainer -IncludeIap` mit laufendem Stack aus `lab/`. Beide schreiben
-einen Bericht nach `.run/` und enden mit Exit-Code 1 bei einem Fehlschlag. Die Trainerprüfung
-belegt unter anderem, dass TLS mit falschem Namen und ohne CA scheitert, dass Port 3389 direkt
-geschlossen ist und dass das Übungskonto beim Nachbarteam mit `insufficientAccessRights` abgewiesen wird.
+**SSH über IAP** (mit `-TrainerSsh`): `New-Workshop.ps1` legt zusätzlich die Firewallregel
+`kcad1-allow-iap-ssh` (TCP 22 nur aus dem IAP-Bereich) an, erweitert die IAP-Bedingung auf 3389 und 22
+und hinterlegt das Startskript `scripts/lib/Enable-TrainerSsh.ps1` samt öffentlichem Schlüssel in den
+Instanz-Metadaten. Geheimnisse liegen dabei nicht in den Metadaten.
+
+```powershell
+gcloud compute start-iap-tunnel kcad1-dc01 22 --local-host-port=localhost:2222 --zone=europe-west3-a --project=<projekt>
+ssh -p 2222 wsadmin@127.0.0.1                  # vor der Promotion
+ssh -p 2222 Administrator@127.0.0.1            # nach der Promotion, Domaenen-Administrator
+scp -O -P 2222 scripts/Initialize-Domain.ps1 wsadmin@127.0.0.1:C:/Workshop/scripts/
+```
+
+`Initialize-Domain.ps1 -Unattended` liest die beiden Passwörter (Administrator, DSRM) als je eine Zeile
+von stdin; `lib/Invoke-GuestSetup.ps1 -Prefix kcad1 -CertificateValidUntil <datum>` fasst den gesamten
+Gastweg für eine Umgebung zusammen.
+
+Prüfung: `Test-Workshop.ps1 -Mode Guest` auf dem DC, lokal `./Test-Workshop.ps1 -Mode Trainer -Prefix
+kcad1 -IncludeIap`. Beide schreiben einen Bericht und enden mit Exit-Code 1 bei einem Fehlschlag. Die
+Trainerprüfung belegt unter anderem, dass TLS mit falschem Namen und ohne CA scheitert, dass Port 3389
+und 22 direkt geschlossen sind und dass das Übungskonto an Dienstkonten mit `insufficientAccessRights`
+abgewiesen wird.
 
 ## Musterlösung je Aufgabe
 
@@ -109,10 +123,10 @@ Aufgabe 2 und 3 anlegen. Sie eignet sich für die eigene Vorführung und für ei
 
 ### Aufgabe 1: Einträge lesen
 
-Erwartete Werte für Team 01:
+Erwartete Werte:
 
-- Hans: `CN=Hans Mueller,OU=Users,OU=Team01,OU=Workshop,DC=ad,DC=mustertech,DC=test`,
-  UPN `t01.hans@ad.mustertech.test`, `memberOf` nur `CN=Mitarbeiter,OU=Groups,...`.
+- Hans: `CN=Hans Mueller,OU=Users,OU=Workshop,DC=ad,DC=mustertech,DC=test`,
+  UPN `hans@ad.mustertech.test`, `memberOf` nur `CN=Mitarbeiter,OU=Groups,...`.
 - Anna: `memberOf` enthält `Mitarbeiter` und `Teamleitung`, nicht `Manager`.
 - `Manager` hat genau ein `member`: den DN von `Teamleitung`.
 
@@ -127,7 +141,7 @@ Hans, Reiter "Attribut-Editor", `objectGUID` und `distinguishedName`.
 ### Aufgabe 2: LDAPS-Anbindung
 
 "Test connection" prüft DNS, TCP, TLS-Kette und Hostnamen; "Test authentication" bindet mit dem
-Bind-Konto, nicht mit Hans. Nach "Sync all users" heißt Hans `t01.hans@ad.mustertech.test`,
+Bind-Konto, nicht mit Hans. Nach "Sync all users" heißt Hans `hans@ad.mustertech.test`,
 weil `userPrincipalName` als Username-Attribut gewählt ist. Erst der Login im privaten Fenster
 prüft Hans' Passwort gegen AD.
 
@@ -151,7 +165,7 @@ Access Tokens gelten im Realm 120 Sekunden (`exp - iat`).
 ### Aufgabe 4: OU-Wechsel
 
 Der DN wechselt auf `CN=Hans Mueller,OU=Moved,...`, `objectGUID` bleibt. Die Suche unter
-`OU=Users` findet ihn nicht mehr, die Suche unter der Team-OU schon. Was Keycloak beim Login
+`OU=Users` findet ihn nicht mehr, die Suche unter `OU=Workshop` schon. Was Keycloak beim Login
 mit dem bereits importierten, jetzt außerhalb der Suchbasis liegenden Benutzer tut, gehört zu
 den Ergebnissen des Probelaufs; die Anleitung verspricht deshalb keine stabile Keycloak-ID.
 Beobachtet mit Keycloak 26.5.7: Der Login scheitert mit "Invalid user credentials", Keycloak löscht den
@@ -178,12 +192,12 @@ Strategie: Hans 200 auf `/api/urlaubsantraege` und 403 auf `/alle`, Anna 200 auf
 
 ## Beobachtungen aus dem Probelauf
 
-Probelauf am 15.09.2026 im Projekt `keycloak-qards`, Zone `europe-west3-a`, Image
+Erster Probelauf am 15.09.2026 mit einem gemeinsamen DC und Team-OUs (`t01.hans`, `OU=Team01`);
+die Konten heißen seit der Umstellung auf einen DC je Person `hans`, `anna`, `bind` und `operator`
+unter `OU=Workshop`. Das Verhalten von Keycloak ist davon unabhängig. Projekt `keycloak-qards`, Zone `europe-west3-a`, Image
 `windows-server-2022-dc-v20260909`, `e2-standard-2`, gcloud 565.0.0, Keycloak 26.5.7, PostgreSQL 18.
 Gastzugang über SSH per IAP, Bereitstellung, Promotion und Vorbereitung dauerten zusammen rund 75 Minuten
-einschließlich dreier Neustarts. Der Probelauf lief mit drei Teams; Standard sind seitdem zwei Teams
-(`-Teams` in `Initialize-Workshop.ps1` und `Test-Workshop.ps1`). Trainerprüfung 25 von 25 PASS (mit
-IAP-Tunnel), Gastprüfung 16 von 16 PASS.
+einschließlich dreier Neustarts. Trainerprüfung 25 von 25 PASS (mit IAP-Tunnel), Gastprüfung 16 von 16 PASS.
 
 ### Aufgabe 1
 
@@ -222,29 +236,29 @@ Rollen beim Refresh neu berechnet.
 
 Hans deaktiviert (`userAccountControl` 66050) um 17:47:42 UTC, Hans lag dabei in `OU=Moved`:
 
-| Stelle                                     | Beobachtung                                                        |
-| ------------------------------------------ | ------------------------------------------------------------------ |
-| Frischer Login ohne SSO                    | "Invalid user credentials", Ereignis `invalid_user_credentials`    |
-| Alter Access Token gegen `/api/profile`    | 200 bis `exp`, danach 401                                          |
-| Refresh vor dem Sync                       | erfolgreich, neuer Token wird ausgestellt                          |
-| **Enabled** in Keycloak vor dem Sync       | `true`                                                             |
-| **Enabled** nach "Sync all users"          | `false` (MSAD-Mapper liest `userAccountControl`)                   |
-| Refresh nach dem Sync                      | `invalid_grant`, "User disabled"                                   |
-| Sitzungen nach dem Sync                    | beide Sitzungen bestehen weiter; der Sync beendet keine Sitzungen  |
+| Stelle                                  | Beobachtung                                                       |
+| --------------------------------------- | ----------------------------------------------------------------- |
+| Frischer Login ohne SSO                 | "Invalid user credentials", Ereignis `invalid_user_credentials`   |
+| Alter Access Token gegen `/api/profile` | 200 bis `exp`, danach 401                                         |
+| Refresh vor dem Sync                    | erfolgreich, neuer Token wird ausgestellt                         |
+| **Enabled** in Keycloak vor dem Sync    | `true`                                                            |
+| **Enabled** nach "Sync all users"       | `false` (MSAD-Mapper liest `userAccountControl`)                  |
+| Refresh nach dem Sync                   | `invalid_grant`, "User disabled"                                  |
+| Sitzungen nach dem Sync                 | beide Sitzungen bestehen weiter; der Sync beendet keine Sitzungen |
 
 ### Aufgabe 6
 
 LDIF 04, 05, 06, Users DN zurück auf `OU=Users`, Sync und "Beende alle Sitzungen": Hans ist aktiviert
 (`userAccountControl` 66048), die drei Gruppen entsprechen der Baseline. Frische Logins liefern Hans
 200 auf `/api/urlaubsantraege` und 403 auf `/alle`, Anna 200 auf beiden. Hans behält die neue Keycloak-ID
-aus Aufgabe 4. `Reset-Team.ps1 -Team 01` ändert danach nichts mehr.
+aus Aufgabe 4. `Reset-Baseline.ps1` ändert danach nichts mehr.
 
 ### Anmeldung, Delegation und Netz
 
 Der Authorization Code Flow mit PKCE (S256) wurde vom Portal bis zur Keycloak-Anmeldeseite im Browser und
 für den Code-Tausch per HTTP-Skript geprüft: Token mit `portal-api` in `aud`, API 200, 200, 403 für Hans.
-Bind-Konten scheitern beim Schreiben mit LDAP-Fehler 50, Übungskonten beim Nachbarteam ebenso; Änderungen
-an eigenen Testobjekten und Gruppen gelingen. Die effektive Firewall erlaubt 636 nur aus der gemeldeten
+Das Bind-Konto scheitert beim Schreiben mit LDAP-Fehler 50, das Übungskonto an fremden Objekten ebenso;
+Änderungen an den Testobjekten und Gruppen der Workshop-OU gelingen. Die effektive Firewall erlaubt 636 nur aus der gemeldeten
 Quell-IP, 3389 und 22 nur aus dem IAP-Bereich; direkte Verbindungen auf 3389 und 22 scheitern. TLS mit
 falschem Hostnamen oder ohne die Workshop-CA wird abgelehnt.
 
@@ -263,7 +277,7 @@ Bei Verbindungsfehlern in dieser Reihenfolge, jeweils aus dem Werkzeugcontainer:
      -CAfile /certs/workshop-ca.crt -verify_hostname dc01.ad.mustertech.test -verify_return_error -brief
    ```
 
-4. Bind: `ldapwhoami -x -H ldaps://... -D t01.bind@ad.mustertech.test -y /secrets/bind.pw`.
+4. Bind: `ldapwhoami -x -H ldaps://... -D bind@ad.mustertech.test -y /secrets/bind.pw`.
    Fehler 49 mit `data 52e` ist ein falsches Passwort, `data 533` ein deaktiviertes Konto.
 5. Suche: Basis, Scope und Filter einzeln prüfen. Eine erfolgreiche Suche mit null Treffern hat Exit 0.
 
@@ -274,10 +288,10 @@ eine weitere Firewallregel gelöst.
 
 ## Rücknahme und Reset
 
-Ein Team auf den Ausgangszustand setzen, auf dem DC als Domänen-Administrator:
+Eine Umgebung auf den Ausgangszustand setzen, auf dem DC als Domänen-Administrator:
 
 ```powershell
-C:\Workshop\scripts\Reset-Team.ps1 -Team 01
+C:\Workshop\scripts\Reset-Baseline.ps1
 ```
 
 Das Skript verschiebt Hans und Anna zurück nach `Users`, aktiviert beide, stellt die drei
@@ -296,15 +310,15 @@ werden anhand des Abschnitts "Beobachtungen aus dem Probelauf" besprochen und al
 
 ## Abbau
 
-Zeitpunkt mit der Kursleitung abstimmen; die Umgebung bleibt bis zum Ende der Auswertung stehen.
+Zeitpunkt mit der Kursleitung abstimmen; die Umgebungen bleiben bis zum Ende der Auswertung stehen.
 
 ```powershell
-./Remove-Workshop.ps1 -PlanOnly
-./Remove-Workshop.ps1
-./Remove-Workshop.ps1 -Local   # zusaetzlich den lokalen Compose-Stack samt Volumes entfernen
+./Invoke-WorkshopFleet.ps1 -Action Remove -PlanOnly
+./Invoke-WorkshopFleet.ps1 -Action Remove
+./Remove-Workshop.ps1 -Prefix kcad1 -Local   # einzeln, zusaetzlich den lokalen Compose-Stack entfernen
 ```
 
-Der Abbau prüft Projektnummer, selfLink und Labels jeder Ressource, entfernt zuerst die
+Der Abbau prüft je Umgebung Projektnummer, selfLink und Labels jeder Ressource, entfernt zuerst die
 IAP-Bindung, dann Instanz, Datendisk, Bootdisk, Adressen, Firewallregeln, Subnetz und VPC.
 Danach mit `--filter="name~'^kcad-'"` in `gcloud compute instances list`, `disks list`,
 `addresses list`, `firewall-rules list` und `networks list` bestätigen, dass nichts übrig ist.

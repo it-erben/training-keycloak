@@ -10,7 +10,8 @@ Firewallregeln, Subnetz, VPC. Fremde oder abweichende Ressourcen fuehren zum Abb
 #>
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(
-    [string]$ManifestPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run', 'manifest.json')),
+    [ValidatePattern('^[a-z][a-z0-9]{2,11}$')][string]$Prefix = 'kcad',
+    [string]$ManifestPath = '',
     [string]$LabPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', 'lab')),
     [switch]$Local,
     [switch]$PlanOnly
@@ -19,6 +20,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if (-not (Get-Module -Name Workshop.Common)) { Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Workshop.Common.psm1')) }
 Reset-WorkshopPlanState
+if (-not $ManifestPath) { $ManifestPath = (Get-WorkshopRunPaths -Prefix $Prefix -RunRoot ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run'))).Manifest }
 if ($PlanOnly) { Enable-WorkshopPlanOnly }
 
 $m = Read-WorkshopManifest -Path $ManifestPath

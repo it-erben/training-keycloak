@@ -19,6 +19,15 @@ Describe 'Get-WorkshopResourceNames' {
     }
 }
 
+Describe 'Get-WorkshopRunPaths' {
+    It 'derives every path from prefix and run root' {
+        $p = Get-WorkshopRunPaths -Prefix 'kcad2' -RunRoot '/tmp/run'
+        $p.Manifest | Should -Be '/tmp/run/kcad2/manifest.json'
+        $p.Secrets | Should -Be '/tmp/run/kcad2/secrets'
+        $p.Ca | Should -Be '/tmp/run/kcad2/workshop-ca.crt'
+    }
+}
+
 Describe 'Test-WorkshopOwnedResource' {
     It 'accepts matching labels' {
         $r = [pscustomobject]@{ labels = [pscustomobject]@{ workshop = 'keycloak-ad'; 'run-id' = '20260915-1200' } }

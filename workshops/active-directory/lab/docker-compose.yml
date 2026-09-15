@@ -1,6 +1,6 @@
 # Keycloak Schulung - Workshop: Active Directory auf GCP
 #
-# Vorbereiten: cp .env.example .env  (AD_PUBLIC_IP und TEAM eintragen)
+# Vorbereiten: cp .env.example .env  (AD_PUBLIC_IP eintragen)
 #              CA-Zertifikat des Trainers nach certs/workshop-ca.crt kopieren
 # Starten:     docker compose up -d --build
 # Stoppen:     docker compose down
@@ -101,7 +101,6 @@ services:
     environment:
       LDAPTLS_CACERT: /certs/workshop-ca.crt
       LDAPTLS_REQCERT: demand
-      TEAM: ${TEAM:-01}
     extra_hosts:
       - "dc01.ad.mustertech.test:${AD_PUBLIC_IP:?AD_PUBLIC_IP in .env eintragen}"
     volumes:

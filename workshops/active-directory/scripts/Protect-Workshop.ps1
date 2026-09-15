@@ -9,13 +9,15 @@ Vorher muss die Anmeldung als Domaenenadministrator geprueft sein.
 #>
 [CmdletBinding()]
 param(
-    [string]$ManifestPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run', 'manifest.json')),
+    [ValidatePattern('^[a-z][a-z0-9]{2,11}$')][string]$Prefix = 'kcad',
+    [string]$ManifestPath = '',
     [switch]$PlanOnly
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if (-not (Get-Module -Name Workshop.Common)) { Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Workshop.Common.psm1')) }
 Reset-WorkshopPlanState
+if (-not $ManifestPath) { $ManifestPath = (Get-WorkshopRunPaths -Prefix $Prefix -RunRoot ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run'))).Manifest }
 if ($PlanOnly) { Enable-WorkshopPlanOnly }
 
 $m = Read-WorkshopManifest -Path $ManifestPath

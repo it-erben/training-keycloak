@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Stellt den Ausgangszustand eines Teams im AD wieder her.
+Stellt den Ausgangszustand der Workshop-OU im AD wieder her.
 
 .DESCRIPTION
 Laeuft auf dem DC als Domaenen-Administrator. Hans und Anna liegen danach in OU=Users und
@@ -10,7 +10,6 @@ enthaelt Teamleitung. Andere Mitglieder werden entfernt. Delegation und Passwoer
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][ValidatePattern('^\d{2}$')][string]$Team,
     [string]$Description = ''
 )
 Set-StrictMode -Version Latest
@@ -18,18 +17,18 @@ $ErrorActionPreference = 'Stop'
 Import-Module ActiveDirectory
 
 $domain = Get-ADDomain
-$teamDn = "OU=Team$Team,OU=Workshop,$($domain.DistinguishedName)"
-$usersDn = "OU=Users,$teamDn"
+$baseDn = "OU=Workshop,$($domain.DistinguishedName)"
+$usersDn = "OU=Users,$baseDn"
 
-function Get-TeamUser { param([string]$Sam) Get-ADUser -LDAPFilter "(sAMAccountName=$Sam)" -SearchBase $teamDn -Properties memberOf, userAccountControl, description }
-function Get-TeamGroup { param([string]$Sam) Get-ADGroup -LDAPFilter "(sAMAccountName=$Sam)" -SearchBase $teamDn }
+function Get-WorkshopUser { param([string]$Sam) Get-ADUser -LDAPFilter "(sAMAccountName=$Sam)" -SearchBase $baseDn -Properties memberOf, userAccountControl, description }
+function Get-WorkshopGroup { param([string]$Sam) Get-ADGroup -LDAPFilter "(sAMAccountName=$Sam)" -SearchBase $baseDn }
 
-$hans = Get-TeamUser "t$Team.hans"
-$anna = Get-TeamUser "t$Team.anna"
-$staff = Get-TeamGroup "t$Team.staff"
-$leads = Get-TeamGroup "t$Team.leads"
-$managers = Get-TeamGroup "t$Team.managers"
-if (-not ($hans -and $anna -and $staff -and $leads -and $managers)) { throw "Team $Team ist unvollstaendig; zuerst Initialize-Workshop.ps1 ausfuehren" }
+$hans = Get-WorkshopUser 'hans'
+$anna = Get-WorkshopUser 'anna'
+$staff = Get-WorkshopGroup 'staff'
+$leads = Get-WorkshopGroup 'leads'
+$managers = Get-WorkshopGroup 'managers'
+if (-not ($hans -and $anna -and $staff -and $leads -and $managers)) { throw 'Workshop-OU ist unvollstaendig; zuerst Initialize-Workshop.ps1 ausfuehren' }
 
 foreach ($u in $hans, $anna) {
     if ($u.DistinguishedName -notlike "*,$usersDn") {
@@ -46,8 +45,8 @@ foreach ($u in $hans, $anna) {
 }
 
 # Nach Move und Enable neu laden, damit DN und Flags stimmen.
-$hans = Get-TeamUser "t$Team.hans"
-$anna = Get-TeamUser "t$Team.anna"
+$hans = Get-WorkshopUser 'hans'
+$anna = Get-WorkshopUser 'anna'
 $baseline = @{
     ($staff.DistinguishedName)    = @($hans.SID.Value, $anna.SID.Value)
     ($leads.DistinguishedName)    = @($anna.SID.Value)
@@ -66,8 +65,8 @@ foreach ($g in $staff, $leads, $managers) {
     }
 }
 
-$(foreach ($sam in "t$Team.hans", "t$Team.anna") {
-    $u = Get-TeamUser $sam
+$(foreach ($sam in 'hans', 'anna') {
+    $u = Get-WorkshopUser $sam
     [pscustomobject]@{
         User    = $u.SamAccountName
         DN      = $u.DistinguishedName

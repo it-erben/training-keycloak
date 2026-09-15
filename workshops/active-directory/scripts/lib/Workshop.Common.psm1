@@ -92,6 +92,19 @@ function Get-WorkshopResourceNames {
     }
 }
 
+function Get-WorkshopRunPaths {
+    # Laufzeitverzeichnis je Umgebung: .run/<prefix>/ mit Manifest, Geheimnissen, CA und Berichten.
+    param([Parameter(Mandatory)][string]$Prefix, [Parameter(Mandatory)][string]$RunRoot)
+    $run = Join-Path $RunRoot $Prefix
+    return @{
+        Run      = $run
+        Manifest = (Join-Path $run 'manifest.json')
+        Secrets  = (Join-Path $run 'secrets')
+        Ca       = (Join-Path $run 'workshop-ca.crt')
+        Summary  = (Join-Path $run 'workshop-ad.json')
+    }
+}
+
 function Get-WorkshopDescription {
     param([Parameter(Mandatory)][string]$RunId)
     return "keycloak-ad-workshop run-id=$RunId"

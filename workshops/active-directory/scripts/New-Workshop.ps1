@@ -22,7 +22,7 @@ param(
     [string]$SubnetRange = '10.80.0.0/24',
     [string]$InternalIp = '10.80.0.10',
     [ValidatePattern('^[a-z][a-z0-9]{2,19}$')][string]$AdminUser = 'wsadmin',
-    [string]$ManifestPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run', 'manifest.json')),
+    [string]$ManifestPath = '',
     [int]$ReadyTimeoutMinutes = 15,
     [switch]$TrainerSsh,
     [string]$TrainerSshPublicKeyPath = ([System.IO.Path]::Combine($HOME, '.ssh', 'id_ed25519.pub')),
@@ -33,6 +33,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if (-not (Get-Module -Name Workshop.Common)) { Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Workshop.Common.psm1')) }
 Reset-WorkshopPlanState
+if (-not $ManifestPath) { $ManifestPath = (Get-WorkshopRunPaths -Prefix $Prefix -RunRoot ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run'))).Manifest }
 if ($PlanOnly) { Enable-WorkshopPlanOnly }
 
 $IapRange = '35.235.240.0/20'
@@ -68,6 +69,8 @@ function Test-IpInRange {
 }
 
 # --- Eingaben -------------------------------------------------------------------------------------
+# Ueber pwsh -File kommen mehrere Bereiche als ein kommagetrennter String an.
+$LdapsSourceRanges = @($LdapsSourceRanges | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 if (-not $Zone.StartsWith("$Region-")) { throw "Zone $Zone liegt nicht in Region $Region" }
 foreach ($r in $LdapsSourceRanges) {
     if (-not (Test-Cidr $r)) { throw "Ungueltiges CIDR fuer LDAPS-Quelle: $r" }
