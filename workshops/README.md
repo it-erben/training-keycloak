@@ -1,11 +1,11 @@
-# Vertiefende Workshops
+# Workshops und Begleitmaterial
 
-Drei Workshops ergänzen den Kurs mit Keycloak 26.5. Die LDAP-Einheit führt ins vorhandene
-OpenLDAP-Lab. In den beiden Planspielen entwirft die Gruppe eine Architektur für die
-fiktive Mustertech GmbH und plant anschließend die Übernahme einer Keycloak-Installation.
-Für die Planspiele genügen Whiteboard oder Papier.
+Zwei Planspiele ergänzen den Kurs mit Keycloak 26.5: Die Gruppe entwirft eine Architektur
+für die fiktive Mustertech GmbH und plant die Übernahme einer Keycloak-Installation.
+Dafür genügen Whiteboard oder Papier. Außerdem liegt hier das Begleitmaterial zum
+LDAP-/AD-Block in Modul 07 mit Trainerleitfaden und Gegenproben für das OpenLDAP-Lab.
 
-| Workshop                                             | Voraussetzung                       | Dauer   |
+| Einheit                                              | Voraussetzung                       | Dauer   |
 | ---------------------------------------------------- | ----------------------------------- | ------- |
 | [LDAP und Active Directory](ldap-ad/README.md)       | Modul 07, Docker Compose            | 90 Min. |
 | [Mandantenfähigkeit](mandantenfaehigkeit/aufgabe.md) | Realms, Clients, Federation, Rollen | 60 Min. |
@@ -13,9 +13,9 @@ Für die Planspiele genügen Whiteboard oder Papier.
 
 ## Einsatz im Kurs
 
-Die LDAP-Einheit gehört zu Modul 07. Sie erklärt den Weg vom Verzeichniseintrag bis zur
-Berechtigung in der Anwendung. Zwei Gegenproben machen Suchfehler und verzögert sichtbare
-Gruppenänderungen im Lab nachvollziehbar.
+Der LDAP-/AD-Block ist direkt in die [Folien von Modul 07](../slides/07-identity-provider-foederation/slides.md)
+integriert. Zwei Gegenproben machen Suchfehler und verzögert sichtbare Gruppenänderungen
+im Lab nachvollziehbar. Die 90 Minuten beziehen sich auf diesen Block einschließlich Lab 07c.
 
 Mandantenfähigkeit passt nach Modul 07 oder als Vertiefung an Tag 3. Betriebsübernahme
 schließt an die Module 10 und 11 an. Modul 12 bleibt ein eigener Schwerpunkt.
@@ -61,7 +61,7 @@ Die Zugriffstests und der Rückfallplan enthalten die Fragen, an denen sich die 
 später prüfen lassen. Für jede Gruppe werden ein Aufgabenblatt und eine Whiteboard-Fläche
 oder ein großer Papierbogen benötigt.
 
-Für die Nachbereitung liegen alle Texte direkt im jeweiligen Workshop-Verzeichnis:
+Für die beiden Planspiele liegen die Texte direkt im jeweiligen Workshop-Verzeichnis:
 
 - `slides.md`: fachlicher Einstieg, Arbeitsauftrag und Auswertungsfragen für die Präsentation
 - `aufgabe.md`: Ausgangslage und Aufgaben für die Teilnehmenden
@@ -77,7 +77,7 @@ marp workshops/betriebsuebernahme/slides.md --pdf -o /tmp/betriebsuebernahme.pdf
 ```
 
 Unter PowerShell kann statt `/tmp/` ein vorhandenes Ausgabeverzeichnis verwendet werden.
-Die LDAP-Einheit hat eine eigene [Vorbereitung und Anleitung zur PDF-Ausgabe](ldap-ad/README.md).
+Für Modul 07 beschreibt das [LDAP-Begleitmaterial](ldap-ad/README.md) den Ablauf und die PDF-Ausgabe.
 
 ## Quellen
 

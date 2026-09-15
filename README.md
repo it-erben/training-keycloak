@@ -87,9 +87,9 @@ Bei den Modulen 06, 07, 09 und 10 verteilen sich die praktischen Aufgaben auf me
   und Screenshots. Für das Kubernetes-Lab liegen die Ressourcen unter
   [`modul-11-kubernetes/manifests/`](labs/assignments/modul-11-kubernetes/manifests/).
 - [`workshops/`](workshops/) ergänzt den Kurs um zwei Planspiele zu Mandantenfähigkeit und
-  Betriebsübernahme (je 60 Minuten) sowie eine [LDAP-/AD-Einheit](workshops/ldap-ad/README.md)
-  zu Modul 07 (90 Minuten). Zu jedem Workshop gehören Folien, Aufgaben und ein Trainerleitfaden
-  mit Musterlösungen.
+  Betriebsübernahme (je 60 Minuten), jeweils mit Folien, Aufgaben und Trainerleitfaden.
+  Das [LDAP-/AD-Begleitmaterial](workshops/ldap-ad/README.md) enthält Aufgaben und Musterlösungen
+  für den 90-Minuten-Block in den Folien von Modul 07.
 - [`demos/`](demos/) enthält die Vorführungen für den Trainer, jeweils mit eigener Anleitung.
 - [`materials/`](materials/) enthält Vorlagen für Kurzvorträge zum
   [Client Credentials Flow](materials/oauth2-client-credentials-flow.md) und zum

@@ -8,7 +8,8 @@ Login bedeutet und weshalb geänderte Rechte erst später in einer Anwendung ank
 Plane 90 Minuten einschließlich Lab 07c ein. Die praktischen Versuche laufen in OpenLDAP;
 für die AD-Fragen gibt es Musterantworten, aber keinen AD-Server im Lab.
 
-Nutze die [Ablauftabelle](README.md#ablauf) und die [Vertiefungsfolien](slides.md).
+Nutze die [Ablauftabelle](README.md#ablauf) und den LDAP-Block (Folien 6-20) im
+[Foliensatz von Modul 07](../../slides/07-identity-provider-foederation/slides.md).
 Lass die Gruppe vor jedem Versuch das Ergebnis vorhersagen. Zeige bei Bedarf, wo sie
 LDAP-Einträge oder geerbte Rollen findet. Die beiden LDIF-Dateien fügen Anna der Gruppe
 `entwicklung` hinzu und nehmen diese Änderung anschließend zurück.
@@ -37,7 +38,8 @@ Lass die Gruppe den Suchweg zeigen. Daran erkennst du, ob sie Basis, Scope und F
 
 ## Minute 15-30: Anmeldung Schritt für Schritt
 
-Das [Diagramm](images/ldap-login.svg) zeigt einen Login mit Simple Bind wie im Lab.
+Das [Diagramm](../../slides/07-identity-provider-foederation/images/ldap-login.svg)
+auf Folie 10 zeigt einen Login mit Simple Bind wie im Lab.
 Seine Pfeile erklären die Aufgaben der beteiligten Systeme. Ein Paketmitschnitt kann
 anders aussehen, weil Keycloak Verbindungen wiederverwendet, Daten aus Caches liest
 oder weitere Mapper-Abfragen ausführt. Eine bestehende SSO-Sitzung kann die Passwortprüfung überspringen.
