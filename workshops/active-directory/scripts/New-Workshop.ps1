@@ -136,10 +136,10 @@ $plan = @(
         Create   = @('compute', 'firewall-rules', 'create', $names.FirewallIapRdp, $P, "--network=$($names.Network)", '--direction=INGRESS', '--action=ALLOW', '--rules=tcp:3389', "--source-ranges=$IapRange", "--target-tags=$($names.NetworkTag)", "--description=$desc") },
     [ordered]@{ Key = 'internalAddress'; Name = $names.InternalAddress; Scope = 'region'
         Describe = @('compute', 'addresses', 'describe', $names.InternalAddress, "--region=$Region", $P)
-        Create   = @('compute', 'addresses', 'create', $names.InternalAddress, $P, "--region=$Region", "--subnet=$($names.Subnet)", "--addresses=$InternalIp", "--description=$desc", "--labels=$labels") },
+        Create   = @('compute', 'addresses', 'create', $names.InternalAddress, $P, "--region=$Region", "--subnet=$($names.Subnet)", "--addresses=$InternalIp", "--description=$desc") },
     [ordered]@{ Key = 'externalAddress'; Name = $names.ExternalAddress; Scope = 'region'
         Describe = @('compute', 'addresses', 'describe', $names.ExternalAddress, "--region=$Region", $P)
-        Create   = @('compute', 'addresses', 'create', $names.ExternalAddress, $P, "--region=$Region", '--network-tier=PREMIUM', "--description=$desc", "--labels=$labels") },
+        Create   = @('compute', 'addresses', 'create', $names.ExternalAddress, $P, "--region=$Region", '--network-tier=PREMIUM', "--description=$desc") },
     [ordered]@{ Key = 'dataDisk'; Name = $names.DataDisk; Scope = 'zone'
         Describe = @('compute', 'disks', 'describe', $names.DataDisk, "--zone=$Zone", $P)
         Create   = @('compute', 'disks', 'create', $names.DataDisk, $P, "--zone=$Zone", "--size=${DataDiskGb}GB", '--type=pd-balanced', "--description=$desc", "--labels=$labels") },
