@@ -148,3 +148,5 @@ Von den fachlichen Rollen darf sie jetzt nur noch `vertrieb` erben; technische S
 können zusätzlich auftauchen. Meldet LDAP beim Hinzufügen oder Entfernen einen Fehler,
 lest zuerst die Gruppenmitglieder aus. Möglicherweise wurde die Änderung bereits ausgeführt.
 
+[lab]: ../../labs/assignments/modul-07c-ldap-federation/README.md
+[wechsel]: ../../labs/assignments/TROUBLESHOOTING.md#container-name-konflikt
