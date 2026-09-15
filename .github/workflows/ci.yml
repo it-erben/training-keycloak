@@ -14,8 +14,32 @@ jobs:
     uses: it-erben/ci/.github/workflows/lint.yml@1.0.1
   slides:
     uses: it-erben/ci/.github/workflows/slides.yml@1.0.1
+  workshop-slides:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: "22"
+      - name: Render workshop slides
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: |
+          mkdir -p workshop-pdfs
+          for deck in workshops/*/slides.md; do
+            workshop=$(basename "$(dirname "$deck")")
+            npx --yes @marp-team/marp-cli@4.2.3 "$deck" \
+              --pdf --allow-local-files -o "workshop-pdfs/$workshop.pdf"
+          done
+      - uses: actions/upload-artifact@v7.0.1
+        with:
+          name: workshop-folien
+          path: workshop-pdfs/*.pdf
+          if-no-files-found: error
   release:
-    needs: [lint, slides]
+    needs: [lint, slides, workshop-slides]
     permissions:
       contents: write
       issues: write
