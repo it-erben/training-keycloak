@@ -196,7 +196,7 @@ foreach ($t in $Teams) {
 
     $secretFile = Join-Path $SecretsPath "team$t.json"
     if ((Test-Path $secretFile) -and -not $ResetPasswords) {
-        $secrets = Get-Content $secretFile -Raw | ConvertFrom-Json -AsHashtable
+        $secrets = Get-Content $secretFile -Raw | ConvertFrom-Json
     } else {
         $secrets = [ordered]@{
             team = $t

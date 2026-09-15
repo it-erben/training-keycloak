@@ -9,12 +9,12 @@ Vorher muss die Anmeldung als Domaenenadministrator geprueft sein.
 #>
 [CmdletBinding()]
 param(
-    [string]$ManifestPath = (Join-Path $PSScriptRoot '..' '.run' 'manifest.json'),
+    [string]$ManifestPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run', 'manifest.json')),
     [switch]$PlanOnly
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-if (-not (Get-Module -Name Workshop.Common)) { Import-Module (Join-Path $PSScriptRoot 'lib' 'Workshop.Common.psm1') }
+if (-not (Get-Module -Name Workshop.Common)) { Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Workshop.Common.psm1')) }
 Reset-WorkshopPlanState
 if ($PlanOnly) { Enable-WorkshopPlanOnly }
 

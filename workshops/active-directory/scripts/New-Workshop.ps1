@@ -22,16 +22,16 @@ param(
     [string]$SubnetRange = '10.80.0.0/24',
     [string]$InternalIp = '10.80.0.10',
     [ValidatePattern('^[a-z][a-z0-9]{2,19}$')][string]$AdminUser = 'wsadmin',
-    [string]$ManifestPath = (Join-Path $PSScriptRoot '..' '.run' 'manifest.json'),
+    [string]$ManifestPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run', 'manifest.json')),
     [int]$ReadyTimeoutMinutes = 15,
     [switch]$TrainerSsh,
-    [string]$TrainerSshPublicKeyPath = (Join-Path $HOME '.ssh' 'id_ed25519.pub'),
+    [string]$TrainerSshPublicKeyPath = ([System.IO.Path]::Combine($HOME, '.ssh', 'id_ed25519.pub')),
     [switch]$PlanOnly
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-if (-not (Get-Module -Name Workshop.Common)) { Import-Module (Join-Path $PSScriptRoot 'lib' 'Workshop.Common.psm1') }
+if (-not (Get-Module -Name Workshop.Common)) { Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Workshop.Common.psm1')) }
 Reset-WorkshopPlanState
 if ($PlanOnly) { Enable-WorkshopPlanOnly }
 
@@ -45,7 +45,7 @@ if ($TrainerSsh) {
     $trainerSshKey = (Get-Content $TrainerSshPublicKeyPath -Raw).Trim()
     if ($trainerSshKey -notmatch '^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp256) ') { throw "Keine OpenSSH-Public-Key-Zeile: $TrainerSshPublicKeyPath" }
 }
-$trainerSshScript = Join-Path $PSScriptRoot 'lib' 'Enable-TrainerSsh.ps1'
+$trainerSshScript = [System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Enable-TrainerSsh.ps1')
 
 function Test-Cidr {
     param([string]$Cidr)

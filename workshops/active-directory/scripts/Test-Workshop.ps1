@@ -13,11 +13,11 @@ Schreibt einen JSON-Bericht und beendet sich mit Exit-Code 1 bei mindestens eine
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'IapLocalPort', Justification = 'in T15 verwendet')]
 param(
     [Parameter(Mandatory)][ValidateSet('Trainer', 'Guest')][string]$Mode,
-    [string]$ManifestPath = (Join-Path $PSScriptRoot '..' '.run' 'manifest.json'),
+    [string]$ManifestPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run', 'manifest.json')),
     [ValidatePattern('^\d{2}$')][string[]]$Teams = @('01', '02', '03'),
     [string]$SecretsPath = '',
-    [string]$LabPath = (Join-Path $PSScriptRoot '..' 'lab'),
-    [string]$ReportPath = (Join-Path $PSScriptRoot '..' '.run'),
+    [string]$LabPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', 'lab')),
+    [string]$ReportPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run')),
     [string]$DcFqdn = 'dc01.ad.mustertech.test',
     [string]$BaseDn = 'DC=ad,DC=mustertech,DC=test',
     [int]$IapLocalPort = 33389,
@@ -141,7 +141,7 @@ if ($HelpersOnly) { return }
 
 # =====================================================================================================
 if ($Mode -eq 'Trainer') {
-    if (-not (Get-Module -Name Workshop.Common)) { Import-Module (Join-Path $PSScriptRoot 'lib' 'Workshop.Common.psm1') }
+    if (-not (Get-Module -Name Workshop.Common)) { Import-Module ([System.IO.Path]::Combine($PSScriptRoot, 'lib', 'Workshop.Common.psm1')) }
     if (-not $SecretsPath) { $SecretsPath = Join-Path (Split-Path -Parent $ManifestPath) 'secrets' }
     $m = Read-WorkshopManifest -Path $ManifestPath
     $P = "--project=$($m.projectId)"
@@ -293,7 +293,7 @@ if ($Mode -eq 'Trainer') {
 
     if ($IncludeIap) {
         Add-Check -Id 'T15' -Name 'IAP-Tunnel auf 3389' -Test {
-            $proc = Start-Process -FilePath gcloud -ArgumentList @('compute', 'start-iap-tunnel', $instanceName, '3389', "--local-host-port=localhost:$IapLocalPort", $Z, $P) -PassThru -WindowStyle Hidden
+            $proc = Start-Process -FilePath gcloud -ArgumentList @('compute', 'start-iap-tunnel', $instanceName, '3389', "--local-host-port=localhost:$IapLocalPort", $Z, $P) -PassThru -NoNewWindow -RedirectStandardOutput ([System.IO.Path]::GetTempFileName()) -RedirectStandardError ([System.IO.Path]::GetTempFileName())
             try {
                 $ok = $false
                 foreach ($i in 1..15) { Start-Sleep -Seconds 2; if (Test-TcpOpen -TargetHost 'localhost' -Port $IapLocalPort -TimeoutMs 2000) { $ok = $true; break } }
@@ -349,7 +349,9 @@ if ($Mode -eq 'Guest') {
             $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($ssl.RemoteCertificate)
             $sans = @($cert.DnsNameList | ForEach-Object { $_.Unicode })
             if ($sans -notcontains $DcFqdn) { throw "SAN: $($sans -join ',')" }
-            $eku = @($cert.EnhancedKeyUsages | ForEach-Object { $_.Value })
+            $ekuExt = $cert.Extensions | Where-Object { $_.Oid.Value -eq '2.5.29.37' } | Select-Object -First 1
+            $eku = @()
+            if ($ekuExt) { $eku = @($ekuExt.EnhancedKeyUsages | ForEach-Object { $_.Value }) }
             if ($eku -notcontains '1.3.6.1.5.5.7.3.1') { throw 'Server-Authentication-EKU fehlt' }
             if ($cert.NotAfter -lt (Get-Date).AddDays(1)) { throw "laeuft ab: $($cert.NotAfter)" }
             "Aussteller $($cert.Issuer), gueltig bis $($cert.NotAfter.ToString('u'))"
@@ -389,7 +391,8 @@ if ($Mode -eq 'Guest') {
         }
         $secretFile = Join-Path $SecretsPath "team$t.json"
         if (-not (Test-Path $secretFile)) { Add-Skip -Id "G08-$t" -Name "Team $t`: Delegation" -Reason "Geheimnisdatei $secretFile fehlt"; continue }
-        $secret = Get-Content $secretFile -Raw | ConvertFrom-Json -AsHashtable
+        # Windows PowerShell 5.1 kennt -AsHashtable nicht; Eigenschaftszugriff genuegt hier.
+        $secret = Get-Content $secretFile -Raw | ConvertFrom-Json
         $cred = [pscredential]::new("$($domain.NetBIOSName)\t$t.operator", (ConvertTo-SecureString $secret.operator -AsPlainText -Force))
         Add-Check -Id "G08-$t" -Name "Team $t`: Uebungskonto aendert eigene Objekte" -Test {
             $hans = Get-ADUser -LDAPFilter "(sAMAccountName=t$t.hans)" -SearchBase $teamDn
