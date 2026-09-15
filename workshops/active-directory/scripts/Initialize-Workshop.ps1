@@ -35,7 +35,10 @@ function New-WorkshopPassword {
     $alphabet = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'.ToCharArray()
     $symbols = '!$%&*+-=?@'.ToCharArray()
     $bytes = [byte[]]::new($Length)
-    [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+    # RNGCryptoServiceProvider gibt es in Windows PowerShell 5.1 und in PowerShell 7.
+    $rng = [System.Security.Cryptography.RNGCryptoServiceProvider]::new()
+    $rng.GetBytes($bytes)
+    $rng.Dispose()
     $chars = [char[]]::new($Length)
     for ($i = 0; $i -lt $Length; $i++) { $chars[$i] = $alphabet[$bytes[$i] % $alphabet.Length] }
     # Komplexitaetsregel von AD: drei der vier Klassen. Feste Positionen sichern Symbol, Grossbuchstabe und Ziffer.
@@ -72,6 +75,7 @@ function Get-OrCreateServerCertificate {
     $cert = New-SelfSignedCertificate -DnsName $DcFqdn, ($DcFqdn.Split('.')[0]) -Signer $Ca -KeyAlgorithm RSA -KeyLength 2048 -HashAlgorithm SHA256 `
         -KeyExportPolicy NonExportable -KeySpec KeyExchange -NotAfter $CertificateValidUntil -CertStoreLocation Cert:\LocalMachine\My `
         -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.1')
+    $cert = Get-Item "Cert:\LocalMachine\My\$($cert.Thumbprint)"
     # AD DS liest ein neues Zertifikat ohne Neustart nach dieser RootDSE-Operation ein.
     $rootDse = [ADSI]'LDAP://localhost/RootDSE'
     $rootDse.Put('renewServerCertificate', 1)
@@ -88,13 +92,22 @@ function Export-CaPem {
 }
 
 function Test-Ldaps {
-    $client = [System.Net.Sockets.TcpClient]::new($DcFqdn, 636)
-    try {
-        $ssl = [System.Net.Security.SslStream]::new($client.GetStream(), $false)
-        $ssl.AuthenticateAsClient($DcFqdn)
-        $remote = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($ssl.RemoteCertificate)
-        return $remote.Thumbprint
-    } finally { $client.Close() }
+    # Liefert den Thumbprint des auf 636 ausgelieferten Zertifikats; AD DS braucht nach
+    # renewServerCertificate einen Moment, deshalb mehrere Versuche.
+    $last = $null
+    foreach ($attempt in 1..10) {
+        $client = [System.Net.Sockets.TcpClient]::new($DcFqdn, 636)
+        try {
+            $ssl = [System.Net.Security.SslStream]::new($client.GetStream(), $false)
+            $ssl.AuthenticateAsClient($DcFqdn)
+            if ($null -ne $ssl.RemoteCertificate) {
+                $remote = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($ssl.RemoteCertificate)
+                return [string]$remote.Thumbprint
+            }
+        } catch { $last = $_.Exception.Message } finally { $client.Close() }
+        Start-Sleep -Seconds 3
+    }
+    throw "LDAPS-Handshake auf ${DcFqdn}:636 fehlgeschlagen: $last"
 }
 
 function Confirm-Ou {
@@ -120,7 +133,7 @@ function Confirm-User {
     if (-not $u) {
         $u = New-ADUser -Name "$Given $Surname" -DisplayName "$Given $Surname" -GivenName $Given -Surname $Surname -SamAccountName $Sam `
             -UserPrincipalName $upn -EmailAddress $upn -Path $Path -AccountPassword (ConvertTo-SecureString $Password -AsPlainText -Force) `
-            -Enabled $true -PasswordNeverExpires $true -CannotChangePassword:$Service -ChangePasswordAtLogon $false -PassThru
+            -Enabled $true -PasswordNeverExpires $true -CannotChangePassword ([bool]$Service) -ChangePasswordAtLogon $false -PassThru
     } elseif ($ResetPasswords) {
         Set-ADAccountPassword -Identity $u -Reset -NewPassword (ConvertTo-SecureString $Password -AsPlainText -Force)
     }
@@ -160,10 +173,10 @@ function Protect-SecretFile {
 
 $ca = Get-OrCreateCa
 $server = Get-OrCreateServerCertificate -Ca $ca
+if (-not $server -or -not $server.PSObject.Properties['Thumbprint']) { throw 'Serverzertifikat konnte nicht ermittelt werden' }
 $fingerprint = Export-CaPem -Ca $ca
-Start-Sleep -Seconds 2
 $servedThumbprint = Test-Ldaps
-if ($servedThumbprint -ne $server.Thumbprint) { throw "LDAPS liefert Zertifikat $servedThumbprint, erwartet $($server.Thumbprint). Neustart des Dienstes oder der VM noetig." }
+if ($servedThumbprint -ne [string]$server.Thumbprint) { throw "LDAPS liefert Zertifikat $servedThumbprint, erwartet $($server.Thumbprint). Neustart des Dienstes oder der VM noetig." }
 Confirm-Ou -Name 'Workshop' -Parent $domain.DistinguishedName | Out-Null
 
 $summary = [ordered]@{
