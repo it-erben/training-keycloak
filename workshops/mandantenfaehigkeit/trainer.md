@@ -2,9 +2,9 @@
 
 ## Lernziel und Ablauf
 
-Die Gruppe soll begründen können, welche Trennung ein Realm, eine Organization und die
-Anwendung selbst leisten. Eine sorgfältig begründete Alternative ist eine gültige Lösung.
-Die Übung bewertet Architekturentscheidungen, nicht die Anzahl angelegter Realms.
+Nach der Übung soll die Gruppe erklären können, welche Grenze ein Realm setzt und welche
+Zugriffsregeln die Anwendung selbst durchsetzen muss. Der Entwurf unten ist eine mögliche
+Lösung. Andere Architekturen sind ebenso brauchbar, wenn sie die Anforderungen des Falls erfüllen.
 
 | Minute | Moderation                                                                  |
 | ------ | --------------------------------------------------------------------------- |
@@ -13,32 +13,34 @@ Die Übung bewertet Architekturentscheidungen, nicht die Anzahl angelegter Realm
 | 35-49  | Jede Gruppe stellt sieben Minuten vor                                       |
 | 49-60  | Gegenbeispiele prüfen und Unterschiede der Entwürfe besprechen              |
 
-Die Fallvorgaben stehen vollständig im Aufgabenblatt. Zusätzliche Annahmen der Gruppen
-müssen sichtbar notiert werden. Bei 45 Minuten den Zusatzfall und ausführliche
-Administrationsdetails weglassen.
+Bitte die Gruppen, eigene Annahmen neben das Diagramm zu schreiben. So lässt sich später
+erkennen, ob zwei Entwürfe unterschiedliche Anforderungen lösen. Für die 23 Minuten
+Gruppenarbeit helfen 10 Minuten Architektur, 8 Minuten Zugriffstests und 5 Minuten Vorbereitung
+der Vorstellung. In der 45-Minuten-Variante genügen Stichpunkte zur Helpdesk-Administration.
 
-## Eine tragfähige Musterarchitektur
+## Beispiel: Gemeinsames Portal, getrennte Abrechnung
 
-Unter der Annahme eines zentralen IAM-Teams ist ein gemeinsamer Realm `mitarbeiter`
-für Nord und Süd plausibel. Die vorhandenen Benutzerquellen bleiben angebunden; die
-Identitäten werden vor der produktiven Übernahme eindeutig zugeordnet. Portal und
-Dokumentenservice erhalten eigene Clients. SSO kann innerhalb dieses Realms genutzt werden.
+Ein gemeinsamer Realm `mitarbeiter` passt zum zentralen IAM-Team und zum gewünschten SSO
+zwischen Portal und Dokumentenservice. Beide Anwendungen erhalten eigene Clients.
+Die zwei Active Directories bleiben als Benutzerquellen erhalten; vor ihrer Anbindung
+muss das IAM-Team Namenskollisionen und die Zuordnung der Konten klären.
 
-Die Abrechnungsanwendung erhält gemäß Fallvorgabe einen eigenen Realm `abrechnung`.
-Dort werden Anmeldung und Konfiguration getrennt verantwortet. Ob dasselbe AD angebunden
-wird oder ein gesonderter Identitätsbestand nötig ist, bleibt eine fachliche Entscheidung.
-Eine automatische gemeinsame SSO-Sitzung über beide Realms wird nicht vorausgesetzt.
+Für die Abrechnung kommt ein eigener Realm `abrechnung` hinzu. Dort lassen sich Anmeldung
+und Konfiguration getrennt verwalten. Die Gruppe darf dasselbe AD anbinden oder einen
+gesonderten Benutzerbestand vorsehen, muss aber die Wahl begründen. Zwischen den beiden
+Realms besteht nicht automatisch eine gemeinsame SSO-Sitzung.
 
 Für Partner ist eine Organization mit passendem Identity Provider innerhalb des
 Mitarbeiter-Realms eine mögliche Lösung. Bei höheren Anforderungen an die Trennung ist
 ein Partner-Realm ebenfalls vertretbar. Organizations unterstützen unter anderem
 Mitgliedschaften, Einladungen, Identity Brokering und Organisationskontext im Token.
-Sie sind keine eigenen Realms. Ihre Eignung für den konkreten Delegationsbedarf muss
-mit den verfügbaren Funktionen der eingesetzten Version geprüft werden.
+Eine Organization bleibt Teil ihres Realms. Ob sich die Helpdesk-Rechte damit ausreichend
+begrenzen lassen, muss die Gruppe als offenen Funktionstest benennen: Ein Nord-Helpdesk
+versucht, einen Süd-Benutzer zu verwalten, und muss abgewiesen werden.
 
-Nord und Süd müssen nicht allein wegen ihrer Namen als Organizations modelliert werden.
-Für rein interne Strukturen können Gruppen und anwendungsspezifische Rollen ausreichen.
-Die Wahl hängt insbesondere vom Onboarding, den Identitätsquellen und der Administration ab.
+Für die internen Bereiche Nord und Süd können Gruppen und anwendungsspezifische Rollen
+ausreichen. Organizations kommen vor allem dann in Betracht, wenn deren Einladungen,
+IdP-Zuordnung oder Organisationskontext gebraucht werden.
 
 ## Vergleich der Alternativen
 
@@ -50,18 +52,19 @@ Die Wahl hängt insbesondere vom Onboarding, den Identitätsquellen und der Admi
 | Gruppen / Rollen      | Fachliche Zugehörigkeit und Rechte | Keine eigene Realm- oder Datengrenze                   |
 | Separate Installation | Betrieb kann unabhängig sein       | Mehr Betriebsaufwand; Abhängigkeiten ebenfalls trennen |
 
-Zwei Realms in derselben Installation teilen weiterhin etwa Prozess, Wartung und
-Datenbankinfrastruktur. Eine Realm-Trennung allein belegt keine unabhängige Ausfallsicherheit.
-Sie belegt auch für sich keine Erfüllung von PCI-DSS-Anforderungen.
+Zwei Realms derselben Installation teilen etwa den Keycloak-Prozess, Wartungsfenster und
+Datenbankinfrastruktur. Fällt diese Installation aus, können beide Realms betroffen sein.
+Auch PCI-DSS-Anforderungen müssen gesondert geprüft werden.
 
 ## Identität und mehrere Zugehörigkeiten
 
-Die beiden `alex`-Konten bleiben verschiedene Personen. Ein Zielkonzept braucht eindeutige
-Benutzernamen beziehungsweise ein kontrolliertes Mapping und die Herkunft der Identität.
-Gleiche Namen oder E-Mail-Adressen sind kein ausreichender Nachweis derselben Person.
+Die beiden `alex`-Konten gehören verschiedenen Personen. Damit die Anwendung sie auch nach
+dem Umzug in einen gemeinsamen Realm auseinanderhalten kann, braucht es eindeutige
+Benutzernamen oder ein Mapping, das die Herkunft des Kontos berücksichtigt. Gleiche Namen
+oder E-Mail-Adressen beweisen noch nicht, dass zwei Konten derselben Person gehören.
 
-Anna bekommt eine nachvollziehbare Zugehörigkeit zu Nord und Süd. Eine zentrale
-Identität ist nur dann passend, wenn die Zuordnung ihrer Quellkonten geprüft wurde.
+Anna gehört zu Nord und Süd. Führt die Gruppe ihre Quellkonten zu einer zentralen Identität
+zusammen, muss sie erklären, wie das IAM-Team diese Zuordnung bestätigt.
 Ein bewusst gewählter aktiver Bereich begrenzt die aktuelle Arbeitssitzung oder den
 Request. Die API prüft sowohl Annas Berechtigung als auch den Bereich des Objekts.
 Bei mehreren akzeptierten Realms muss die Anwendung Identitäten mindestens anhand von
@@ -85,9 +88,10 @@ Objektzuordnung aus der Datenbank. Der Query-Parameter ersetzt diese Prüfung ni
 | Partner / Süd    | Nord-Dokument 4711                    | Abgelehnt | Keine Nord-Rechte; Parameter hilft nicht      |
 | Anna / Nord      | Nord-Dokument, falsche Token-Audience | Abgelehnt | Token ist nicht für diese API bestimmt        |
 
-Eine alternative Lösung ohne aktiven Kontext ist zulässig, wenn Anna beide Bereiche
-bewusst nutzen darf und die API jeden Objektzugriff entsprechend prüft. Sie muss in
-Oberfläche, Logging und Tests konsistent sein. Der Partner erhält dadurch keine Nord-Rechte.
+Die Aufgabe lässt auch einen unverbindlichen Suchfilter zu. Dann darf Annas Nord-Recht für
+den Zugriff ausreichen, obwohl sie `bereich=sued` sendet. Entscheidend ist, dass die Gruppe
+diesen API-Vertrag festhält und Oberfläche, Logging und Tests dazu passen. Der Partner
+erhält durch einen geänderten Parameter weiterhin keine Nord-Rechte.
 
 ## Hilfen und Rückfragen
 
@@ -109,13 +113,12 @@ Infrastrukturabhängigkeiten separat zu betrachten.
 
 ## Abschluss und Bewertung
 
-Eine tragfähige Lösung benennt die Grenzen, erklärt die SSO-Folgen, behandelt die
-Identitätskollision und enthält mindestens einen negativen Zugriffstest. Fehlende
-Produkteinstellungen dürfen als konkrete Prüfaufträge stehen bleiben. Unbegründete
-Sicherheitsversprechen sind keine Lösung.
+Prüfe am Diagramm, ob die Gruppe SSO, die beiden `alex`-Konten und den verweigerten
+Partnerzugriff erklären kann. Bei einer offenen Produkteinstellung genügt ein genauer
+Prüfauftrag mit erwartetem Ergebnis. "Keycloak macht das" ist dafür zu wenig.
 
-Zum Abschluss jede Gruppe einen Satz vervollständigen lassen:
-"Unsere Architektur passt, solange ...; wir würden sie ändern, wenn ..."
+Lass zum Schluss jede Gruppe eine geänderte Anforderung nennen, die ihren Entwurf
+unbrauchbar machen würde. Im 90-Minuten-Workshop dient dafür der zusätzliche Wunsch von Süd.
 
 ## Fachliche Quellen
 

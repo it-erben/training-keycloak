@@ -19,8 +19,8 @@ Architekturworkshop · Keycloak 26.5 · 60 Minuten
 Nach diesem Workshop kannst du:
 
 - Realms, Organizations und fachliche Datenbereiche unterscheiden.
-- Eine Architektur anhand ihrer Anforderungen begründen.
-- Identitätskollisionen und mehrere Zugehörigkeiten berücksichtigen.
+- Erklären, warum du einen gemeinsamen oder mehrere Realms wählst.
+- Gleichnamige Benutzer und Personen mit mehreren Zugehörigkeiten auseinanderhalten.
 - Zeigen, wo eine API unzulässige Objektzugriffe abwehrt.
 
 ---
@@ -34,7 +34,7 @@ Nach diesem Workshop kannst du:
 | Zugehörigkeit und Berechtigung    | Welche Organizations, Gruppen und Rollen passen? |
 | Getrennte Geschäftsdaten          | Wo prüft die Anwendung den Objektzugriff?        |
 
-Ein gemeinsamer Firmenname beantwortet diese Fragen noch nicht.
+Beginnt bei den gewünschten Zugriffen und Zuständigkeiten.
 
 ---
 
@@ -45,19 +45,19 @@ Ein gemeinsamer Firmenname beantwortet diese Fragen noch nicht.
 - Mehrere Realms teilen nicht automatisch dieselbe SSO-Sitzung.
 - Mehrere Realms können weiterhin dieselbe Betriebsinfrastruktur teilen.
 
-Delegierte Administration muss mit den Funktionen der eingesetzten Version geprüft werden.
+Testet Helpdesk-Rechte: Kann ein Nord-Helpdesk einen Süd-Benutzer verändern?
 
 ---
 
 ## 3. Was die Anwendung entscheiden muss
 
-Ein geprüftes Access Token liefert Identität und ausgewählte Berechtigungsinformationen.
+Ein geprüftes Access Token liefert Identität und Berechtigungsangaben.
 
 Die API verknüpft diese mit:
 
 - Dem tatsächlich angefragten Objekt und dessen Bereich
 - Den erlaubten Aktionen und fachlichen Freigaben
-- Einem gegebenenfalls gewählten und geprüften aktiven Bereich
+- Dem aktiven Bereich, falls die Anwendung einen solchen Arbeitskontext vorsieht
 
 Ein veränderbarer Request-Parameter ist kein Berechtigungsnachweis.
 
@@ -70,7 +70,7 @@ Ein veränderbarer Request-Parameter ist kein Berechtigungsnachweis.
 - Konten werden nur nach überprüfter Zuordnung zusammengeführt.
 - Bei mehreren Ausstellern unterscheiden Anwendungen mindestens `iss` und `sub`.
 
-**Diskussionsfrage:** Welche Information beweist, dass zwei Quellkonten derselben Person gehören?
+Wie weist ihr nach, dass zwei Quellkonten derselben Person gehören?
 
 ---
 
@@ -83,7 +83,7 @@ Zwei bisher getrennte Unternehmen, zwei Active Directories:
 - Anna arbeitet für beide Bereiche; ein Partner hat nur einzelne Süd-Freigaben
 - Zentrales IAM-Team; regionale Helpdesks betreuen ihren eigenen Bereich
 
-Alle Fallvorgaben stehen im Aufgabenblatt. Die Situation ist fiktiv.
+Das Aufgabenblatt beschreibt den vollständigen, erfundenen Fall.
 
 ---
 
@@ -92,8 +92,8 @@ Alle Fallvorgaben stehen im Aufgabenblatt. Die Situation ist fiktiv.
 **Zwei Gruppen mit je drei Personen:** Zeichnen, Entscheidungen festhalten, Gegenbeispiele prüfen.
 
 1. Entwerft Realms, Clients, Benutzerquellen und Berechtigungsprüfung.
-2. Begründet zwei Abwägungen und behandelt die beiden `alex`-Konten.
-3. Prüft Annas Zugriff auf Dokument 4711 im Süd-Kontext.
+2. Erklärt zwei Architekturentscheidungen und die Zuordnung der beiden `alex`-Konten.
+3. Legt die Bedeutung von `bereich` fest und prüft Annas Request auf Dokument 4711.
 4. Formuliert mindestens vier Tests, einschließlich verweigerter Zugriffe.
 
 Danach stellt jede Gruppe ihren Entwurf in sieben Minuten vor.
@@ -107,7 +107,7 @@ Danach stellt jede Gruppe ihren Entwurf in sieben Minuten vor.
 - Welche Prüfung verhindert einen Zugriff auf den falschen Bereich?
 - Welche neue Anforderung würde eure Architektur verändern?
 
-"Unsere Architektur passt, solange ...; wir würden sie ändern, wenn ..."
+Nennt eine geänderte Anforderung, die euren Entwurf unbrauchbar machen würde.
 
 ---
 
