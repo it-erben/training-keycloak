@@ -146,7 +146,13 @@ try {
     if ($role -eq 2) {
         Write-SetupLog 'Phase 2: AD DS und Promotion'
         $stdin = "$($admin.administrator)`n$($admin.dsrm)`n"
-        Invoke-Ssh -User 'wsadmin' -Command 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\Workshop\scripts\Initialize-Domain.ps1 -Unattended' -Stdin $stdin -IgnoreExit | Out-Null
+        $out = Invoke-Ssh -User 'wsadmin' -Command 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\Workshop\scripts\Initialize-Domain.ps1 -Unattended' -Stdin $stdin -IgnoreExit
+        Set-Content -Path (Join-Path $paths.Run 'phase2.log') -Value $out -Encoding utf8
+        # Ohne Erfolgsmeldung der Promotion nicht auf einen Neustart warten, sondern den Fehler zeigen.
+        if ($out -notmatch 'Operation completed successfully' -and $out -notmatch 'RebootRequired') {
+            $tail = (($out -split "`n") | Where-Object { $_ -match 'Exception|Error|error|:' } | Select-Object -First 6) -join ' | '
+            throw "Phase 2 ohne Promotion (Log: phase2.log): $tail"
+        }
         Start-Sleep -Seconds 90
         if (-not (Wait-Ssh -User 'Administrator')) { throw 'Gast nach der Promotion nicht als Administrator erreichbar' }
         $role = Get-GuestRole

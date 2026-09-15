@@ -107,8 +107,10 @@ Install-WindowsFeature AD-Domain-Services, DNS -IncludeManagementTools | Out-Nul
 # Das eingebaute Administratorkonto wird mit der Promotion zum Domaenen-Administrator;
 # das per gcloud angelegte lokale Konto verschwindet dabei.
 $adminPw = Read-ConfirmedPassword -Prompt "Passwort fuer $NetbiosName\Administrator (Domaenen-Admin nach der Promotion)"
-Enable-LocalUser -Name Administrator
+# Erst das Passwort setzen, dann aktivieren: Windows lehnt das Aktivieren eines Kontos mit
+# nicht richtlinienkonformem Passwort ab.
 Set-LocalUser -Name Administrator -Password $adminPw -PasswordNeverExpires $true
+Enable-LocalUser -Name Administrator
 $dsrm = Read-ConfirmedPassword -Prompt 'DSRM-Passwort (Directory Services Restore Mode)'
 
 Write-State -Phase 'promoting' -Data @{ domain = $DomainName }
