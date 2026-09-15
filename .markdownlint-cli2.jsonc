@@ -1,0 +1,4 @@
+{
+  // Superpowers-Spezifikationen und -Pläne enthalten lange Befehlszeilen; sie sind Arbeitsdokumente, kein Kursmaterial.
+  "ignores": ["docs/superpowers/**"]
+}

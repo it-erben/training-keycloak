@@ -104,7 +104,7 @@ workshops/active-directory/lab/secrets/*
 Tabellenzeile nach "LDAP und Active Directory":
 
 ```markdown
-| [Active Directory auf GCP](active-directory/README.md) | Modul 06b, Modul 07 mit Lab 07c, Docker | 90 Min. |
+| Active Directory auf GCP, verlinkt auf `active-directory/README.md`, | Modul 06b, Modul 07 mit Lab 07c, Docker | 90 Min. |
 ```
 
 Neuer Absatz unter "Einsatz im Kurs": Die AD-Einheit ist optional für Tag 3, braucht einen vom Trainer
@@ -113,7 +113,7 @@ vorbereiteten Windows-Server auf GCP und fällt bei fehlender Freigabe auf das O
 - [ ] **Step 3: Verweis in `workshops/ldap-ad/README.md`**
 
 Absatz am Ende von "Vorbereitung": Wer an Tag 3 gegen ein echtes Active Directory arbeiten will,
-verwendet die [AD-Einheit](../active-directory/README.md); dort steht auch, wann OpenLDAP der Ersatz bleibt.
+verwendet die AD-Einheit unter `../active-directory/README.md`; dort steht auch, wann OpenLDAP der Ersatz bleibt.
 
 - [ ] **Step 4: Prüfen**
 
