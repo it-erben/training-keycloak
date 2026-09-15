@@ -45,6 +45,22 @@ die letzten Folien enthalten den Arbeitsauftrag und die Fragen für die Auswertu
 
 ## Vorbereitung und Ausgabe
 
+Für die Vorbereitung zuerst die Musterarchitektur in der
+[Trainerunterlage zur Mandantenfähigkeit](mandantenfaehigkeit/trainer.md) und die
+Übertragungswege in der [Trainerunterlage zur Betriebsübernahme](betriebsuebernahme/trainer.md)
+lesen. Danach die Zugriffstests beziehungsweise den Rückfallplan durchgehen und die
+Aufgabenblätter sowie zwei Whiteboard-Flächen oder große Papierbögen bereitlegen.
+
+Für die Nachbereitung liegen alle Texte direkt im jeweiligen Workshop-Verzeichnis:
+
+- `slides.md`: fachlicher Einstieg, Arbeitsauftrag und Auswertungsfragen für die Präsentation
+- `aufgabe.md`: Fallvorgaben und Arbeitsaufträge für die Teilnehmenden
+- `trainer.md`: Musterlösung, vertretbare Alternativen, Moderationshilfen und Quellen
+
+Geänderte Fallvorgaben gemeinsam in Aufgabe, Folien und Musterlösung nachziehen.
+Die Markdown-Dateien im Repository sind die Grundlage für weitere Bearbeitungen;
+PDFs werden daraus als Ausgabe erzeugt.
+
 Die Markdown-Dateien sind die bearbeitbaren Quellen. Die Kurzfolien verwenden das
 Marp-Format des Kurses. PDF-Ausgabe mit installiertem Marp CLI:
 
