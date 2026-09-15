@@ -75,12 +75,14 @@ Lokale, nicht versionierte Laufzeitdaten liegen unter `workshops/active-director
 ### Task 1: Gerüst, Ignorierregeln und Verweise
 
 **Files:**
+
 - Create: `workshops/active-directory/lab/certs/.gitkeep`, `workshops/active-directory/lab/secrets/.gitkeep`
 - Modify: `.gitignore`
 - Modify: `workshops/README.md` (Tabelle und Abschnitt "Unterlagen")
 - Modify: `workshops/ldap-ad/README.md` (Verweis auf die optionale Tag-3-Einheit)
 
 **Interfaces:**
+
 - Produces: die ignorierten Pfade `lab/.env`, `lab/certs/*.crt`, `lab/secrets/*.pw`, `.run/`
 
 - [ ] **Step 1: Ignorierregeln ergänzen**
@@ -130,6 +132,7 @@ git commit -m "docs(workshops): reference the Active Directory unit"
 ### Task 2: Lokaler Compose-Stack mit LDAP-Werkzeugcontainer
 
 **Files:**
+
 - Create: `workshops/active-directory/lab/docker-compose.yml`
 - Create: `workshops/active-directory/lab/.env.example`
 - Create: `workshops/active-directory/lab/ldap-tools/Dockerfile`
@@ -137,6 +140,7 @@ git commit -m "docs(workshops): reference the Active Directory unit"
 - Create: `workshops/active-directory/lab/ldap-tools/bin/decode-guid`
 
 **Interfaces:**
+
 - Consumes: `labs/assignments/services/portal-frontend`, `labs/assignments/services/portal-api`
 - Produces: Dienste `postgres`, `keycloak`, `setup`, `portal`, `api`, `ldap-tools`; Hosteintrag
   `dc01.ad.mustertech.test` aus `AD_PUBLIC_IP`; Mounts `/certs`, `/secrets`, `/ldif` im Werkzeugcontainer,
@@ -364,9 +368,11 @@ git commit -m "feat(workshops): add local stack for the Active Directory unit"
 ### Task 3: Realm-Import ohne LDAP-Provider
 
 **Files:**
+
 - Create: `workshops/active-directory/lab/realm-import.json`
 
 **Interfaces:**
+
 - Consumes: `labs/assignments/modul-06b-client-management/realm-import.json` als Vorlage
 - Produces: Realm `mustertech` mit Rollen `mitarbeiter`, `manager`, `admin`; Gruppen `Mitarbeiter`
   (Rolle `mitarbeiter`), `Teamleitung` (keine Rolle), `Manager` (Rolle `manager`); Clients `portal-frontend`
@@ -432,10 +438,12 @@ git commit -m "feat(workshops): prepare the mustertech realm for the AD unit"
 ### Task 4: LDIF-Dateien je Team
 
 **Files:**
+
 - Create: `workshops/active-directory/lab/ldif/team01/01-hans-nach-moved.ldif` und fünf weitere
 - Create: dieselben sechs Dateien unter `team02/` und `team03/`
 
 **Interfaces:**
+
 - Produces: Dateipfade `/ldif/team<NN>/<Datei>` im Werkzeugcontainer; Reihenfolge 01 bis 06 entspricht
   dem Ablauf in `aufgabe.md`.
 
@@ -517,10 +525,12 @@ git commit -m "feat(workshops): add per-team LDIF changes for the AD unit"
 ### Task 5: PowerShell-Modul `Workshop.Common`
 
 **Files:**
+
 - Create: `workshops/active-directory/scripts/lib/Workshop.Common.psm1`
 - Test: `workshops/active-directory/scripts/tests/Workshop.Common.Tests.ps1`
 
 **Interfaces:**
+
 - Produces:
   - `Invoke-GcloudRaw([string[]]$Arguments) : string` führt gcloud aus, wirft bei Exit-Code ungleich 0
     mit stderr. Wird in Tests gemockt.
@@ -819,10 +829,12 @@ git commit -m "feat(workshops): add gcloud and manifest helpers for the AD unit"
 ### Task 6: `New-Workshop.ps1` mit PlanOnly und Manifest
 
 **Files:**
+
 - Create: `workshops/active-directory/scripts/New-Workshop.ps1`
 - Test: `workshops/active-directory/scripts/tests/New-Workshop.Tests.ps1`
 
 **Interfaces:**
+
 - Consumes: alle Funktionen aus Task 5.
 - Produces: `.run/manifest.json` (Schema aus Task 5) mit `resources.<key>` = `{name, selfLink, createdAt,
   zone|region}`, `network.internalIp`, `network.externalIp`, `network.ldapsSourceRanges`,
@@ -1030,10 +1042,12 @@ git commit -m "feat(workshops): provision the AD workshop DC with gcloud"
 ### Task 7: `Protect-Workshop.ps1`
 
 **Files:**
+
 - Create: `workshops/active-directory/scripts/Protect-Workshop.ps1`
 - Test: `workshops/active-directory/scripts/tests/Protect-Workshop.Tests.ps1`
 
 **Interfaces:**
+
 - Consumes: Manifest aus Task 6.
 - Produces: Instanz-Metadaten `disable-account-manager=true`; Manifest `domain.accountManagerDisabledAt`.
 
@@ -1067,10 +1081,12 @@ Save-WorkshopManifest -Manifest $m -Path $ManifestPath
 ### Task 8: `Remove-Workshop.ps1`
 
 **Files:**
+
 - Create: `workshops/active-directory/scripts/Remove-Workshop.ps1`
 - Test: `workshops/active-directory/scripts/tests/Remove-Workshop.Tests.ps1`
 
 **Interfaces:**
+
 - Consumes: Manifest; `Get-IapTunnelPolicy`/`Set-IapTunnelPolicy`.
 - Produces: Manifest `status = removed`, `removed.<key> = <Zeitpunkt>`; mit `-Local` zusätzlich
   `docker compose -f lab/docker-compose.yml down -v --remove-orphans`.
@@ -1156,9 +1172,11 @@ Describe 'Remove-Workshop' {
 ### Task 9: `Initialize-Domain.ps1` (Gast)
 
 **Files:**
+
 - Create: `workshops/active-directory/scripts/Initialize-Domain.ps1`
 
 **Interfaces:**
+
 - Produces: Domäne `ad.mustertech.test`, DC `dc01`, NTDS und SYSVOL auf `D:`, DNS-Forwarder
   `169.254.169.254`, Zeitquelle `metadata.google.internal`, Zustandsdatei `C:\Workshop\state\domain.json`.
 
@@ -1248,9 +1266,11 @@ Anmeldung, bevor `Protect-Workshop.ps1` läuft.
 ### Task 10: `Initialize-Workshop.ps1` (Gast)
 
 **Files:**
+
 - Create: `workshops/active-directory/scripts/Initialize-Workshop.ps1`
 
 **Interfaces:**
+
 - Produces: Workshop-CA `CN=Keycloak Workshop CA` (Root-Store), LDAPS-Serverzertifikat für
   `dc01.ad.mustertech.test`, OUs, Gruppen, Benutzer, Delegation, `C:\Workshop\out\workshop-ca.crt`,
   `C:\Workshop\out\workshop-ad.json`, `C:\Workshop\secrets\team<NN>.json`.
@@ -1424,6 +1444,7 @@ Write-Host "Ausgabe: $OutputPath\workshop-ca.crt, $OutputPath\workshop-ad.json; 
 ### Task 11: `Reset-Team.ps1` (Gast)
 
 **Files:**
+
 - Create: `workshops/active-directory/scripts/Reset-Team.ps1`
 
 ```powershell
@@ -1465,11 +1486,13 @@ Get-TeamUser "t$Team.hans", "t$Team.anna" | Out-Null
 ### Task 12: `Test-Workshop.ps1`
 
 **Files:**
+
 - Create: `workshops/active-directory/scripts/Test-Workshop.ps1`
 - Test: `workshops/active-directory/scripts/tests/Test-Workshop.Tests.ps1` (nur die Berichtsfunktion
   und die Firewall-Auswertung, beide ohne gcloud)
 
 **Interfaces:**
+
 - Consumes: Manifest, `.run/secrets/team<NN>.json` (vom DC kopiert), `lab/certs/workshop-ca.crt`,
   laufender Werkzeugcontainer.
 - Produces: Bericht `.run/report-<mode>-<yyyyMMdd-HHmm>.json` mit `[{id, name, result, detail}]`,
@@ -1522,13 +1545,16 @@ Prüfungen im Modus `Guest` (auf dem DC, als Domänen-Admin):
 Describe 'Test-Workshop helpers' {
     BeforeAll { . "$PSScriptRoot/../Test-Workshop.ps1" -Mode Trainer -HelpersOnly }
     It 'flags an allow rule from anywhere on 636' {
-        $fw = @([pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('0.0.0.0/0'); allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('636') }) })
+        $fw = @([pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('0.0.0.0/0')
+                allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('636') }) })
         (Test-EffectiveFirewall -Rules $fw -AllowedLdapsRanges @('203.0.113.0/24')).Result | Should -Be 'FAIL'
     }
     It 'accepts the two workshop rules' {
         $fw = @(
-            [pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('203.0.113.0/24'); allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('636') }) },
-            [pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('35.235.240.0/20'); allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('3389') }) }
+            [pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('203.0.113.0/24')
+                allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('636') }) },
+            [pscustomobject]@{ direction = 'INGRESS'; sourceRanges = @('35.235.240.0/20')
+                allowed = @([pscustomobject]@{ IPProtocol = 'tcp'; ports = @('3389') }) }
         )
         (Test-EffectiveFirewall -Rules $fw -AllowedLdapsRanges @('203.0.113.0/24')).Result | Should -Be 'PASS'
     }
@@ -1550,10 +1576,12 @@ Das Skript unterstützt dafür `-HelpersOnly`: Es definiert nur die Funktionen u
 ### Task 13: Trainerlösung `solution/`
 
 **Files:**
+
 - Create: `workshops/active-directory/solution/apply-solution.sh`
 - Create: `workshops/active-directory/solution/README.md`
 
 **Interfaces:**
+
 - Consumes: Keycloak-Container mit `/workshop/solution` und `/workshop/secrets/bind.pw`.
 - Produces: LDAP-Provider `ad-team<NN>` und Group-Mapper `ad-groups` im Realm `mustertech`.
 
@@ -1565,8 +1593,10 @@ Befehle: `create` (Provider + Group-Mapper, direkte Strategie, Users DN `OU=User
 
 ```bash
 #!/usr/bin/env bash
-# Trainerlösung: LDAP-Provider für ein Team per kcadm anlegen und umstellen.
-# Aufruf im Keycloak-Container: TEAM=01 bash /workshop/solution/apply-solution.sh <create|strategy|users-dn|sync|logout-sessions|status|delete> [arg]
+# Trainerloesung: LDAP-Provider fuer ein Team per kcadm anlegen und umstellen.
+# Aufruf im Keycloak-Container:
+#   TEAM=01 bash /workshop/solution/apply-solution.sh <befehl> [arg]
+#   Befehle: create | strategy direct|recursive | users-dn users|team | sync | logout-sessions | status | delete
 set -euo pipefail
 
 TEAM="${TEAM:?TEAM=01|02|03 setzen}"
@@ -1580,33 +1610,64 @@ BIND_DN="t${TEAM}.bind@ad.mustertech.test"
 BIND_PW_FILE="${BIND_PW_FILE:-/workshop/secrets/bind.pw}"
 PROVIDER_NAME="ad-team${TEAM}"
 
-login() { "$KCADM" config credentials --server http://localhost:8080 --realm master --user admin --password admin >/dev/null; }
+login() {
+  "$KCADM" config credentials --server http://localhost:8080 --realm master --user admin --password admin >/dev/null
+}
+
 realm_id() { "$KCADM" get "realms/${REALM}" --fields id --format csv --noquotes; }
-provider_id() { "$KCADM" get components -r "$REALM" -q name="$PROVIDER_NAME" -q type=org.keycloak.storage.UserStorageProvider --fields id --format csv --noquotes | head -n1; }
-mapper_id() { "$KCADM" get components -r "$REALM" -q parent="$1" -q name=ad-groups --fields id --format csv --noquotes | head -n1; }
+
+provider_id() {
+  "$KCADM" get components -r "$REALM" -q name="$PROVIDER_NAME" -q type=org.keycloak.storage.UserStorageProvider \
+    --fields id --format csv --noquotes | head -n1
+}
+
+mapper_id() {
+  "$KCADM" get components -r "$REALM" -q parent="$1" -q name=ad-groups --fields id --format csv --noquotes | head -n1
+}
+
+require_provider() {
+  PID="$(provider_id)"
+  if [ -z "$PID" ]; then
+    echo "Provider $PROVIDER_NAME existiert nicht. Zuerst: create" >&2
+    exit 1
+  fi
+  MID="$(mapper_id "$PID")"
+}
 
 create() {
-  [ -r "$BIND_PW_FILE" ] || { echo "Bind-Passwort fehlt: $BIND_PW_FILE (save-secret bind im Werkzeugcontainer)" >&2; exit 1; }
-  if [ -n "$(provider_id)" ]; then echo "Provider $PROVIDER_NAME existiert bereits"; exit 1; fi
-  local rid; rid="$(realm_id)"
+  if [ ! -r "$BIND_PW_FILE" ]; then
+    echo "Bind-Passwort fehlt: $BIND_PW_FILE (im Werkzeugcontainer: save-secret bind)" >&2
+    exit 1
+  fi
+  if [ -n "$(provider_id)" ]; then
+    echo "Provider $PROVIDER_NAME existiert bereits" >&2
+    exit 1
+  fi
+  local rid
+  rid="$(realm_id)"
   "$KCADM" create components -r "$REALM" \
-    -s name="$PROVIDER_NAME" -s providerId=ldap -s providerType=org.keycloak.storage.UserStorageProvider -s parentId="$rid" \
+    -s name="$PROVIDER_NAME" -s providerId=ldap -s parentId="$rid" \
+    -s providerType=org.keycloak.storage.UserStorageProvider \
     -s 'config.enabled=["true"]' -s 'config.priority=["0"]' -s 'config.vendor=["ad"]' \
     -s 'config.editMode=["READ_ONLY"]' -s 'config.importEnabled=["true"]' -s 'config.syncRegistrations=["false"]' \
     -s 'config.connectionUrl=["ldaps://dc01.ad.mustertech.test:636"]' -s 'config.useTruststoreSpi=["always"]' \
     -s 'config.startTls=["false"]' -s 'config.connectionPooling=["false"]' \
     -s "config.usersDn=[\"${USERS_DN}\"]" -s 'config.searchScope=["2"]' \
-    -s 'config.authType=["simple"]' -s "config.bindDn=[\"${BIND_DN}\"]" -s "config.bindCredential=[\"$(cat "$BIND_PW_FILE")\"]" \
-    -s 'config.usernameLDAPAttribute=["userPrincipalName"]' -s 'config.rdnLDAPAttribute=["cn"]' -s 'config.uuidLDAPAttribute=["objectGUID"]' \
+    -s 'config.authType=["simple"]' -s "config.bindDn=[\"${BIND_DN}\"]" \
+    -s "config.bindCredential=[\"$(cat "$BIND_PW_FILE")\"]" \
+    -s 'config.usernameLDAPAttribute=["userPrincipalName"]' -s 'config.rdnLDAPAttribute=["cn"]' \
+    -s 'config.uuidLDAPAttribute=["objectGUID"]' \
     -s 'config.userObjectClasses=["person, organizationalPerson, user"]' \
     -s "config.customUserSearchFilter=[\"(|(sAMAccountName=t${TEAM}.hans)(sAMAccountName=t${TEAM}.anna))\"]" \
     -s 'config.pagination=["true"]' -s 'config.batchSizeForSync=["1000"]' -s 'config.trustEmail=["false"]' \
     -s 'config.cachePolicy=["DEFAULT"]' -s 'config.fullSyncPeriod=["-1"]' -s 'config.changedSyncPeriod=["-1"]' \
     -s 'config.allowKerberosAuthentication=["false"]' -s 'config.useKerberosForPasswordAuthentication=["false"]' \
     -s 'config.validatePasswordPolicy=["false"]' -s 'config.usePasswordModifyExtendedOp=["false"]'
-  local pid; pid="$(provider_id)"
+  local pid
+  pid="$(provider_id)"
   "$KCADM" create components -r "$REALM" \
-    -s name=ad-groups -s providerId=group-ldap-mapper -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper -s parentId="$pid" \
+    -s name=ad-groups -s providerId=group-ldap-mapper \
+    -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper -s parentId="$pid" \
     -s "config.\"groups.dn\"=[\"${GROUPS_DN}\"]" -s 'config."group.name.ldap.attribute"=["cn"]' \
     -s 'config."group.object.classes"=["group"]' -s 'config."preserve.group.inheritance"=["false"]' \
     -s 'config."ignore.missing.groups"=["false"]' -s 'config."membership.ldap.attribute"=["member"]' \
@@ -1619,43 +1680,62 @@ create() {
 }
 
 strategy() {
-  local pid; pid="$(provider_id)"; local mid; mid="$(mapper_id "$pid")"
+  require_provider
   case "${1:-}" in
-    direct) "$KCADM" update "components/${mid}" -r "$REALM" -s 'config."user.roles.retrieve.strategy"=["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE"]' ;;
-    recursive) "$KCADM" update "components/${mid}" -r "$REALM" -s 'config."user.roles.retrieve.strategy"=["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE_RECURSIVELY"]' ;;
+    direct)
+      "$KCADM" update "components/${MID}" -r "$REALM" \
+        -s 'config."user.roles.retrieve.strategy"=["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE"]' ;;
+    recursive)
+      "$KCADM" update "components/${MID}" -r "$REALM" \
+        -s 'config."user.roles.retrieve.strategy"=["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE_RECURSIVELY"]' ;;
     *) echo "strategy direct|recursive" >&2; exit 2 ;;
   esac
+  echo "Strategie: $1"
 }
 
 users_dn() {
-  local pid; pid="$(provider_id)"
+  require_provider
   case "${1:-}" in
-    users) "$KCADM" update "components/${pid}" -r "$REALM" -s "config.usersDn=[\"${USERS_DN}\"]" ;;
-    team) "$KCADM" update "components/${pid}" -r "$REALM" -s "config.usersDn=[\"${TEAM_DN}\"]" ;;
+    users) "$KCADM" update "components/${PID}" -r "$REALM" -s "config.usersDn=[\"${USERS_DN}\"]" ;;
+    team) "$KCADM" update "components/${PID}" -r "$REALM" -s "config.usersDn=[\"${TEAM_DN}\"]" ;;
     *) echo "users-dn users|team" >&2; exit 2 ;;
   esac
+  echo "Users DN: $1"
 }
 
 sync() {
-  local pid; pid="$(provider_id)"; local mid; mid="$(mapper_id "$pid")"
-  "$KCADM" create "user-storage/${pid}/sync?action=triggerFullSync" -r "$REALM"
-  "$KCADM" create "user-storage/${pid}/mappers/${mid}/sync?direction=fedToKeycloak" -r "$REALM"
+  require_provider
+  "$KCADM" create "user-storage/${PID}/sync?action=triggerFullSync" -r "$REALM"
+  "$KCADM" create "user-storage/${PID}/mappers/${MID}/sync?direction=fedToKeycloak" -r "$REALM"
 }
 
-logout_sessions() { "$KCADM" create "realms/${REALM}/logout-all" 2>/dev/null || "$KCADM" create logout-all -r "$REALM"; }
+logout_sessions() {
+  "$KCADM" create logout-all -r "$REALM"
+  echo "alle Sitzungen im Realm $REALM beendet"
+}
 
 status() {
-  local pid; pid="$(provider_id)"
-  "$KCADM" get "components/${pid}" -r "$REALM" --fields 'config(usersDn,customUserSearchFilter,editMode,vendor)'
-  "$KCADM" get "components/$(mapper_id "$pid")" -r "$REALM" --fields 'config(user.roles.retrieve.strategy,groups.dn,preserve.group.inheritance)'
+  require_provider
+  "$KCADM" get "components/${PID}" -r "$REALM" --fields 'config(usersDn,customUserSearchFilter,editMode,vendor)'
+  "$KCADM" get "components/${MID}" -r "$REALM" \
+    --fields 'config(user.roles.retrieve.strategy,groups.dn,preserve.group.inheritance)'
   for u in hans anna; do
-    echo "--- t${TEAM}.${u}"
-    uid="$("$KCADM" get users -r "$REALM" -q "username=t${TEAM}.${u}@ad.mustertech.test" --fields id --format csv --noquotes | head -n1)"
-    [ -n "$uid" ] && "$KCADM" get "users/${uid}/groups" -r "$REALM" --fields name --format csv --noquotes || echo "(nicht importiert)"
+    echo "--- t${TEAM}.${u}@ad.mustertech.test"
+    uid="$("$KCADM" get users -r "$REALM" -q "username=t${TEAM}.${u}@ad.mustertech.test" -q exact=true \
+      --fields id --format csv --noquotes | head -n1)"
+    if [ -n "$uid" ]; then
+      "$KCADM" get "users/${uid}/groups" -r "$REALM" --fields name --format csv --noquotes
+    else
+      echo "(nicht importiert)"
+    fi
   done
 }
 
-delete_provider() { local pid; pid="$(provider_id)"; [ -n "$pid" ] && "$KCADM" delete "components/${pid}" -r "$REALM"; }
+delete_provider() {
+  require_provider
+  "$KCADM" delete "components/${PID}" -r "$REALM"
+  echo "Provider $PROVIDER_NAME geloescht"
+}
 
 login
 case "${1:-}" in
@@ -1666,7 +1746,10 @@ case "${1:-}" in
   logout-sessions) logout_sessions ;;
   status) status ;;
   delete) delete_provider ;;
-  *) echo "Befehle: create | strategy direct|recursive | users-dn users|team | sync | logout-sessions | status | delete" >&2; exit 2 ;;
+  *)
+    echo "Befehle: create | strategy direct|recursive | users-dn users|team | sync |" >&2
+    echo "         logout-sessions | status | delete" >&2
+    exit 2 ;;
 esac
 ```
 
@@ -1685,6 +1768,7 @@ gegen 26.5.7 belegt; Abweichungen im Skript korrigieren, nicht in der Doku umsch
 ### Task 14: README, Aufgabe und Traineranleitung
 
 **Files:**
+
 - Create: `workshops/active-directory/README.md`
 - Create: `workshops/active-directory/aufgabe.md`
 - Create: `workshops/active-directory/trainer.md`
@@ -1774,6 +1858,7 @@ Jeder Befehl in Bash und PowerShell, Unterschied nur Zeilenfortsetzung und Anfü
 ### Task 15: Probelauf auf GCP (nach Freigabe)
 
 **Files:**
+
 - Modify: `workshops/active-directory/trainer.md` (beobachtete Ergebnisse), gegebenenfalls Skripte
   und `aufgabe.md` bei belegten Abweichungen.
 - Nicht versioniert: `.run/manifest.json`, `.run/report-*.json`, `.run/secrets/`.

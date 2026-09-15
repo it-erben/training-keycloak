@@ -12,25 +12,25 @@ gcloud CLI, ein RDP-Client und ein GCP-Projekt mit aktivierter Compute Engine AP
 
 ## Ablauf
 
-| Minuten | Versuch                         | Nachweis                                             |
-| ------- | ------------------------------- | ---------------------------------------------------- |
-| 0-15    | AD-Einträge lesen               | DN, UPN, GUID und direkte Mitglieder identifiziert   |
-| 15-35   | Keycloak über LDAPS verbinden   | Hans meldet sich frisch am Portal an                 |
-| 35-55   | Verschachtelte Gruppe auflösen  | Anna erhält `manager`, Hans erhält HTTP 403          |
-| 55-65   | Hans nach `Moved` verschieben   | DN ändert sich, objectGUID bleibt                    |
-| 65-80   | Rechte entziehen, Konto sperren | LDAP, Keycloak, Sitzung und API getrennt beobachtet  |
-| 80-90   | Rücknahme und Auswertung        | Ausgangszustand hergestellt und erklärt              |
+| Minuten | Versuch                         | Nachweis                                            |
+| ------- | ------------------------------- | --------------------------------------------------- |
+| 0-15    | AD-Einträge lesen               | DN, UPN, GUID und direkte Mitglieder identifiziert  |
+| 15-35   | Keycloak über LDAPS verbinden   | Hans meldet sich frisch am Portal an                |
+| 35-55   | Verschachtelte Gruppe auflösen  | Anna erhält `manager`, Hans erhält HTTP 403         |
+| 55-65   | Hans nach `Moved` verschieben   | DN ändert sich, objectGUID bleibt                   |
+| 65-80   | Rechte entziehen, Konto sperren | LDAP, Keycloak, Sitzung und API getrennt beobachtet |
+| 80-90   | Rücknahme und Auswertung        | Ausgangszustand hergestellt und erklärt             |
 
 ## Unterlagen
 
-| Datei oder Verzeichnis       | Inhalt                                                                  |
-| ---------------------------- | ----------------------------------------------------------------------- |
-| [aufgabe.md](aufgabe.md)     | Teilnehmeraufgabe mit Vorhersagen, Befehlen für Bash und PowerShell     |
-| [trainer.md](trainer.md)     | Bereitstellung, Musterlösung, beobachtetes Verhalten, Diagnose, Abbau   |
-| [solution/](solution/README.md) | Vollständiger LDAP-Provider per `kcadm`, Umschaltung je Versuch      |
-| [lab/](lab/docker-compose.yml) | Lokaler Stack: Keycloak 26.5.7, PostgreSQL 18, Portal, API, LDAP-Tools |
-| [lab/ldif/](lab/ldif/team01) | Änderungs- und Rücknahme-LDIFs je Team                                  |
-| [scripts/](scripts)          | Bereitstellung, Initialisierung, Prüfung, Reset und Abbau in PowerShell |
+| Datei oder Verzeichnis          | Inhalt                                                                  |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| [aufgabe.md](aufgabe.md)        | Teilnehmeraufgabe mit Vorhersagen, Befehlen für Bash und PowerShell     |
+| [trainer.md](trainer.md)        | Bereitstellung, Musterlösung, beobachtetes Verhalten, Diagnose, Abbau   |
+| [solution/](solution/README.md) | Vollständiger LDAP-Provider per `kcadm`, Umschaltung je Versuch         |
+| [lab/](lab/docker-compose.yml)  | Lokaler Stack: Keycloak 26.5.7, PostgreSQL 18, Portal, API, LDAP-Tools  |
+| [lab/ldif/](lab/ldif/team01)    | Änderungs- und Rücknahme-LDIFs je Team                                  |
+| [scripts/](scripts)             | Bereitstellung, Initialisierung, Prüfung, Reset und Abbau in PowerShell |
 
 Der lokale Stack heißt `keycloak-ad-workshop` und verwendet die Ports 8080, 5173 und 3001.
 Laufende Container anderer Labs müssen vorher beendet werden; ein Prune ist nicht nötig.
@@ -47,14 +47,14 @@ IAP-Tunnelbindung für den Trainer, begrenzt auf Port 3389. Die VM hat kein Serv
 
 Listenpreise Frankfurt (`europe-west3`), Cloud Billing Catalog vom 15.09.2026, in USD:
 
-| Posten                                     | Preis                     | Je Stunde |
-| ------------------------------------------ | ------------------------- | --------- |
-| E2 vCPU (2)                                | 0,0281 je vCPU-Stunde     | 0,056     |
-| E2 RAM (8 GiB)                             | 0,0038 je GiB-Stunde      | 0,030     |
-| Windows Server 2022 Datacenter (2 vCPU)    | 0,046 je vCPU-Stunde      | 0,092     |
-| pd-balanced (84 GiB)                       | 0,12 je GiB-Monat         | 0,014     |
-| Externe IPv4-Adresse an laufender VM       | 0,005 je Stunde           | 0,005     |
-| Summe                                      |                           | 0,197     |
+| Posten                                  | Preis                 | Je Stunde |
+| --------------------------------------- | --------------------- | --------- |
+| E2 vCPU (2)                             | 0,0281 je vCPU-Stunde | 0,056     |
+| E2 RAM (8 GiB)                          | 0,0038 je GiB-Stunde  | 0,030     |
+| Windows Server 2022 Datacenter (2 vCPU) | 0,046 je vCPU-Stunde  | 0,092     |
+| pd-balanced (84 GiB)                    | 0,12 je GiB-Monat     | 0,014     |
+| Externe IPv4-Adresse an laufender VM    | 0,005 je Stunde       | 0,005     |
+| Summe                                   |                       | 0,197     |
 
 48 Stunden kosten damit rund 9,50 USD, sieben Tage rund 33 USD; ausgehender Datenverkehr für
 LDAPS und Windows Update kommt im Cent-Bereich hinzu. Eine gestoppte VM spart nur vCPU, RAM

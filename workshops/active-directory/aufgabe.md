@@ -282,7 +282,8 @@ curl -s -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $(cat anna.jw
 
 ```powershell
 $jwt = Get-Content anna.jwt -Raw
-try { (Invoke-WebRequest http://localhost:3001/api/urlaubsantraege/alle -Headers @{ Authorization = "Bearer $jwt" }).StatusCode }
+$headers = @{ Authorization = "Bearer $jwt" }
+try { (Invoke-WebRequest http://localhost:3001/api/urlaubsantraege/alle -Headers $headers).StatusCode }
 catch { $_.Exception.Response.StatusCode.value__ }
 ```
 

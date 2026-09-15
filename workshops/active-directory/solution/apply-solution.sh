@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Trainerloesung: LDAP-Provider fuer ein Team per kcadm anlegen und umstellen.
 # Aufruf im Keycloak-Container:
-#   TEAM=01 bash /workshop/solution/apply-solution.sh <create|strategy|users-dn|sync|logout-sessions|status|delete> [arg]
+#   TEAM=01 bash /workshop/solution/apply-solution.sh <befehl> [arg]
+#   Befehle: create | strategy direct|recursive | users-dn users|team | sync | logout-sessions | status | delete
 set -euo pipefail
 
 TEAM="${TEAM:?TEAM=01|02|03 setzen}"
@@ -51,7 +52,8 @@ create() {
   local rid
   rid="$(realm_id)"
   "$KCADM" create components -r "$REALM" \
-    -s name="$PROVIDER_NAME" -s providerId=ldap -s providerType=org.keycloak.storage.UserStorageProvider -s parentId="$rid" \
+    -s name="$PROVIDER_NAME" -s providerId=ldap -s parentId="$rid" \
+    -s providerType=org.keycloak.storage.UserStorageProvider \
     -s 'config.enabled=["true"]' -s 'config.priority=["0"]' -s 'config.vendor=["ad"]' \
     -s 'config.editMode=["READ_ONLY"]' -s 'config.importEnabled=["true"]' -s 'config.syncRegistrations=["false"]' \
     -s 'config.connectionUrl=["ldaps://dc01.ad.mustertech.test:636"]' -s 'config.useTruststoreSpi=["always"]' \
@@ -151,6 +153,7 @@ case "${1:-}" in
   status) status ;;
   delete) delete_provider ;;
   *)
-    echo "Befehle: create | strategy direct|recursive | users-dn users|team | sync | logout-sessions | status | delete" >&2
+    echo "Befehle: create | strategy direct|recursive | users-dn users|team | sync |" >&2
+    echo "         logout-sessions | status | delete" >&2
     exit 2 ;;
 esac
