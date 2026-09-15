@@ -70,7 +70,8 @@ scp -O -P 2222 scripts/Initialize-Domain.ps1 wsadmin@127.0.0.1:C:/Workshop/scrip
 von stdin:
 
 ```powershell
-Get-Content pw.txt | ssh -p 2222 wsadmin@127.0.0.1 "powershell -ExecutionPolicy Bypass -File C:\Workshop\scripts\Initialize-Domain.ps1 -Unattended"
+Get-Content pw.txt | ssh -p 2222 wsadmin@127.0.0.1 `
+  "powershell -ExecutionPolicy Bypass -File C:\Workshop\scripts\Initialize-Domain.ps1 -Unattended"
 ```
 
 Der Probelauf lief vollständig über diesen Weg; das RDP-Verfahren bleibt der Standard für Trainer mit RDP-Client.
