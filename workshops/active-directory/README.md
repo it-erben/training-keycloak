@@ -29,7 +29,7 @@ gcloud CLI, OpenSSH-Client, Docker und ein GCP-Projekt mit aktivierter Compute E
 | [trainer.md](trainer.md)        | Bereitstellung, Musterlösung, beobachtetes Verhalten, Diagnose, Abbau   |
 | [solution/](solution/README.md) | Vollständiger LDAP-Provider per `kcadm`, Umschaltung je Aufgabe         |
 | [lab/](lab/docker-compose.yml)  | Lokaler Stack: Keycloak 26.5.7, PostgreSQL 18, Portal, API, LDAP-Tools  |
-| [lab/ldif/](lab/ldif)    | Änderungs- und Rücknahme-LDIFs je Team                                  |
+| [lab/ldif/](lab/ldif)           | Änderungs- und Rücknahme-LDIFs für die sechs Aufgaben                   |
 | [scripts/](scripts)             | Bereitstellung, Initialisierung, Prüfung, Reset und Abbau in PowerShell |
 
 Der lokale Stack heißt `keycloak-ad-workshop` und verwendet die Ports 8080, 5173 und 3001.
@@ -48,14 +48,14 @@ Service-Konto. Jede Umgebung hat ein eigenes Manifest unter `.run/<präfix>/`.
 
 Listenpreise Frankfurt (`europe-west3`), Cloud Billing Catalog vom 15.09.2026, in USD je VM:
 
-| Posten                                     | Preis                     | Je Stunde |
-| ------------------------------------------ | ------------------------- | --------- |
-| E2 vCPU (2)                                | 0,0281 je vCPU-Stunde     | 0,056     |
-| E2 RAM (8 GiB)                             | 0,0038 je GiB-Stunde      | 0,030     |
-| Windows Server 2022 Datacenter (2 vCPU)    | 0,046 je vCPU-Stunde      | 0,092     |
-| pd-balanced (84 GiB)                       | 0,12 je GiB-Monat         | 0,014     |
-| Externe IPv4-Adresse an laufender VM       | 0,005 je Stunde           | 0,005     |
-| Summe                                      |                           | 0,197     |
+| Posten                                  | Preis                 | Je Stunde |
+| --------------------------------------- | --------------------- | --------- |
+| E2 vCPU (2)                             | 0,0281 je vCPU-Stunde | 0,056     |
+| E2 RAM (8 GiB)                          | 0,0038 je GiB-Stunde  | 0,030     |
+| Windows Server 2022 Datacenter (2 vCPU) | 0,046 je vCPU-Stunde  | 0,092     |
+| pd-balanced (84 GiB)                    | 0,12 je GiB-Monat     | 0,014     |
+| Externe IPv4-Adresse an laufender VM    | 0,005 je Stunde       | 0,005     |
+| Summe                                   |                       | 0,197     |
 
 Fünf laufende VMs kosten rund 1 USD je Stunde, ein Kurstag mit acht Stunden rund 8 USD. Eine gestoppte
 VM spart vCPU, RAM und Lizenz; Disks und reservierte Adresse laufen weiter, rund 0,02 USD je Stunde und
