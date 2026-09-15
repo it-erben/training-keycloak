@@ -173,6 +173,9 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Protect-Workshop.ps1 fehlgeschlagen' }
 
     Write-SetupLog 'Initialize-Workshop: CA, Zertifikat, OU, Konten, Delegation'
+    # Skripte immer frisch uebertragen, auch wenn Phase 3 aus einem frueheren Lauf stammt.
+    Invoke-Ssh -User 'Administrator' -Command 'New-Item -ItemType Directory -Path C:\Workshop\scripts -Force | Out-Null' | Out-Null
+    Copy-ToGuest -User 'Administrator' -Files $guestScripts -Target 'C:/Workshop/scripts/'
     $validUntil = $CertificateValidUntil.ToString('yyyy-MM-ddTHH:mm:ss')
     $out = Invoke-Ssh -User 'Administrator' -Command "powershell -NoProfile -ExecutionPolicy Bypass -Command `"& C:\Workshop\scripts\Initialize-Workshop.ps1 -CertificateValidUntil '$validUntil'`""
     if ($out -notmatch 'CA-Fingerprint') { throw "Initialize-Workshop ohne Fingerprint: $out" }

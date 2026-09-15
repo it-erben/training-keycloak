@@ -58,11 +58,11 @@ function Get-OrCreateCa {
         $ca = Get-Item "Cert:\LocalMachine\My\$($ca.Thumbprint)"
     }
     $root = [System.Security.Cryptography.X509Certificates.X509Store]::new('Root', 'LocalMachine')
-    $root.Open('ReadWrite')
+    $null = $root.Open('ReadWrite')
     if (-not ($root.Certificates | Where-Object { $_.Thumbprint -eq $ca.Thumbprint })) {
-        $root.Add([System.Security.Cryptography.X509Certificates.X509Certificate2]::new($ca.RawData))
+        $null = $root.Add([System.Security.Cryptography.X509Certificates.X509Certificate2]::new($ca.RawData))
     }
-    $root.Close()
+    $null = $root.Close()
     return $ca
 }
 
@@ -76,12 +76,13 @@ function Get-OrCreateServerCertificate {
     $cert = New-SelfSignedCertificate -DnsName $DcFqdn, ($DcFqdn.Split('.')[0]) -Signer $Ca -KeyAlgorithm RSA -KeyLength 2048 -HashAlgorithm SHA256 `
         -KeyExportPolicy NonExportable -KeySpec KeyExchange -NotAfter $CertificateValidUntil -CertStoreLocation Cert:\LocalMachine\My `
         -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.1')
-    $cert = Get-Item "Cert:\LocalMachine\My\$($cert.Thumbprint)"
-    # AD DS liest ein neues Zertifikat ohne Neustart nach dieser RootDSE-Operation ein.
+    $thumb = [string]$cert.Thumbprint
+    # AD DS liest ein neues Zertifikat ohne Neustart nach dieser RootDSE-Operation ein. Die ADSI-Aufrufe
+    # duerfen nichts in die Pipeline schreiben, sonst gibt die Funktion ein Array statt des Zertifikats zurueck.
     $rootDse = [ADSI]'LDAP://localhost/RootDSE'
-    $rootDse.Put('renewServerCertificate', 1)
-    $rootDse.SetInfo()
-    return $cert
+    $null = $rootDse.Put('renewServerCertificate', 1)
+    $null = $rootDse.SetInfo()
+    return (Get-Item "Cert:\LocalMachine\My\$thumb")
 }
 
 function Export-CaPem {
@@ -172,9 +173,9 @@ function Protect-SecretFile {
     Set-Acl -Path $Path -AclObject $acl
 }
 
-$ca = Get-OrCreateCa
-$server = Get-OrCreateServerCertificate -Ca $ca
-if (-not $server -or -not $server.PSObject.Properties['Thumbprint']) { throw 'Serverzertifikat konnte nicht ermittelt werden' }
+$ca = @(Get-OrCreateCa | Where-Object { $_ -is [System.Security.Cryptography.X509Certificates.X509Certificate2] })[-1]
+$server = @(Get-OrCreateServerCertificate -Ca $ca | Where-Object { $_ -is [System.Security.Cryptography.X509Certificates.X509Certificate2] })[-1]
+if (-not $server) { throw 'Serverzertifikat konnte nicht ermittelt werden' }
 $fingerprint = Export-CaPem -Ca $ca
 $servedThumbprint = Test-Ldaps
 if ($servedThumbprint -ne [string]$server.Thumbprint) { throw "LDAPS liefert Zertifikat $servedThumbprint, erwartet $($server.Thumbprint). Neustart des Dienstes oder der VM noetig." }
