@@ -1,4 +1,4 @@
-# Versuch 5: Anna verliert die indirekte Managerzuordnung ueber Teamleitung.
+# Aufgabe 5: Anna verliert die indirekte Managerzuordnung ueber Teamleitung.
 dn: CN=Teamleitung,OU=Groups,OU=Team01,OU=Workshop,DC=ad,DC=mustertech,DC=test
 changetype: modify
 delete: member

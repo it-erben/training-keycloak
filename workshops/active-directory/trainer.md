@@ -9,7 +9,7 @@ der eigene Principal für den IAP-Tunnel und der Abbauzeitpunkt (höchstens 48 S
 `New-Workshop.ps1` bricht bei fehlenden APIs, fehlender Abrechnung oder zu weiten Quellnetzen ab
 und aktiviert nichts von selbst.
 
-Je Team entsteht ein Zettel: Teamnummer, externe IP des DC, CA-Fingerprint, Passwörter für
+Je Team gehen an die Gruppe: Teamnummer, externe IP des DC, CA-Fingerprint, Passwörter für
 `t<NN>.hans`, `t<NN>.anna`, `t<NN>.bind` und `t<NN>.operator`. Die Werte stammen aus
 `C:\Workshop\out\workshop-ad.json` und `C:\Workshop\secrets\team<NN>.json` auf dem DC.
 Das CA-Zertifikat `workshop-ca.crt` wird als Datei verteilt, etwa über den Kurschat.
@@ -102,12 +102,12 @@ einen Bericht nach `.run/` und enden mit Exit-Code 1 bei einem Fehlschlag. Die T
 belegt unter anderem, dass TLS mit falschem Namen und ohne CA scheitert, dass Port 3389 direkt
 geschlossen ist und dass das Übungskonto beim Nachbarteam mit `insufficientAccessRights` abgewiesen wird.
 
-## Musterlösung je Versuch
+## Musterlösung je Aufgabe
 
 Die Trainerlösung `solution/apply-solution.sh` erzeugt denselben Provider, den die Teilnehmer in
-Versuch 2 und 3 anlegen. Sie eignet sich für die eigene Vorführung und für ein Team, das den Anschluss verliert.
+Aufgabe 2 und 3 anlegen. Sie eignet sich für die eigene Vorführung und für ein Team, das den Anschluss verliert.
 
-### Versuch 1: Einträge lesen
+### Aufgabe 1: Einträge lesen
 
 Erwartete Werte für Team 01:
 
@@ -124,7 +124,7 @@ in AD in umgekehrter Byte-Reihenfolge, deshalb stimmt ein naiver Hex-Dump nicht 
 In Windows den Wert zeigen: AD Users and Computers, Ansicht "Erweiterte Features", Eintrag
 Hans, Reiter "Attribut-Editor", `objectGUID` und `distinguishedName`.
 
-### Versuch 2: LDAPS-Anbindung
+### Aufgabe 2: LDAPS-Anbindung
 
 "Test connection" prüft DNS, TCP, TLS-Kette und Hostnamen; "Test authentication" bindet mit dem
 Bind-Konto, nicht mit Hans. Nach "Sync all users" heißt Hans `t01.hans@ad.mustertech.test`,
@@ -136,7 +136,7 @@ damit keine Rolle `mitarbeiter`. Der Access Token trägt `portal-api` in `aud`; 
 diesem Repository prüft Signatur und Issuer, den Audience-Claim zeigt sie im Token, wertet ihn
 aber nicht aus. Das ist eine Eigenschaft von `labs/assignments/services/portal-api`, nicht des Workshops.
 
-### Versuch 3: Direkte und rekursive Gruppen
+### Aufgabe 3: Direkte und rekursive Gruppen
 
 Mit `LOAD_GROUPS_BY_MEMBER_ATTRIBUTE` sucht Keycloak Gruppen, deren `member` Annas DN enthält:
 `Mitarbeiter` und `Teamleitung`. `Manager` enthält nur den DN von `Teamleitung`, also fehlt die
@@ -148,7 +148,7 @@ Untergruppe und Anna erbte `manager` über die Keycloak-Hierarchie, ohne dass di
 
 Access Tokens gelten im Realm 120 Sekunden (`exp - iat`).
 
-### Versuch 4: OU-Wechsel
+### Aufgabe 4: OU-Wechsel
 
 Der DN wechselt auf `CN=Hans Mueller,OU=Moved,...`, `objectGUID` bleibt. Die Suche unter
 `OU=Users` findet ihn nicht mehr, die Suche unter der Team-OU schon. Was Keycloak beim Login
@@ -158,7 +158,7 @@ Beobachtet mit Keycloak 26.5.7: Der Login scheitert mit "Invalid user credential
 lokalen Import, und nach Erweiterung der Users DN entsteht beim Sync ein neuer Keycloak-Benutzer mit
 neuer ID und gleicher `LDAP_ID`. Details im Abschnitt "Beobachtungen aus dem Probelauf".
 
-### Versuch 5: Rechteentzug und Deaktivierung
+### Aufgabe 5: Rechteentzug und Deaktivierung
 
 Ein bereits ausgestellter JWT ändert sich nicht. Die API prüft nur Signatur und Issuer und
 akzeptiert den alten Token bis `exp`. Keycloak zeigt die fehlende Gruppe erst nach Sync;
@@ -169,11 +169,11 @@ Sitzung und Refresh weiter; erst nach dem Sync lehnt Keycloak den Refresh mit "U
 bestehende Sitzungen bleiben trotzdem in der Sitzungsliste. Zeitstempel im Abschnitt
 "Beobachtungen aus dem Probelauf".
 
-### Versuch 6: Rücknahme
+### Aufgabe 6: Rücknahme
 
 Reihenfolge der LDIF-Dateien 04, 05, 06: erst aktivieren und Anna wieder in `Teamleitung`, dann Hans
 zurück nach `Users`, weil die LDIF-Dateien 04 und 06 seinen DN unter `OU=Moved` erwarten. Users DN
-zurück auf `OU=Users`, Sync, Sitzungen beenden, frische Logins. Ergebnis wie in Versuch 3 mit rekursiver
+zurück auf `OU=Users`, Sync, Sitzungen beenden, frische Logins. Ergebnis wie in Aufgabe 3 mit rekursiver
 Strategie: Hans 200 auf `/api/urlaubsantraege` und 403 auf `/alle`, Anna 200 auf beiden.
 
 ## Beobachtungen aus dem Probelauf
@@ -183,13 +183,13 @@ Probelauf am 15.09.2026 im Projekt `keycloak-qards`, Zone `europe-west3-a`, Imag
 Gastzugang über SSH per IAP, Bereitstellung, Promotion und Vorbereitung dauerten zusammen rund 75 Minuten
 einschließlich dreier Neustarts. Trainerprüfung 25 von 25 PASS (mit IAP-Tunnel), Gastprüfung 16 von 16 PASS.
 
-### Versuch 1
+### Aufgabe 1
 
 `memberOf` von Hans enthält nur `Mitarbeiter`, das von Anna `Teamleitung` und `Mitarbeiter`; `Manager`
 hat als einziges `member` den DN von `Teamleitung`. `objectGUID:: S6nBAdsmPkONmfzgwrwP2Q==` ergibt mit
 `decode-guid` den Wert `01c1a94b-26db-433e-8d99-fce0c2bc0fd9`, identisch mit `LDAP_ID` in Keycloak.
 
-### Versuch 2 und 3
+### Aufgabe 2 und 3
 
 Provider und Mapper aus der Trainerlösung verbinden sich über LDAPS mit der Workshop-CA; "Sync all users"
 meldet beim zweiten Lauf `0 imported users, 2 updated users`. Hans heißt in Keycloak
@@ -199,7 +199,7 @@ meldet beim zweiten Lauf `0 imported users, 2 updated users`. Hans heißt in Key
 Gruppen-Sync und Benutzer-Sync kommt `Manager` hinzu; ein neuer Token enthält `manager`, die API antwortet 200.
 Hans bleibt bei 403, ohne Token 401.
 
-### Versuch 4
+### Aufgabe 4
 
 Nach dem `modrdn` findet die Suche unter `OU=Users` nichts (Exit 0, null Einträge), die Suche unter der
 Team-OU liefert den neuen DN mit unveränderter `objectGUID`. Ein Login als Hans mit Users DN `OU=Users`
@@ -210,7 +210,7 @@ Nach Erweiterung der Users DN auf die Team-OU und "Sync all users" ist Hans wied
 `OU=Moved`. Der `sub` im Token ändert sich damit ebenfalls; Anwendungen, die Benutzer an `sub` binden,
 verlieren die Zuordnung. Die stabile Identität ist `objectGUID`.
 
-### Versuch 5
+### Aufgabe 5
 
 Anna aus `Teamleitung` entfernt um 17:47:30 UTC, Token `exp` 17:49:30. Der alte Token liefert vor und
 nach dem Keycloak-Sync 200 und erst nach `exp` 401: Die API prüft nur Signatur und Ablauf. Nach dem Sync
@@ -230,12 +230,12 @@ Hans deaktiviert (`userAccountControl` 66050) um 17:47:42 UTC, Hans lag dabei in
 | Refresh nach dem Sync                      | `invalid_grant`, "User disabled"                                   |
 | Sitzungen nach dem Sync                    | beide Sitzungen bestehen weiter; der Sync beendet keine Sitzungen  |
 
-### Versuch 6
+### Aufgabe 6
 
 LDIF 04, 05, 06, Users DN zurück auf `OU=Users`, Sync und "Beende alle Sitzungen": Hans ist aktiviert
 (`userAccountControl` 66048), die drei Gruppen entsprechen der Baseline. Frische Logins liefern Hans
 200 auf `/api/urlaubsantraege` und 403 auf `/alle`, Anna 200 auf beiden. Hans behält die neue Keycloak-ID
-aus Versuch 4. `Reset-Team.ps1 -Team 01` ändert danach nichts mehr.
+aus Aufgabe 4. `Reset-Team.ps1 -Team 01` ändert danach nichts mehr.
 
 ### Anmeldung, Delegation und Netz
 
@@ -286,9 +286,9 @@ Klicks in der Admin-Konsole.
 ## Ersatz mit OpenLDAP
 
 Ohne GCP läuft die Einheit mit Lab 07c und dem [Begleitmaterial](../ldap-ad/README.md).
-Versuch 1, 3 (Gruppenänderung per LDIF), 5 (Rechteentzug) und 6 laufen dort gleichwertig,
-mit `entryUUID` statt `objectGUID` und `groupOfNames` statt `group`. Versuch 2 entfällt bis auf
-den Provider aus Lab 07c ohne TLS. Versuch 4 lässt sich mit `ldapmodrdn` nachstellen; die
+Aufgabe 1, 3 (Gruppenänderung per LDIF), 5 (Rechteentzug) und 6 laufen dort gleichwertig,
+mit `entryUUID` statt `objectGUID` und `groupOfNames` statt `group`. Aufgabe 2 entfällt bis auf
+den Provider aus Lab 07c ohne TLS. Aufgabe 4 lässt sich mit `ldapmodrdn` nachstellen; die
 AD-spezifischen Teile (MSAD-Mapper, `userAccountControl`, Zertifikatskette gegen Windows)
 werden anhand des Abschnitts "Beobachtungen aus dem Probelauf" besprochen und als Aufzeichnung genannt.
 

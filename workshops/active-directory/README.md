@@ -12,7 +12,7 @@ gcloud CLI, ein RDP-Client und ein GCP-Projekt mit aktivierter Compute Engine AP
 
 ## Ablauf
 
-| Minuten | Versuch                         | Nachweis                                            |
+| Minuten | Aufgabe                         | Nachweis                                            |
 | ------- | ------------------------------- | --------------------------------------------------- |
 | 0-15    | AD-Einträge lesen               | DN, UPN, GUID und direkte Mitglieder identifiziert  |
 | 15-35   | Keycloak über LDAPS verbinden   | Hans meldet sich frisch am Portal an                |
@@ -27,7 +27,7 @@ gcloud CLI, ein RDP-Client und ein GCP-Projekt mit aktivierter Compute Engine AP
 | ------------------------------- | ----------------------------------------------------------------------- |
 | [aufgabe.md](aufgabe.md)        | Teilnehmeraufgabe mit Vorhersagen, Befehlen für Bash und PowerShell     |
 | [trainer.md](trainer.md)        | Bereitstellung, Musterlösung, beobachtetes Verhalten, Diagnose, Abbau   |
-| [solution/](solution/README.md) | Vollständiger LDAP-Provider per `kcadm`, Umschaltung je Versuch         |
+| [solution/](solution/README.md) | Vollständiger LDAP-Provider per `kcadm`, Umschaltung je Aufgabe         |
 | [lab/](lab/docker-compose.yml)  | Lokaler Stack: Keycloak 26.5.7, PostgreSQL 18, Portal, API, LDAP-Tools  |
 | [lab/ldif/](lab/ldif/team01)    | Änderungs- und Rücknahme-LDIFs je Team                                  |
 | [scripts/](scripts)             | Bereitstellung, Initialisierung, Prüfung, Reset und Abbau in PowerShell |
@@ -71,7 +71,7 @@ stoppen keine Ausgaben. Der Abbau mit `Remove-Workshop.ps1` beendet alle Posten.
 4. Im Gast `Initialize-Workshop.ps1 -CertificateValidUntil <Datum>`; `workshop-ca.crt`,
    `workshop-ad.json` und die `team<NN>.json` vom DC holen.
 5. `Test-Workshop.ps1 -Mode Guest` auf dem DC, `Test-Workshop.ps1 -Mode Trainer -IncludeIap` lokal.
-6. Je Team einen Zettel mit IP, CA-Fingerprint und den vier Passwörtern ausgeben.
+6. Je Team IP, CA-Fingerprint und die vier Passwörter übermitteln, etwa über den Kurschat.
 7. Nach dem Workshop `Remove-Workshop.ps1 -PlanOnly`, dann `Remove-Workshop.ps1`.
 
 Details, Beispielwerte und die im Probelauf beobachteten Ergebnisse stehen in [trainer.md](trainer.md).

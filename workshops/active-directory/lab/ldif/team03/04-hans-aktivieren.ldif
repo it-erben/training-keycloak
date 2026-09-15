@@ -1,4 +1,4 @@
-# Versuch 6: Konto wieder aktivieren (ACCOUNTDISABLE entfernen).
+# Aufgabe 6: Konto wieder aktivieren (ACCOUNTDISABLE entfernen).
 dn: CN=Hans Mueller,OU=Moved,OU=Team03,OU=Workshop,DC=ad,DC=mustertech,DC=test
 changetype: modify
 replace: userAccountControl

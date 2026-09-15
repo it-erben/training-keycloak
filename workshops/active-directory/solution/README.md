@@ -1,7 +1,7 @@
 # Trainerlösung: LDAP-Provider per kcadm
 
 `apply-solution.sh` legt den vollständigen LDAP-Provider für ein Team an und schaltet die
-Einstellungen um, die die Teilnehmer in den Versuchen von Hand ändern. Das Skript läuft im
+Einstellungen um, die die Teilnehmer in den Aufgaben von Hand ändern. Das Skript läuft im
 Keycloak-Container des lokalen Stacks; der Compose-Stack bindet dieses Verzeichnis unter
 `/workshop/solution` und `lab/secrets/` unter `/workshop/secrets` ein.
 
@@ -31,9 +31,9 @@ docker compose exec -e TEAM=01 keycloak bash /workshop/solution/apply-solution.s
 | `status`             | Provider- und Mapper-Konfiguration, Keycloak-Gruppen von Hans und Anna           |
 | `delete`             | Entfernt den Provider samt importierten Benutzern                                |
 
-Der Ablauf des Workshops entspricht dieser Reihenfolge: `create`, `sync` (Versuch 2),
-`strategy recursive`, `sync` (Versuch 3), `users-dn team`, `sync` (Versuch 4), nach jeder
-AD-Änderung `sync` (Versuch 5), zum Schluss `users-dn users`, `sync`, `logout-sessions` (Versuch 6).
+Der Ablauf des Workshops entspricht dieser Reihenfolge: `create`, `sync` (Aufgabe 2),
+`strategy recursive`, `sync` (Aufgabe 3), `users-dn team`, `sync` (Aufgabe 4), nach jeder
+AD-Änderung `sync` (Aufgabe 5), zum Schluss `users-dn users`, `sync`, `logout-sessions` (Aufgabe 6).
 
 ## Endzustand des Providers
 

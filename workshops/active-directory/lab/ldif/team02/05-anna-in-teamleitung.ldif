@@ -1,4 +1,4 @@
-# Versuch 6: Anna wieder in Teamleitung aufnehmen.
+# Aufgabe 6: Anna wieder in Teamleitung aufnehmen.
 dn: CN=Teamleitung,OU=Groups,OU=Team02,OU=Workshop,DC=ad,DC=mustertech,DC=test
 changetype: modify
 add: member
