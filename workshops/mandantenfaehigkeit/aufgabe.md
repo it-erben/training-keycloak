@@ -13,13 +13,12 @@ Am Ende dieses Workshops hast du:
 
 ## Ausgangslage: Mustertech wächst zusammen
 
-Die folgende Situation ist fiktiv. Mustertech Nord und Mustertech Süd gehören nach einer
-Fusion zur Mustertech GmbH. Beide haben vorerst ein eigenes Active Directory. Die
-Benutzerverzeichnisse werden in den nächsten sechs Monaten nicht zusammengelegt.
+Im folgenden erfundenen Fall fusionieren Mustertech Nord und Mustertech Süd zur
+Mustertech GmbH. Beide behalten für mindestens sechs Monate ihr eigenes Active Directory.
 
 Das zentrale IAM-Team darf die Identitätsplattform beider Bereiche administrieren.
-Regionale Helpdesks dürfen nur Benutzer ihres Bereichs betreuen. Die konkrete Umsetzung
-der delegierten Administration muss vor einem produktiven Einsatz geprüft werden.
+Regionale Helpdesks dürfen nur Benutzer ihres Bereichs betreuen. Haltet fest, wie ihr
+später testen würdet, dass ein Helpdesk diese Grenze tatsächlich einhält.
 
 | Anwendung            | Nutzerkreis                    | Fachliche Regel                               |
 | -------------------- | ------------------------------ | --------------------------------------------- |
@@ -27,8 +26,8 @@ der delegierten Administration muss vor einem produktiven Einsatz geprüft werde
 | Dokumentenservice    | Nord, Süd und externe Partner  | Dokumente bleiben einem Bereich zugeordnet    |
 | Abrechnungsanwendung | Gesondert berechtigte Personen | Eigene Anmeldung mit strengeren Anforderungen |
 
-Für die Abrechnungsanwendung verlangt die Fallvorgabe eine getrennt verwaltbare
-Identitätskonfiguration. Eine unabhängige Infrastruktur ist bisher nicht gefordert.
+Die Abrechnungsanwendung braucht eine eigene, getrennt verwaltbare Identitätskonfiguration.
+Sie darf dieselbe Infrastruktur wie das Portal nutzen.
 
 Anna arbeitet für Nord und Süd. Sie muss im Dokumentenservice zwischen beiden Bereichen
 wechseln können. Ein externer Partner darf ausschließlich freigegebene Dokumente von
@@ -37,11 +36,11 @@ sich um zwei unterschiedliche Personen.
 
 ## Teil 1: Architektur wählen
 
-Vergleiche einen gemeinsamen Realm mit mehreren Realms. Berücksichtige Organizations
-als mögliche Struktur innerhalb eines Realms sowie Clients, Gruppen und Rollen.
+Vergleicht einen gemeinsamen Realm mit mehreren Realms. Überlegt, wofür ihr Organizations,
+Clients, Gruppen und Rollen einsetzen würdet. Ihr müsst nicht jedes dieser Mittel verwenden.
 
-Zeichne Benutzerquellen, Realms, Anwendungen und die Orte der Berechtigungsprüfung.
-Beschrifte die Vertrauensbeziehungen. Halte fest:
+Zeichnet die Benutzerquellen, Realms und Anwendungen. Markiert, wer wem vertraut und wer
+den Zugriff auf ein Dokument prüft. Beantwortet dabei:
 
 1. Wo liegen die Grenzen für Benutzer, Konfiguration und Administration?
 2. Zwischen welchen Anwendungen soll SSO gelten? Wo ist eine eigene Anmeldung vorgesehen?
@@ -49,19 +48,23 @@ Beschrifte die Vertrauensbeziehungen. Halte fest:
 4. Wie werden Annas zwei Zugehörigkeiten und die Partnerberechtigung abgebildet?
 5. Welche Annahme würde euch zur Wahl einer anderen Architektur bewegen?
 
-Eine Identität darf nicht allein anhand einer gleichen E-Mail-Adresse zusammengeführt werden.
-Lege einen überprüfbaren Prozess für die Zuordnung von Konten fest.
+Beschreibt, wie ihr feststellt, ob zwei Quellkonten derselben Person gehören.
+Eine übereinstimmende E-Mail-Adresse allein genügt dafür nicht.
 
 ## Teil 2: Datenzugriff entwerfen
 
 Ein Dokument trägt die Felder `id` und `bereich`. Anna sendet einen Request auf
 `GET /dokumente/4711?bereich=sued`. Das Dokument gehört zu Nord.
 
-Beschreibe, welche Informationen die API aus dem geprüften Token und welche sie aus
-ihren eigenen Daten benötigt. Entscheide, ob der Request erlaubt ist. Der Parameter
-`bereich` ist eine Eingabe des Clients und kann verändert werden.
+Legt zuerst fest, was `bereich` in eurer API bedeutet: Begrenzt er den aktuellen
+Arbeitskontext, oder ist er nur ein Suchfilter? Beschreibt dann, welche Angaben die API
+aus dem geprüften Token und welche sie aus ihren eigenen Daten verwendet. Entscheidet,
+ob Annas Request erlaubt ist, und begründet das anhand eurer Regel.
 
-Ergänze mindestens vier Testfälle:
+Der Client kann `bereich` beliebig verändern. Prüft euren Entwurf deshalb auch mit dem
+Partnerkonto, das keine Nord-Rechte besitzt.
+
+Ergänzt mindestens vier Testfälle:
 
 | Person und Kontext | Angefragtes Objekt | Erwartetes Ergebnis | Begründung / Nachweis |
 | ------------------ | ------------------ | ------------------- | --------------------- |
@@ -72,15 +75,16 @@ Ergänze mindestens vier Testfälle:
 
 ## Teil 3: Ergebnis vorstellen
 
-Bereite eine siebenminütige Vorstellung vor: Architektur, zwei bewusste Abwägungen,
-ein erlaubter Zugriff und ein abgewehrter Zugriff. Die andere Gruppe prüft, ob eure
-Annahmen die Entscheidung tragen und ob sie einen unzulässigen Zugriff findet.
+Ihr habt sieben Minuten für euren Entwurf. Zeigt die Architektur und erklärt an zwei
+Stellen, warum ihr euch so entschieden habt. Führt dann einen erlaubten und einen
+verweigerten Zugriff durch das Diagramm. Die andere Gruppe versucht, einen Weg zu einem
+Dokument zu finden, auf das sie keinen Zugriff haben dürfte.
 
 ## Zusatzfall für 90 Minuten
 
 Mustertech Süd verlangt künftig eine eigene Betriebsorganisation. Das zentrale IAM-Team
 soll Süd weder administrieren noch dessen Ausfallrisiko mitbestimmen können.
 
-Welche Teile eurer Architektur reichen noch? Welche Grenzen müssten zusätzlich auf
-Infrastruktur-, Datenbank- und Betriebsebene entstehen? Unterscheide dabei ein separates
-Realm von einer unabhängig betriebenen Installation.
+Was müsstet ihr dafür an Infrastruktur, Datenbank und Betriebszugängen ändern?
+Erklärt, welche Forderungen ein weiterer Realm erfüllt und wofür Süd eine unabhängig
+betriebene Installation braucht.

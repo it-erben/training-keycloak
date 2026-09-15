@@ -2,9 +2,10 @@
 
 ## Lernziel und Ablauf
 
-Die Gruppe soll eine Bestandsaufnahme in einen überprüfbaren Übergabe- und Umschaltplan
-übersetzen. Es gibt keinen universellen Migrationsbefehl. Verfahren, Version,
-Erweiterungen und Sitzungsanforderungen bestimmen das Vorgehen.
+Die Gruppe plant, wie sie eine fremde Keycloak-Installation übernimmt und vor der
+Umschaltung prüft. Dabei muss sie entscheiden, welche Daten fehlen, wer sie beschafft
+und wann ein Rückfall nötig wird. Das Verfahren hängt vom Softwarestand, den Erweiterungen
+und der Frage ab, ob bestehende Sitzungen erhalten bleiben müssen.
 
 | Minute | Moderation                                                          |
 | ------ | ------------------------------------------------------------------- |
@@ -13,10 +14,11 @@ Erweiterungen und Sitzungsanforderungen bestimmen das Vorgehen.
 | 35-49  | Jede Gruppe stellt sieben Minuten vor                               |
 | 49-60  | Abbruchkriterien und Zustand nach einem Rückfall vergleichen        |
 
-Der Fall ist fiktiv. Die Architektur eines realen Kunden darf daraus nicht abgeleitet
-werden. Die Gruppe plant auf Papier; ein Cluster oder die Schulungsumgebung wird nicht verändert.
+Für die 23 Minuten Gruppenarbeit sind 7 Minuten Übergabefragen, 9 Minuten Verfahren und
+Umschaltplan sowie 7 Minuten Tests und Vorbereitung der Vorstellung vorgesehen.
+Die Gruppe arbeitet auf Papier. Eine reale Installation wird dabei nicht verändert.
 
-## Acht Fragen an den Dienstleister
+## Was vor der Übernahme geklärt sein muss
 
 | Bereich             | Frage und benötigter Nachweis                                                                  |
 | ------------------- | ---------------------------------------------------------------------------------------------- |
@@ -29,12 +31,13 @@ werden. Die Gruppe plant auf Papier; ein Cluster oder die Schulungsumgebung wird
 | Öffentlicher Zugang | Plattformteam belegt Kontrolle über DNS, TLS, Proxy und öffentliche Discovery-Antwort.         |
 | Betrieb             | Plattform- und DB-Team übernehmen Konfiguration, Themes, Logs, Backups und Wiederanlaufprobe.  |
 
-Diese Zuordnung ist eine mögliche Rollenverteilung für den Fall. Zu jeder Zeile gehört
-die konkrete Frage, ob der genannte Nachweis vollständig vorliegt und wer offene Punkte
-bis zur Umschaltung bearbeitet. Stichpunkte genügen in der Gruppenarbeit.
+Die Tabelle zeigt eine mögliche Rollenverteilung. Wenn die Gruppe einen Punkt als geklärt
+betrachtet, frage nach, wie sie die Antwort prüfen würde und wer dafür zuständig ist.
+"Wir bekommen ein Backup" genügt erst, wenn feststeht, wer es bereitstellt und ob der Restore funktioniert.
 
-Eine zusätzliche frühe Geschäftsentscheidung ist, ob erneute Anmeldung akzeptabel ist.
-Die Zahl und Art der zu erhaltenden Sitzungen darf nicht erst im Wartungsfenster auffallen.
+Noch vor der Wahl des Verfahrens braucht es eine Entscheidung zu den Sitzungen:
+Dürfen sich Benutzer nach der Übernahme neu anmelden müssen? Diese Frage gehört zu den
+Anwendungsverantwortlichen und muss vor dem Wartungsfenster beantwortet sein.
 
 ## Die vorhandene Exportdatei
 
@@ -44,26 +47,26 @@ beschriebene Übernahme. Auch ein CLI-Realm-Export ist kein vollständiges Abbil
 Betriebszustands. Sitzungen und Ereignishistorie müssen gesondert betrachtet werden.
 Themes, Java-Provider, Infrastruktur und extern verwaltete Secrets sind separat zu sichern.
 
-Die Aussage "Export ist Backup" muss präzisiert werden: Welche Daten sind enthalten,
-welche fehlen und wie wurde die Wiederherstellung geprüft?
+Wenn jemand den Export als Backup bezeichnet, lass die Gruppe dessen Inhalt aufzählen.
+Spätestens bei Partnerkonten, Secrets und Sitzungen wird die Lücke sichtbar.
 
-## Zwei vertretbare Übertragungswege
+## Datenbank übernehmen oder Realm exportieren?
 
 | Weg                   | Voraussetzung                                              | Wesentliche Grenze              |
 | --------------------- | ---------------------------------------------------------- | ------------------------------- |
 | Datenbankübernahme    | Backup-Restore bei gleichem Softwarestand erprobt          | Externe Dateien separat sichern |
 | CLI-Export und Import | Vollständiger Export, Quellknoten gestoppt, Import erprobt | Laufende Sitzungen fehlen       |
 
-Für den Fall ist eine Datenbankübernahme mit identischem Keycloak-Image eine plausible
-erste Option, sofern der Dienstleister sie ermöglicht. Ein gleichzeitiges Upgrade wird
-vermieden. Persistent gespeicherte Sitzungsdaten können zwar in einer DB-Sicherung liegen;
-ob Sitzungen nach der Übernahme tatsächlich fortsetzbar sind, muss mit Konfiguration,
-Schlüsseln, Cookies und Anwendungen getestet werden.
+Für Mustertech bietet sich zuerst die Datenbankübernahme mit identischem Keycloak-Image an,
+sofern der Dienstleister den nötigen Zugriff gewährt. Ein Upgrade kann später separat
+geplant werden. Persistent gespeicherte Sitzungen können im DB-Backup enthalten sein.
+Ob der Browser sie nach dem Umzug weiterverwenden kann, zeigt aber erst ein Test mit der
+Zielkonfiguration, den Schlüsseln, Cookies und angeschlossenen Anwendungen.
 
-Alternativ ist ein vollständiger CLI-Export mit anschließendem Import vertretbar, wenn
-neue Anmeldungen akzeptiert werden und alle erforderlichen Daten und Schlüssel verfügbar
-sind. Ein fehlender DB-Zugang entscheidet nicht automatisch für diesen Weg: Auch der
-CLI-Export muss vom Dienstleister ermöglicht werden.
+Akzeptiert Mustertech neue Anmeldungen, kommt auch ein vollständiger CLI-Export mit
+anschließendem Import infrage. Dafür müssen sämtliche benötigten Daten und Schlüssel
+verfügbar sein. Auch dieser Weg braucht die Mitarbeit des Dienstleisters, denn ohne
+Zugriff auf dessen Installation kann das Zielteam den Export nicht erstellen.
 
 Ein Datenbankschema nach einem Versionsupgrade darf nicht ungeprüft mit der alten
 Keycloak-Version gestartet werden. Ein Rückfall braucht einen passenden alten Software-
@@ -71,19 +74,21 @@ und Datenstand. Der Keycloak Operator ersetzt weder DB-Sicherung noch Migrations
 
 ## Was für Anwendungen stabil bleiben muss
 
-Der öffentliche Issuer ergibt sich aus öffentlicher Keycloak-URL und Realm. Ein Wechsel
-von `login.mustertech.example` auf einen internen Service-Namen verändert diesen Vertrag,
-auch wenn der Server erreichbar ist. Discovery, Token-Aussteller und erwartete Issuer
-müssen zusammenpassen. Interne Netzwerkadressen dürfen gesondert konfiguriert sein.
+Die Anwendungen erwarten den bisherigen öffentlichen Issuer aus Keycloak-URL und Realm.
+Steht nach dem Umzug ein interner Service-Name statt `login.mustertech.example` darin,
+können sie Tokens ablehnen, obwohl Keycloak erreichbar ist. Vergleicht deshalb den Issuer
+in Discovery und Token mit der Anwendungskonfiguration. Interne Netzwerkadressen dürfen
+davon abweichend konfiguriert sein.
 
 Zu prüfen sind außerdem Client-IDs, Redirect- und Logout-URLs, vertrauliche Client-Secrets,
 Schlüsselmaterial, Benutzeridentitäten (`iss`, `sub`) und externe Provider.
-Nur DNS umzuschalten belegt weder die Identitätskontinuität noch gültige Integrationen.
+Diese Werte müssen auch nach der DNS-Umschaltung zu den Anwendungen passen.
 
 ## Beispiel für Abnahme und Umschaltung
 
-Die Zeiten unten sind eine mögliche Planung. Eine Probe muss bestätigen, dass Übernahme
-und Rückfall tatsächlich ins einstündige Fenster passen. Sonst wird das Fenster erweitert.
+Der Beispielplan lässt ab 10:40 Uhr zwanzig Minuten für einen Rückfall. Ob das reicht,
+muss eine Probe zeigen. Dauert sie länger, braucht Mustertech ein größeres Wartungsfenster
+oder einen früheren Entscheidungspunkt.
 
 | Zeitpunkt   | Handlung und Entscheidung                                                                    |
 | ----------- | -------------------------------------------------------------------------------------------- |
@@ -95,9 +100,9 @@ und Rückfall tatsächlich ins einstündige Fenster passen. Sonst wird das Fenst
 | Bis 10:40   | Funktionstests und Fehlerraten prüfen; benannter Verantwortlicher entscheidet                |
 | 10:40-11:00 | Erprobten Rückfall ausführen, falls Abnahmekriterien fehlen                                  |
 
-Ein reiner Stopp der Admin-Konsole ist kein vollständiger Schreibstopp. Selbstregistrierung,
-Passwortänderungen, API-Verwaltung und föderierte Synchronisation können Daten ändern.
-Die erlaubten Schreibvorgänge während der Beobachtung müssen festgelegt sein.
+Auch ohne Admin-Konsole entstehen Schreibzugriffe: Benutzer ändern Passwörter, registrieren
+sich selbst, Verwaltungs-APIs schreiben Daten und die Föderation synchronisiert Konten.
+Die Gruppe muss festlegen, welche dieser Vorgänge sie während der Übernahme zulässt.
 
 In diesem Beispiel verantwortet die benannte Einsatzleitung des Plattformteams die
 Umschaltung und entscheidet spätestens um 10:40 Uhr über den Rückfall. Sie holt dafür
@@ -124,23 +129,25 @@ vereinbarten Kontrollen. Eine grüne Readiness-Prüfung ersetzt diese Abnahmen n
 
 ## Rückfall und Zusatzfall
 
-Die API-Ablehnung kann etwa durch einen falschen Issuer, fehlende beziehungsweise
-unpassende Prüfschlüssel, eine falsche Audience oder veränderte Claims entstehen.
-Zuerst Status und Fehlergrund aufnehmen, Token-Metadaten und API-Konfiguration vergleichen.
+Bei der API kommen ein falscher Issuer, unpassende Prüfschlüssel, eine falsche Audience
+oder veränderte Claims als Ursache infrage. Lass die Gruppe eine davon auswählen und
+einen Test beschreiben: etwa den abgelehnten `iss`-Wert mit dem konfigurierten Aussteller
+vergleichen. HTTP-Status und Fehlergrund helfen, die Suche einzugrenzen.
 Tokens und Secrets gehören nicht in öffentliche Logs oder gemeinsam geteilte Screenshots.
 
 Beim Batch-Dienst Client-ID, Secret-Übergabe, Service-Account-Konfiguration, Rollen und
 Erreichbarkeit getrennt prüfen. Ein Portal-Login prüft dessen Client Credentials nicht mit.
 
-Ein Rückfall auf die alte Datenbank verwirft dort unbekannte Änderungen aus dem Ziel.
-Die Passwortänderung des Partners ist deshalb relevant. Vorher klären, ob Zieländerungen
-verhindert, kontrolliert übernommen oder mit einem angekündigten Recovery-Verfahren
-behandelt werden. Auch bereits ausgegebene Tokens und Sitzungen gehören in diese Entscheidung.
-DNS-Caches können zusätzlich dazu führen, dass zeitweise beide Ziele angesprochen werden.
+In der alten Datenbank steht noch das alte Passwort des Partners. Nach einem Rückfall
+würde dessen neues Passwort dort nicht funktionieren. Die Gruppe muss daher entscheiden,
+ob sie Änderungen im Ziel zunächst verhindert, vor dem Rückfall übernimmt oder über ein
+angekündigtes Wiederherstellungsverfahren behandelt. Dazu gehört auch der Umgang mit
+bereits ausgestellten Tokens und Sitzungen. Wegen DNS-Caches können außerdem zeitweise
+beide Installationen angesprochen werden.
 
-Eine akzeptable Gruppenlösung nennt einen Entscheider, einen Zeitpunkt, technische
-Auslöser, den Datenstand nach Rückfall und die Kommunikation an Betroffene.
-"DNS zurückstellen und fertig" erfüllt diese Kriterien nicht.
+Frage beim Rückfallplan nach dem Entscheider, der Frist und dem erwarteten Datenstand.
+Dann lass die Gruppe formulieren, was sie dem Partner über sein Passwort mitteilt.
+An dieser Antwort lässt sich erkennen, ob der Plan die Folgen für Benutzer berücksichtigt.
 
 ## Hilfen und Abschluss
 
@@ -156,9 +163,9 @@ sie die Umschaltung ablehnen würde. Eine begründete Absage ist ein gültiges E
 
 ## Fachliche Quellen
 
-Die versionsgebundene Export-Dokumentation bezieht sich auf Keycloak 26.5.0. Aktuelle
-Betriebsdokumentation muss bei einer realen Übernahme gegen die eingesetzte Version
-geprüft werden. Dieses Planspiel ist kein erprobter Migrationsleitfaden für eine reale Installation.
+Die verlinkte Export-Dokumentation beschreibt Keycloak 26.5.0. Die übrigen Betriebsseiten
+werden fortlaufend aktualisiert; bei einer realen Übernahme zählt die tatsächlich eingesetzte
+Version. Den hier entworfenen Ablauf muss das Betriebsteam an seiner Installation erproben.
 
 - [Import/Export, Keycloak 26.5.0][export-version]
 - [Aktuelle Grenzen von Import und Export][export]

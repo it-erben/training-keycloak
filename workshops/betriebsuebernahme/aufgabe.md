@@ -4,8 +4,8 @@
 
 Am Ende dieses Workshops hast du:
 
-- Die benötigten Übergabeinformationen einer Keycloak-Installation benannt
-- Eine Übertragungsmethode mit Voraussetzungen gewählt
+- Fehlende Daten und Zugänge beim bisherigen Betreiber angefordert
+- Ein Verfahren für die Datenübernahme gewählt und dessen Voraussetzungen erklärt
 - Abnahme, Umschaltung und Rückfall für eine Betriebsübernahme geplant
 
 **Geschätzte Dauer:** 60 Minuten einschließlich Einstieg und Auswertung.
@@ -13,9 +13,9 @@ Am Ende dieses Workshops hast du:
 
 ## Ausgangslage: Mustertech übernimmt den Betrieb
 
-Die folgende Situation ist fiktiv. Ein Dienstleister betreibt Keycloak für Mustertech.
-Künftig soll das interne Plattformteam den Dienst auf seinem Kubernetes-Cluster betreiben.
-Ein Keycloak Operator ist vorhanden. Die Datenbank muss separat bereitgestellt werden.
+In diesem erfundenen Fall übernimmt Mustertech den Keycloak-Betrieb von einem Dienstleister.
+Das interne Plattformteam hat dafür einen Kubernetes-Cluster mit Keycloak Operator vorbereitet.
+Die Datenbank fehlt noch; sie muss separat bereitgestellt werden.
 
 | Merkmal               | Bekannter Stand                                             |
 | --------------------- | ----------------------------------------------------------- |
@@ -32,22 +32,22 @@ Neue Anmeldungen dürfen im angekündigten Zeitfenster kurzzeitig ausfallen. Ob 
 Sitzungen erhalten bleiben müssen, wurde noch nicht entschieden. Ein Versionsupgrade
 ist für die Betriebsübernahme nicht verlangt.
 
-Der Dienstleister kann weitere Artefakte bereitstellen. Zugriff auf die Datenbank,
-private Realm-Schlüssel, Secrets und das Custom Image muss aber ausdrücklich geklärt werden.
-Die Kontrolle über den öffentlichen Hostnamen und das Zertifikat ist ebenfalls offen.
+Der Dienstleister kann weitere Dateien und Zugänge liefern. Bisher ist jedoch ungeklärt,
+ob ihr die Datenbank, privaten Realm-Schlüssel, Secrets und das Custom Image bekommt.
+Auch die Zuständigkeit für DNS und Zertifikat steht noch nicht fest.
 
 ## Teil 1: Übergabe vervollständigen
 
-Formuliere acht konkrete Fragen beziehungsweise Anforderungen an den Dienstleister.
-Ordne jede einem Verantwortlichen und einem Nachweis zu. Entscheide außerdem:
+Formuliert acht Fragen oder Anforderungen an den Dienstleister. Schreibt jeweils dazu,
+wer die Antwort beschafft und woran ihr erkennt, dass der Punkt geklärt ist. Entscheidet außerdem:
 
 - Reicht die vorhandene Datei für die Übernahme?
 - Unter welchen Voraussetzungen würdet ihr eine Datenbankübernahme wählen?
 - Unter welchen Voraussetzungen würdet ihr einen CLI-Realm-Export wählen?
 - Welche Entscheidung zur Behandlung laufender Sitzungen braucht ihr vorab?
 
-Die Gruppen dürfen unterschiedliche Wege wählen. Jede Voraussetzung muss benannt sein.
-Stichpunkte und ein Ablaufdiagramm genügen; ein ausgearbeitetes Betriebshandbuch ist nicht nötig.
+Wählt einen Weg und notiert, was dafür vorliegen muss. Stichpunkte und ein Ablaufdiagramm
+genügen für die Vorstellung.
 
 ## Teil 2: Umschaltung planen
 
@@ -60,8 +60,9 @@ Erstellt einen Ablauf mit diesen Stationen:
 5. Umschaltung und Beobachtung
 6. Entscheidung über Abschluss oder Rückfall
 
-Legt einen spätesten Entscheidungspunkt im Zeitfenster fest. Benennt, wer entscheiden
-darf. Plant ein, wie Datenänderungen nach der Umschaltung einen Rückfall beeinflussen.
+Bis wann müsst ihr entscheiden, damit ein Rückfall noch vor 11 Uhr abgeschlossen ist?
+Benennt die Person oder Rolle, die diese Entscheidung trifft. Legt auch fest, was mit
+Passwortänderungen und anderen Daten passiert, die erst im Zielsystem entstehen.
 
 | Schritt | Verantwortlich | Voraussetzung | Nachweis | Abbruchkriterium |
 | ------- | -------------- | ------------- | -------- | ---------------- |
@@ -69,11 +70,14 @@ darf. Plant ein, wie Datenänderungen nach der Umschaltung einen Rückfall beein
 |         |                |               |          |                  |
 |         |                |               |          |                  |
 |         |                |               |          |                  |
+|         |                |               |          |                  |
+|         |                |               |          |                  |
 
 ## Teil 3: Abnahme definieren
 
-Mindestens sechs Prüfungen müssen über "Pod ist grün" hinausgehen. Berücksichtige alle
-vier Anwendungstypen, einen verweigerten Zugriff, die Benutzerquellen und den Betrieb.
+Formuliert mindestens sechs Tests mit erwarteten Ergebnissen. Deckt damit alle vier
+Anwendungstypen, einen verweigerten Zugriff, AD- und lokale Benutzer sowie den Betrieb ab.
+Ein laufender Pod allein zeigt noch nicht, ob sich ein Partner mit MFA anmelden kann.
 
 Bereitet eine siebenminütige Vorstellung vor. Zeigt das gewählte Verfahren, zwei
 entscheidende offene Punkte, eure Abnahmekriterien und den Rückfallplan.
@@ -86,6 +90,6 @@ bereits sein Passwort geändert.
 
 Die andere Gruppe fragt nun: "Warum nicht einfach den DNS-Eintrag zurücksetzen?"
 
-Formuliert überprüfbare Hypothesen für die beiden technischen Fehler. Entscheidet, welche
-Informationen ihr vor einem Rückfall benötigt und wie ihr die Passwortänderung behandelt.
-Begründet eine Entscheidung, ohne einen nicht getesteten Zustand als sicher anzunehmen.
+Nennt für beide Fehler eine mögliche Ursache und einen Test, mit dem ihr sie prüfen könnt.
+Entscheidet dann, ob ihr zurückschaltet und was mit dem neuen Passwort des Partners passiert.
+Falls euch dafür Informationen fehlen, sagt genau, welche ihr zuerst beschaffen müsst.

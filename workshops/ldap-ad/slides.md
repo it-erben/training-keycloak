@@ -20,8 +20,8 @@ Nach diesem Modul kannst du:
 
 - **LDAP-Suchen** anhand von Basis, Scope und Filter erklären.
 - **Bind-Konto und Benutzerlogin** auseinanderhalten.
-- **Import, Cache und Tokens** bei Änderungen getrennt betrachten.
-- Eine OpenLDAP-Konfiguration auf ihre **AD-Annahmen** prüfen.
+- Erklären, wann eine Gruppenänderung in **Keycloak und Tokens** sichtbar wird.
+- Benennen, was bei der Anbindung von **Active Directory** zusätzlich zu prüfen ist.
 
 ---
 
@@ -58,13 +58,13 @@ LDAP-ID, Keycloak-Benutzer-ID und OIDC-Subject sind unterschiedliche Bezeichner.
 
 ---
 
-## 1.2 Eine Suche braucht drei Entscheidungen
+## 1.2 Wo und wonach sucht Keycloak?
 
 - **Basis:** Unter welchem Eintrag beginnt die Suche?
 - **Scope:** Nur dieser Eintrag, direkte Kinder oder der ganze Teilbaum?
 - **Filter:** Welche Attribute müssen passen, etwa `(uid=hans.mueller)`?
 
-**Vorhersage:** Was liefert derselbe Filter unter `ou=groups`?
+Was findet dieser Filter unter `ou=groups`? Sagt das Ergebnis voraus.
 
 Ein erfolgreicher LDAP-Aufruf kann null Treffer liefern.
 
@@ -88,11 +88,11 @@ Ein erfolgreicher Test belegt noch keinen erfolgreichen Benutzerlogin.
 
 ---
 
-## 2.1 Drei Zustände und ein Token
+## 2.1 Wo liegen Benutzerdaten und Rechte?
 
 - **LDAP:** Benutzer, Passwortprüfung und LDAP-verwaltete Zugehörigkeiten
 - **Lokaler Import:** Dauerhafte Benutzerdaten mit Verknüpfung zum LDAP-Provider
-- **User Cache:** Zwischengespeicherte Sicht, zusätzlich zum Import
+- **User Cache:** Bereits gelesene Daten, die Keycloak wiederverwendet
 - **Access Token:** Bereits ausgestellte Claims ändern sich nicht nachträglich
 
 Im READ_ONLY-Lab werden LDAP-Passwörter nicht nach Keycloak kopiert.
@@ -108,7 +108,7 @@ Eine bestehende SSO-Sitzung kann eine erneute Passwortprüfung vermeiden.
 | WRITABLE  | Unterstützte Änderungen können ins LDAP geschrieben werden      |
 | UNSYNCED  | Änderungen können lokal bleiben, auch lokal gesetzte Passwörter |
 
-**Zusätzlich prüfen:** Import Users, Attribut-Mapper und tatsächliche LDAP-Rechte.
+Auch Import Users, Attribut-Mapper und die Rechte im LDAP bestimmen das Verhalten.
 Ein späterer Moduswechsel baut vorhandene Mapper nicht automatisch passend um.
 
 ---
@@ -119,7 +119,7 @@ Ein späterer Moduswechsel baut vorhandene Mapper nicht automatisch passend um.
 2. Benutzer importieren und einen frischen Login testen.
 3. Gruppen-Mapper einrichten und Gruppen auf Rollen abbilden.
 
-**Nachweise:** Richtiger Vorname, Federation Link und geerbte Rolle.
+Prüft den Vornamen, den Federation Link und die geerbte Rolle.
 
 Eine Person erklärt jeweils, was der nächste Klick bewirken soll.
 
@@ -127,14 +127,13 @@ Eine Person erklärt jeweils, was der nächste Klick bewirken soll.
 
 ## 3.1 Gegenproben · 15 Minuten
 
-**A: Suche**
-Gleicher Bind, gleicher Filter, andere Suchbasis. Erst vorhersagen, dann ausführen.
+Sucht Hans zuerst unter `ou=users`, dann unter `ou=groups`.
+Bind und Filter bleiben gleich. Sagt vor beiden Aufrufen das Ergebnis voraus.
 
-**B: Gruppenrecht**
-Anna vorübergehend zu `entwicklung` hinzufügen. LDAP und Keycloak getrennt prüfen,
-gezielt aktualisieren und die Änderung zurücknehmen.
+Fügt Anna vorübergehend der Gruppe `entwicklung` hinzu.
+Prüft die Änderung in LDAP und Keycloak, synchronisiert und nehmt sie wieder zurück.
 
-**Frage:** Was geschieht dabei mit einem bereits ausgestellten Token?
+Was geschieht dabei mit einem bereits ausgestellten Token?
 
 ---
 
@@ -150,9 +149,9 @@ gezielt aktualisieren und die Änderung zurücknehmen.
 
 ---
 
-## 4.1 AD ist mehr als ein anderer Servername
+## 4.1 Diese AD-Einstellungen braucht Keycloak
 
-- **Login:** `sAMAccountName` oder bewusst gewählter `userPrincipalName`
+- **Login:** `sAMAccountName` oder `userPrincipalName`, passend zum Anmeldekonzept
 - **Objekt-ID:** `objectGUID`; ein DN oder eine E-Mail ist kein Ersatz
 - **Gruppen:** Direkte und verschachtelte Mitgliedschaft unterscheiden
 - **Kontozustand:** MSAD User Account Mapper und Passwortzustände prüfen
@@ -171,7 +170,7 @@ Anna verliert eine AD-Gruppe oder ihr Konto wird deaktiviert.
 3. Was passiert bei neuem Login, bestehendem SSO und Refresh?
 4. Was akzeptiert die API mit einem vorhandenen Token noch?
 
-Die produktive Sperrwirkung braucht Tests und eine vereinbarte Zeitgrenze.
+Legt fest, wie schnell ein Rechteentzug wirken muss, und testet diese Frist bis zur API.
 
 ---
 
@@ -200,7 +199,7 @@ LDAP-Federation allein aktiviert diesen Ablauf nicht.
 
 ---
 
-## 4.5 Abschluss: Fünf Antworten ohne Admin-Konsole
+## 4.5 Zurück zu Hans und Anna
 
 - Warum kann Test authentication erfolgreich sein und Hans trotzdem nicht einloggen?
 - Was ändert ein OU-Wechsel an Suche und Identität?
@@ -208,7 +207,7 @@ LDAP-Federation allein aktiviert diesen Ablauf nicht.
 - Welche Einstellung fehlt für verschachtelte Gruppen möglicherweise?
 - Warum reicht LDAP-Anbindung nicht für Windows-SSO?
 
-AD-spezifisches Verhalten muss an der tatsächlichen AD-Umgebung erprobt werden.
+Welche dieser Antworten könnt ihr im OpenLDAP-Lab prüfen, für welche braucht ihr ein AD?
 
 ---
 

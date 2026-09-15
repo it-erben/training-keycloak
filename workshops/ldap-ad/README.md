@@ -1,8 +1,8 @@
 # LDAP, Active Directory und Keycloak verstehen
 
-Diese 90-Minuten-Einheit vertieft Modul 07. Sie verbindet die Grundlagen von LDAP mit
-Anmeldung, Datenhaltung, Gruppenrechten und dem Transfer auf Active Directory.
-Die praktische Grundlage ist das vorhandene [OpenLDAP-Lab 07c][lab].
+Wie findet Keycloak einen Benutzer im LDAP, wer prüft sein Passwort und wann kommen
+geänderte Gruppenrechte bei der Anwendung an? Diese 90-Minuten-Einheit vertieft Modul 07
+anhand des [OpenLDAP-Labs 07c][lab]. Anschließend behandelt sie die Unterschiede zu Active Directory.
 
 ## Ablauf
 
@@ -15,14 +15,14 @@ Die praktische Grundlage ist das vorhandene [OpenLDAP-Lab 07c][lab].
 | 75-90   | AD, TLS, Kerberos und Lebenszyklus           | Folien 12-17; Transferfragen auswerten        |
 
 Die Folien 10 und 11 leiten die Arbeitsphasen ein. Folie 18 enthält Quellen.
-Die Zeitangaben sind Planungswerte. Sind die Grundlagen bereits bekannt, die frei
-werdende Zeit für Fehlersuche und die AD-Fragen verwenden.
+Kennt die Gruppe LDAP bereits, bleibt mehr Zeit für die Fehlersuche und die AD-Fragen.
+Die 15 Minuten für Gegenproben setzen ein fertig eingerichtetes Lab voraus.
 
 ## Bearbeitbare Unterlagen
 
-- [Folien](slides.md): Einstieg, Login-Diagramm, Datenhaltung, Betrieb und AD-Transfer
-- [Teilnehmeraufgabe](aufgabe.md): zwei Gegenproben nach Lab 07c sowie Transferfragen
-- [Trainerleitfaden](trainer.md): Erklärtext, erwartete Ergebnisse, Hilfen und Musterantworten
+- [Folien](slides.md): vom LDAP-Login bis zu Kontosperren und Windows-SSO
+- [Teilnehmeraufgabe](aufgabe.md): zwei Gegenproben nach Lab 07c und Fragen zu AD
+- [Trainerleitfaden](trainer.md): Erklärungen zum Vortragen, Musterlösungen und Rückfragen
 - [Login-Diagramm](images/ldap-login.svg): direkt bearbeitbare SVG-Datei
 - [LDIF-Dateien](ldif/): Gruppenänderung und Rücknahme im lokalen Übungsverzeichnis
 
@@ -32,16 +32,17 @@ auf Keycloak 26.5 und die Konfiguration von Lab 07c.
 
 ## Vorbereitung
 
-Zuerst den Trainerleitfaden lesen. Für die Gruppe das Aufgabenblatt öffnen, die
-Musterantworten bleiben beim Trainer. Die Befehle der Zusatzaufgabe gehen vom
-Kurs-Repository aus; die ursprüngliche Lab-Anleitung verwendet teilweise `labs/` als Basis.
+Der Trainerleitfaden folgt dem zeitlichen Ablauf und enthält die Musterantworten.
+Während der Übung arbeitet die Gruppe nur mit dem Aufgabenblatt. Dessen Befehle starten
+im Hauptverzeichnis des Kurs-Repositories; die ursprüngliche Lab-Anleitung verwendet
+teilweise `labs/` als Basis.
 
 Das Lab benötigt Docker Compose. Zum Starten und Wechseln gelten die Hinweise in
 [Lab 07c][lab]. Vor dem Start einer anderen Übung den eigenen Lab-Zustand bewusst sichern
 oder verwerfen: Die Kurs-Labs verwenden dieselben Namen und Ports.
 
-Die Übungen führen keine AD-Verwaltung aus. OpenLDAP dient zum Prüfen der LDAP-Grundlagen;
-AD-Schema, Kerberos und produktive TLS-Konfiguration werden erklärt und als Transfer behandelt.
+Die praktischen Versuche laufen in OpenLDAP. AD-Schema, Kerberos und TLS im Produktivbetrieb
+werden anhand von Fragen besprochen; ein AD-Server gehört nicht zu dieser Übungsumgebung.
 
 ## Folien ausgeben
 

@@ -19,9 +19,9 @@ Planspiel · Keycloak 26.5 · 60 Minuten
 Nach diesem Workshop kannst du:
 
 - Fehlende Informationen für eine Betriebsübernahme gezielt anfordern.
-- Datenbankübernahme und CLI-Export mit ihren Grenzen einordnen.
-- Die Anwendungssicht in Abnahme und Umschaltung berücksichtigen.
-- Einen Rückfall einschließlich seiner Datenfolgen planen.
+- Zwischen Datenbankübernahme und CLI-Export begründet wählen.
+- Mit Anwendungstests prüfen, ob die Umschaltung gelungen ist.
+- Einen Rückfall planen und erklären, welche Daten danach gelten.
 
 ---
 
@@ -36,7 +36,7 @@ Welche dieser Informationen findet ihr in einem Realm-Export?
 
 ---
 
-## 2. Drei Artefakte, unterschiedlicher Umfang
+## 2. Was steckt in Export und Backup?
 
 | Artefakt                     | Wesentliche Grenze                                         |
 | ---------------------------- | ---------------------------------------------------------- |
@@ -44,7 +44,7 @@ Welche dieser Informationen findet ihr in einem Realm-Export?
 | CLI-Realm-Export             | Kein vollständiges Betriebsbackup; keine Sitzungsübernahme |
 | Konsistentes DB-Backup       | Externe Konfiguration, Provider und Secrets separat nötig  |
 
-Für beide Übertragungswege sind ein vollständiger Bestand und eine Restore-Probe nötig.
+Prüft zuerst den Inhalt. Erprobt dann, ob sich das Ziel daraus wiederherstellen lässt.
 
 ---
 
@@ -55,8 +55,8 @@ Für beide Übertragungswege sind ein vollständiger Bestand und eine Restore-Pr
 - Prüfschlüssel, Benutzeridentitäten und benötigte Claims
 - Erreichbare Endpunkte und externe Identitätsquellen
 
-Ein neuer Kubernetes-Service kann intern anders heißen.
-Die öffentliche Identität des Dienstes braucht eine bewusste Entscheidung.
+Der Kubernetes-Service darf intern anders heißen.
+Den öffentlichen Issuer erwarten die Anwendungen weiterhin unter der bisherigen URL.
 
 ---
 
@@ -80,13 +80,14 @@ Der Dienstleister liefert bisher nur einen Export aus der Admin-Konsole.
 - Anwendungen: SPA, serverseitige Webanwendung, API und Batch-Dienst
 - Wartungsfenster: Samstag, 10:00 bis 11:00 Uhr; kein Upgrade verlangt
 
-Die Situation ist fiktiv. Weitere Übergabeinformationen stehen zur Verhandlung.
+Der Fall ist erfunden. Fehlende Informationen und Zugänge könnt ihr beim Dienstleister anfordern.
 
 ---
 
 ## 6. Gruppenauftrag · 23 Minuten
 
-**Zwei Gruppen mit je drei Personen; Rollen gegenüber dem ersten Workshop wechseln.**
+Eine Person zeichnet, eine notiert Entscheidungen, eine sucht Fehler im Plan.
+Falls ihr den ersten Workshop bearbeitet habt, wechselt die Rollen.
 
 1. Formuliert acht Übergabefragen mit Verantwortlichen und Nachweisen.
 2. Wählt ein Verfahren und benennt seine Voraussetzungen.

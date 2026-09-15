@@ -2,15 +2,16 @@
 
 ## Vorbereitung und Ziel
 
-Die Gruppe soll einen LDAP-Login erklären, fehlerhafte Suchen erkennen und Änderungen
-an Identitäten von deren Wirkung auf Anwendungen unterscheiden. Der Schwerpunkt braucht
-90 Minuten einschließlich des bestehenden Labs. Eine produktive AD-Anbindung lässt sich
-mit OpenLDAP allein nicht abnehmen.
+Die Gruppe verfolgt einen Login vom eingegebenen Benutzernamen bis zur Rolle in Keycloak.
+Dabei soll sie erklären können, warum ein erreichbares LDAP noch keinen erfolgreichen
+Login bedeutet und weshalb geänderte Rechte erst später in einer Anwendung ankommen können.
+Plane 90 Minuten einschließlich Lab 07c ein. Die praktischen Versuche laufen in OpenLDAP;
+für die AD-Fragen gibt es Musterantworten, aber keinen AD-Server im Lab.
 
 Nutze die [Ablauftabelle](README.md#ablauf) und die [Vertiefungsfolien](slides.md).
-Zeige vor der Arbeitsphase nur das Vorgehen zur Beobachtung, nicht beide Lösungen.
-Für die Gegenproben stehen zwei LDIF-Dateien bereit. Sie ändern ausschließlich Annas
-Mitgliedschaft in `entwicklung`; die zweite Datei stellt den Ausgangszustand wieder her.
+Lass die Gruppe vor jedem Versuch das Ergebnis vorhersagen. Zeige bei Bedarf, wo sie
+LDAP-Einträge oder geerbte Rollen findet. Die beiden LDIF-Dateien fügen Anna der Gruppe
+`entwicklung` hinzu und nehmen diese Änderung anschließend zurück.
 
 ## Die ersten 15 Minuten: Ein Verzeichnis lesen
 
@@ -26,19 +27,20 @@ Am Baum aus Lab 07c zeigen:
 - **Scope:** `base` prüft den Ausgangseintrag, `one` seine direkten Kinder, `sub` den gesamten Teilbaum.
 - **Filter:** `(uid=hans.mueller)` schränkt die Treffer anhand von Attributen ein.
 
-Ein DN ist kein dauerhaft unveränderlicher Personenbezeichner. Eine Verschiebung oder
-Umbenennung kann ihn ändern. Für die Wiedererkennung verwendet der LDAP-Provider im Lab
-`entryUUID`; für AD ist `objectGUID` ein typischer Identifikator. Die LDAP-ID ist von
-Keycloaks Benutzer-ID und dem OIDC-Subject zu unterscheiden.
+Wird Hans in eine andere OU verschoben oder umbenannt, kann sich sein DN ändern.
+Keycloak soll ihn trotzdem als denselben Benutzer erkennen. Dafür verwendet der
+LDAP-Provider im Lab `entryUUID`, bei AD üblicherweise `objectGUID`. Diese LDAP-ID ist
+ein anderer Bezeichner als Keycloaks Benutzer-ID oder das OIDC-Subject.
 
-Frage: "Unter welcher Suchbasis findet ihr Hans, und würde dieselbe Suche in `ou=groups`
-funktionieren?" Die Antwort muss Suchbasis, Scope und Filter auseinanderhalten.
+Frage am Baum: "Findet ihr Hans auch, wenn ihr mit demselben Filter unter `ou=groups` sucht?"
+Lass die Gruppe den Suchweg zeigen. Daran erkennst du, ob sie Basis, Scope und Filter auseinanderhält.
 
 ## Minute 15-30: Anmeldung Schritt für Schritt
 
-Das [Diagramm](images/ldap-login.svg) zeigt den Simple-Bind-Fall des Labs. Es stellt
-logische Operationen dar, keine Zusage über Anzahl, Wiederverwendung oder Reihenfolge aller
-Netzwerkverbindungen. Caches, Mapper und bereits vorhandene Sitzungen verändern den Ablauf.
+Das [Diagramm](images/ldap-login.svg) zeigt einen Login mit Simple Bind wie im Lab.
+Seine Pfeile erklären die Aufgaben der beteiligten Systeme. Ein Paketmitschnitt kann
+anders aussehen, weil Keycloak Verbindungen wiederverwendet, Daten aus Caches liest
+oder weitere Mapper-Abfragen ausführt. Eine bestehende SSO-Sitzung kann die Passwortprüfung überspringen.
 
 1. Die Anwendung schickt den Browser im OIDC-Flow zu Keycloak. Bei erforderlicher
    Neuanmeldung nimmt Keycloak Benutzername und Passwort entgegen.
@@ -53,43 +55,46 @@ Netzwerkverbindungen. Caches, Mapper und bereits vorhandene Sitzungen verändern
 6. Im Authorization Code Flow erhält der Client zunächst einen Code und tauscht ihn am
    Token-Endpunkt ein. Die Anwendung benötigt dafür keinen eigenen LDAP-Zugang.
 
-Frage: "Wessen Passwort prüft Test authentication in der Provider-Konfiguration?"
-Antwort: die konfigurierten Bind-Zugangsdaten. Damit ist noch kein Benutzerlogin geprüft.
+Lass nach Schritt 4 kurz erklären, wessen Passwort **Test authentication** prüft.
+Die Schaltfläche testet die konfigurierten Bind-Zugangsdaten, im Lab also die des
+technischen Kontos. Ob Hans sich anmelden kann, zeigt erst ein Login mit seinem Passwort.
 
-### Drei Zustände auseinanderhalten
+### Was bleibt in LDAP, was liegt in Keycloak?
 
-**LDAP-Daten** sind der Verzeichnisbestand. **Importierte Benutzer** sind dauerhafte lokale
-Datensätze mit Verknüpfung zum LDAP-Provider. Der **User Cache** ist zusätzlich ein Cache.
-Ein lokaler Benutzerimport ist deshalb weder ein vollständiges Verzeichnisbackup noch ein
-Beleg dafür, dass LDAP bei einer Passwortanmeldung nicht mehr benötigt wird.
+LDAP hält die Verzeichniseinträge. Wenn Keycloak einen Benutzer importiert, legt es einen
+dauerhaften lokalen Datensatz an, der mit dem LDAP-Provider verknüpft bleibt und später
+durch den zusätzlichen User Cache zwischengespeichert werden kann. Import und Cache erfüllen
+also unterschiedliche Aufgaben.
 
-Im READ_ONLY-Lab prüft LDAP das Passwort; der Import kopiert kein LDAP-Passwort nach Keycloak.
-Von dieser Aussage sind bewusst in Keycloak gesetzte lokale Passwörter im UNSYNCED-Modus
-zu unterscheiden. Nicht pauschal versprechen, jeder denkbare Login benötige immer LDAP:
-Eine bereits bestehende SSO-Sitzung kann die erneute Passwortprüfung vermeiden.
+Im READ_ONLY-Lab prüft LDAP weiterhin das Passwort. Der Import übernimmt dieses Passwort
+nicht und eignet sich deshalb auch nicht als vollständiges Verzeichnisbackup. Im Modus
+UNSYNCED lassen sich dagegen bewusst lokale Passwörter in Keycloak setzen. Und wer schon
+eine gültige SSO-Sitzung besitzt, braucht beim nächsten Anwendungsaufruf möglicherweise
+gar keine erneute Passwortprüfung.
 
 ### Edit Mode, Import und Mapper
 
 - **READ_ONLY:** LDAP-verwaltete Daten werden über diesen Provider nicht zurückgeschrieben.
-  Die Beschränkung ersetzt keine LDAP-ACL. Der im Lab verwendete LDAP-Admin bleibt technisch mächtig.
+  Der LDAP-Server braucht trotzdem passende ACLs: Das Admin-Konto aus dem Lab besitzt dort weiterhin Schreibrechte.
 - **WRITABLE:** Unterstützte Änderungen können ins LDAP gehen. Rechte, Schema, Mapper,
   Passwortverfahren und TLS müssen dazu passen.
 - **UNSYNCED:** Änderungen können lokal bleiben, einschließlich lokal gesetzter Passwörter.
   Das bedeutet nicht, dass jede LDAP-Verbindung oder jede Mapper-Abfrage abgeschaltet wird.
 
-`Import Users` und die Mapper bestimmen zusätzlich, wo Attribute gelesen beziehungsweise
-gehalten werden. Vendor, Import und Edit Mode beeinflussen die automatisch angelegten
-Mapper. Ein späterer Moduswechsel baut diese nicht verlässlich passend um.
+Wo Keycloak Attribute liest und speichert, hängt außerdem von `Import Users` und den
+Mappern ab. Beim Anlegen des Providers bestimmen Vendor, Import und Edit Mode, welche
+Mapper automatisch entstehen. Wer den Modus später ändert, muss die vorhandenen Mapper
+einzeln prüfen; sie werden dabei nicht automatisch passend umgebaut.
 
-Vollständige Benutzersynchronisation, Synchronisation geänderter Benutzer und
-Gruppensynchronisation sind zu unterscheiden. Eine Mitgliedschaft kann am Gruppeneintrag
-geändert worden sein, ohne dass der Benutzereintrag dieselbe Änderung signalisiert.
-"Changed users sync" deshalb nicht als universelle Aktualisierung aller Rechte erklären.
+Keycloak bietet getrennte Synchronisationen für alle Benutzer, geänderte Benutzer und
+Gruppen. Wenn Anna einer Gruppe hinzugefügt wird, kann sich nur deren Gruppeneintrag
+ändern. Eine Suche nach geänderten Benutzereinträgen muss das dann nicht erfassen.
+Darum reicht "Changed users sync" nicht für jede Änderung an Gruppenrechten.
 
 ## Minute 30-60: Die Teilnehmer bearbeiten 07c
 
-Der vorhandene Code und die Realm-Datei bleiben die Grundlage. Lass die Gruppe zuerst
-selbst DN, `uid`, `givenName` und `member` in der LDAP-Ausgabe finden.
+Starte mit der Umgebung und der Realm-Datei aus Lab 07c. Lass die Gruppe zunächst
+DN, `uid`, `givenName` und `member` in der LDAP-Ausgabe finden.
 
 Am Ende sollen drei Nachweise vorliegen:
 
@@ -97,8 +102,8 @@ Am Ende sollen drei Nachweise vorliegen:
 2. Der Vorname ist richtig zugeordnet, der Federation Link zeigt den Provider.
 3. Anna erbt `vertrieb`, Hans `entwicklung`; die Gruppen existieren in beiden Systemen.
 
-Ein Benutzer in der Admin-Konsole beweist allein noch keinen funktionierenden Login.
-Ein normaler Browser mit gültiger SSO-Sitzung eignet sich nicht als Nachweis einer frischen Passwortprüfung.
+Bestehe beim Login-Test auf einem privaten Browserfenster ohne vorhandene SSO-Sitzung.
+Sonst könnte die Anmeldung funktionieren, obwohl Keycloak das LDAP-Passwort gar nicht geprüft hat.
 
 ## Minute 60-75: Musterlösungen der Gegenproben
 
@@ -125,30 +130,29 @@ Erwartung nach gezielter Gruppensynchronisation, Leeren des User Cache und erneu
 Anna erbt zusätzlich `entwicklung`. Nach der Rücknahme und denselben Aktualisierungsschritten
 verschwindet diese Rolle wieder; `vertrieb` bleibt.
 
-Die Beobachtung vor dem expliziten Aktualisieren darf unterschiedlich ausfallen. Der
-Gruppen-Mapper kann Mitgliedschaften beim Laden eines Benutzers ermitteln; zugleich kann
-bereits ein User-Cache-Eintrag existieren. Eine sofort sichtbare Änderung ist deshalb kein
-Fehler und kein Beleg für ständig sofortige Konsistenz. Notieren lassen, welche Abfrage
-und welcher Zustand beobachtet wurden.
+Vor der Synchronisation kann die Rolle bereits sichtbar sein oder noch fehlen. Obwohl der
+Gruppen-Mapper Mitgliedschaften beim Laden des Benutzers abfragen kann, liefert ein
+vorhandener Cache-Eintrag möglicherweise noch den alten Stand. Lass beide Beobachtungen
+gelten und frage nach, wann und wo die Gruppe nachgesehen hat.
 
-Der kontrollierte Ablauf synchronisiert Gruppen und leert den Cache, um eine alte lokale
-Sicht auszuschließen. Er misst keine Garantie für die produktive Aktualisierungsdauer.
-Im Betrieb braucht es dafür eine festgelegte Strategie mit überprüften Zeitgrenzen.
+Die Aufgabe synchronisiert anschließend die Gruppen und leert den User Cache, damit
+die Rollenprüfung mit neu geladenen Daten erfolgt. Wie lange das im Produktivbetrieb
+ohne diesen Eingriff dauert, muss das Betriebsteam gesondert messen und begrenzen.
 
-**Token-Bezug:** Ein bereits ausgestelltes signiertes JWT wird durch die Gruppenänderung
-nicht nachträglich umgeschrieben. Die API kann es bis zur vorgesehenen Gültigkeitsgrenze
-akzeptieren, sofern sie keine zusätzliche aktuelle Berechtigungsprüfung vornimmt.
-Cache-Leeren beendet auch keine Anwendungssitzung. Neuen Login, Refresh, Introspection
-und API-Autorisierung deshalb jeweils in der konkreten Anwendung testen.
+Ein schon ausgestelltes JWT behält seine Claims. Die API kann es bis zu seiner
+Gültigkeitsgrenze akzeptieren, wenn sie keine zusätzlichen aktuellen Rechte abfragt.
+Auch die Anwendungssitzung bleibt beim Cache-Leeren bestehen. Lass die Gruppe deshalb
+neuen Login, Refresh und API-Zugriff auseinanderhalten; bei Anwendungen mit Introspection
+gehört deren Verhalten ebenfalls in den Test.
 
 ## Minute 75-90: Active Directory und Betrieb
 
 ### AD DS, Entra ID und Kerberos
 
-AD DS bietet unter anderem LDAP und Kerberos. Entra ID ist ein anderer Identitätsdienst;
-eine OIDC-/SAML-Anbindung daran ist Identity Brokering. Entra Domain Services ist wiederum
-von Entra ID zu unterscheiden. Ein Wechsel zwischen diesen Wegen verändert auch den
-Anmeldeablauf und die Verantwortung für MFA.
+Kläre zuerst, was mit "unser AD" gemeint ist. AD DS bietet LDAP und Kerberos. Entra ID
+lässt sich über OIDC oder SAML als externer Identity Provider anbinden; das wäre Identity
+Brokering. Microsoft Entra Domain Services stellt wiederum verwaltete Domänendienste bereit.
+Je nach gewähltem Weg ändern sich der Login-Ablauf und die Stelle, die MFA durchsetzt.
 
 Für Windows-SSO kann Keycloak Kerberos/SPNEGO verwenden. Dafür braucht es unter anderem
 passende DNS-Namen, Zeitsynchronisation, Service Principal und Keytab sowie eine geeignete
@@ -201,9 +205,9 @@ zusätzlich Replikationsstand, Identifikatoren und Failover prüfen.
 
 ## Quellen und Grenzen
 
-Die konkreten LDAP-Modi und Mapper sind gegen die Dokumentation von Keycloak 26.5.0 eingeordnet.
-AD- und TLS-Transferfragen brauchen eine Abnahme an der tatsächlichen Installation.
-Das Lab weist weder Kerberos-SSO noch produktives AD-Lockout-Verhalten nach.
+Die Erklärungen zu LDAP-Modi und Mappern beziehen sich auf Keycloak 26.5.0. Kerberos-SSO,
+AD-Kontosperren und TLS müssen später in der tatsächlichen AD-Umgebung geprüft werden;
+die OpenLDAP-Versuche decken diese Funktionen nicht ab.
 
 - [LDAP-Federation und Mapper, Keycloak 26.5.0][ldap]
 - [Keycloak: Kerberos][kerberos]
