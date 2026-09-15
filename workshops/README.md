@@ -12,6 +12,10 @@ Die Beispiele sind für den Kurs mit Keycloak 26.5 eingeordnet.
 
 ## Einsatz im Kurs
 
+Die [LDAP-/AD-Vertiefung](ldap-ad/README.md) ergänzt Modul 07 um eine 90-Minuten-Einheit
+mit Login-Diagramm, Gegenproben im OpenLDAP-Lab und einem Trainerleitfaden für den AD-Transfer.
+Sie ist unabhängig von den beiden folgenden Architekturworkshops einsetzbar.
+
 Mandantenfähigkeit passt nach Modul 07 oder als Vertiefung an Tag 3. Betriebsübernahme
 schließt an die Module 10 und 11 an. Modul 12 bleibt ein eigener Schwerpunkt.
 
