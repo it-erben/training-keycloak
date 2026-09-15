@@ -65,6 +65,7 @@ stoppen keine Ausgaben. Der Abbau mit `Remove-Workshop.ps1` beendet alle Posten.
 
 1. `New-Workshop.ps1 -PlanOnly`, dann ohne `-PlanOnly`: Ressourcen und Manifest unter `.run/`.
 2. `gcloud compute start-iap-tunnel kcad-dc01 3389 --local-host-port=localhost:33389`, RDP als `wsadmin`.
+   Ohne RDP-Client: `New-Workshop.ps1 -TrainerSsh` und SSH über den IAP-Tunnel, siehe [trainer.md](trainer.md).
 3. Im Gast dreimal `Initialize-Domain.ps1` (Umbenennung, Promotion, Nacharbeiten), dann
    Anmeldung als `MUSTERTECH\Administrator` prüfen und `Protect-Workshop.ps1` ausführen.
 4. Im Gast `Initialize-Workshop.ps1 -CertificateValidUntil <Datum>`; `workshop-ca.crt`,
@@ -77,8 +78,9 @@ Details, Beispielwerte und die im Probelauf beobachteten Ergebnisse stehen in [t
 
 ## Sicherheitsgrenzen
 
-- Eingehend nur TCP 636 aus den gemeldeten Ausgangs-IPs und TCP 3389 über IAP. Keine Regel aus
-  `0.0.0.0/0`; `Test-Workshop.ps1` prüft die effektive Firewall einschließlich Policies.
+- Eingehend nur TCP 636 aus den gemeldeten Ausgangs-IPs und TCP 3389 über IAP, mit `-TrainerSsh`
+  zusätzlich TCP 22 über IAP. Keine Regel aus `0.0.0.0/0`; `Test-Workshop.ps1` prüft die effektive
+  Firewall einschließlich Policies.
 - TLS- und Hostnamenprüfung bleiben aktiv. Teilnehmer erhalten nur das öffentliche CA-Zertifikat;
   CA-Schlüssel und Serverzertifikat bleiben auf dem DC.
 - Bind-Konten lesen nur. Übungskonten dürfen ausschließlich Attribute und Mitgliedschaften der

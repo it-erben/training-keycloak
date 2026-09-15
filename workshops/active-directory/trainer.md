@@ -67,7 +67,12 @@ scp -O -P 2222 scripts/Initialize-Domain.ps1 wsadmin@127.0.0.1:C:/Workshop/scrip
 ```
 
 `Initialize-Domain.ps1 -Unattended` liest die beiden Passwörter (Administrator, DSRM) als je eine Zeile
-von stdin, etwa `Get-Content pw.txt | ssh -p 2222 wsadmin@127.0.0.1 "powershell -ExecutionPolicy Bypass -File C:\Workshop\scripts\Initialize-Domain.ps1 -Unattended"`.
+von stdin:
+
+```powershell
+Get-Content pw.txt | ssh -p 2222 wsadmin@127.0.0.1 "powershell -ExecutionPolicy Bypass -File C:\Workshop\scripts\Initialize-Domain.ps1 -Unattended"
+```
+
 Der Probelauf lief vollständig über diesen Weg; das RDP-Verfahren bleibt der Standard für Trainer mit RDP-Client.
 
 `Initialize-Domain.ps1` läuft dreimal, jeweils in einer PowerShell als Administrator:
@@ -148,10 +153,9 @@ Der DN wechselt auf `CN=Hans Mueller,OU=Moved,...`, `objectGUID` bleibt. Die Suc
 `OU=Users` findet ihn nicht mehr, die Suche unter der Team-OU schon. Was Keycloak beim Login
 mit dem bereits importierten, jetzt außerhalb der Suchbasis liegenden Benutzer tut, gehört zu
 den Ergebnissen des Probelaufs; die Anleitung verspricht deshalb keine stabile Keycloak-ID.
-Mögliche Ausgänge: Keycloak findet den Benutzer nicht mehr und entfernt oder deaktiviert den
-lokalen Import, oder der Login scheitert mit "Invalid username or password". Nach Erweiterung
-der Users DN auf die Team-OU findet Keycloak Hans über `objectGUID` wieder; ob dabei derselbe
-Keycloak-Datensatz weiterverwendet oder ein neuer angelegt wird, zeigt der Vergleich der Benutzer-ID.
+Beobachtet mit Keycloak 26.5.7: Der Login scheitert mit "Invalid user credentials", Keycloak löscht den
+lokalen Import, und nach Erweiterung der Users DN entsteht beim Sync ein neuer Keycloak-Benutzer mit
+neuer ID und gleicher `LDAP_ID`. Details im Abschnitt "Beobachtungen aus dem Probelauf".
 
 ### Versuch 5: Rechteentzug und Deaktivierung
 
@@ -159,9 +163,10 @@ Ein bereits ausgestellter JWT ändert sich nicht. Die API prüft nur Signatur un
 akzeptiert den alten Token bis `exp`. Keycloak zeigt die fehlende Gruppe erst nach Sync;
 ein neuer Token enthält `manager` dann nicht mehr. Bei der Deaktivierung scheitert ein frischer
 Login ohne SSO am Bind gegen AD (Fehlercode 533 im LDAP-Diagnosetext, "account disabled").
-Der MSAD-Mapper setzt beim Import `enabled` anhand von `userAccountControl`; ob eine bestehende
-Keycloak-Sitzung, das SSO-Cookie und der Refresh weiterlaufen, hängt von Cache und Sitzung ab und
-wird im Probelauf mit Zeitstempeln festgehalten.
+Der MSAD-Mapper setzt beim Sync `enabled` anhand von `userAccountControl`. Bis dahin laufen
+Sitzung und Refresh weiter; erst nach dem Sync lehnt Keycloak den Refresh mit "User disabled" ab,
+bestehende Sitzungen bleiben trotzdem in der Sitzungsliste. Zeitstempel im Abschnitt
+"Beobachtungen aus dem Probelauf".
 
 ### Versuch 6: Rücknahme
 
@@ -172,10 +177,73 @@ Strategie: Hans 200 auf `/api/urlaubsantraege` und 403 auf `/alle`, Anna 200 auf
 
 ## Beobachtungen aus dem Probelauf
 
-Der Probelauf auf GCP steht noch aus. Dieser Abschnitt erhält nach dem vollständigen Aufbau die
-tatsächlich beobachteten Ergebnisse mit Zeitpunkt, Keycloak-Version, Image-Name und Konfiguration,
-insbesondere zu Versuch 4 (Import nach OU-Wechsel), Versuch 5 (Sitzung, SSO, Refresh, alter Token)
-und zum Neustart der VM.
+Probelauf am 15.09.2026 im Projekt `keycloak-qards`, Zone `europe-west3-a`, Image
+`windows-server-2022-dc-v20260909`, `e2-standard-2`, gcloud 565.0.0, Keycloak 26.5.7, PostgreSQL 18.
+Gastzugang über SSH per IAP, Bereitstellung, Promotion und Vorbereitung dauerten zusammen rund 75 Minuten
+einschließlich dreier Neustarts. Trainerprüfung 25 von 25 PASS (mit IAP-Tunnel), Gastprüfung 16 von 16 PASS.
+
+### Versuch 1
+
+`memberOf` von Hans enthält nur `Mitarbeiter`, das von Anna `Teamleitung` und `Mitarbeiter`; `Manager`
+hat als einziges `member` den DN von `Teamleitung`. `objectGUID:: S6nBAdsmPkONmfzgwrwP2Q==` ergibt mit
+`decode-guid` den Wert `01c1a94b-26db-433e-8d99-fce0c2bc0fd9`, identisch mit `LDAP_ID` in Keycloak.
+
+### Versuch 2 und 3
+
+Provider und Mapper aus der Trainerlösung verbinden sich über LDAPS mit der Workshop-CA; "Sync all users"
+meldet beim zweiten Lauf `0 imported users, 2 updated users`. Hans heißt in Keycloak
+`t01.hans@ad.mustertech.test`. Ein frischer Login (Passwort gegen AD) liefert einen Token mit
+`exp - iat = 120`. Mit direkter Strategie hat Anna die Keycloak-Gruppen `Mitarbeiter` und `Teamleitung`,
+`/api/urlaubsantraege/alle` antwortet 403. Nach Umstellung auf `LOAD_GROUPS_BY_MEMBER_ATTRIBUTE_RECURSIVELY`,
+Gruppen-Sync und Benutzer-Sync kommt `Manager` hinzu; ein neuer Token enthält `manager`, die API antwortet 200.
+Hans bleibt bei 403, ohne Token 401.
+
+### Versuch 4
+
+Nach dem `modrdn` findet die Suche unter `OU=Users` nichts (Exit 0, null Einträge), die Suche unter der
+Team-OU liefert den neuen DN mit unveränderter `objectGUID`. Ein Login als Hans mit Users DN `OU=Users`
+scheitert mit "Invalid user credentials"; das Keycloak-Ereignis lautet `LOGIN_ERROR` mit
+`error=user_not_found`, und Keycloak entfernt dabei den lokalen Import: Hans fehlt danach in **Users**.
+Nach Erweiterung der Users DN auf die Team-OU und "Sync all users" ist Hans wieder importiert, mit
+**neuer Keycloak-ID** (`3bb7e75d…` wurde `23a07b14…`), gleicher `LDAP_ID` und `LDAP_ENTRY_DN` unter
+`OU=Moved`. Der `sub` im Token ändert sich damit ebenfalls; Anwendungen, die Benutzer an `sub` binden,
+verlieren die Zuordnung. Die stabile Identität ist `objectGUID`.
+
+### Versuch 5
+
+Anna aus `Teamleitung` entfernt um 17:47:30 UTC, Token `exp` 17:49:30. Der alte Token liefert vor und
+nach dem Keycloak-Sync 200 und erst nach `exp` 401: Die API prüft nur Signatur und Ablauf. Nach dem Sync
+hat Anna nur noch `Mitarbeiter`; ein neuer Token enthält kein `manager`, die API antwortet 403. Ein Refresh
+mit dem noch gültigen Refresh-Token funktioniert und liefert einen Token ohne `manager`, weil Keycloak die
+Rollen beim Refresh neu berechnet.
+
+Hans deaktiviert (`userAccountControl` 66050) um 17:47:42 UTC, Hans lag dabei in `OU=Moved`:
+
+| Stelle                                     | Beobachtung                                                        |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| Frischer Login ohne SSO                    | "Invalid user credentials", Ereignis `invalid_user_credentials`    |
+| Alter Access Token gegen `/api/profile`    | 200 bis `exp`, danach 401                                          |
+| Refresh vor dem Sync                       | erfolgreich, neuer Token wird ausgestellt                          |
+| **Enabled** in Keycloak vor dem Sync       | `true`                                                             |
+| **Enabled** nach "Sync all users"          | `false` (MSAD-Mapper liest `userAccountControl`)                   |
+| Refresh nach dem Sync                      | `invalid_grant`, "User disabled"                                   |
+| Sitzungen nach dem Sync                    | beide Sitzungen bestehen weiter; der Sync beendet keine Sitzungen  |
+
+### Versuch 6
+
+LDIF 04, 05, 06, Users DN zurück auf `OU=Users`, Sync und "Beende alle Sitzungen": Hans ist aktiviert
+(`userAccountControl` 66048), die drei Gruppen entsprechen der Baseline. Frische Logins liefern Hans
+200 auf `/api/urlaubsantraege` und 403 auf `/alle`, Anna 200 auf beiden. Hans behält die neue Keycloak-ID
+aus Versuch 4. `Reset-Team.ps1 -Team 01` ändert danach nichts mehr.
+
+### Anmeldung, Delegation und Netz
+
+Der Authorization Code Flow mit PKCE (S256) wurde vom Portal bis zur Keycloak-Anmeldeseite im Browser und
+für den Code-Tausch per HTTP-Skript geprüft: Token mit `portal-api` in `aud`, API 200, 200, 403 für Hans.
+Bind-Konten scheitern beim Schreiben mit LDAP-Fehler 50, Übungskonten beim Nachbarteam ebenso; Änderungen
+an eigenen Testobjekten und Gruppen gelingen. Die effektive Firewall erlaubt 636 nur aus der gemeldeten
+Quell-IP, 3389 und 22 nur aus dem IAP-Bereich; direkte Verbindungen auf 3389 und 22 scheitern. TLS mit
+falschem Hostnamen oder ohne die Workshop-CA wird abgelehnt.
 
 ## Diagnoseleiter
 
