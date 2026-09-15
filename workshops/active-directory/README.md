@@ -29,7 +29,7 @@ gcloud CLI, OpenSSH-Client, Docker und ein GCP-Projekt mit aktivierter Compute E
 | [trainer.md](trainer.md)        | Bereitstellung, Musterlösung, beobachtetes Verhalten, Diagnose, Abbau   |
 | [solution/](solution/README.md) | Vollständiger LDAP-Provider per `kcadm`, Umschaltung je Aufgabe         |
 | [lab/](lab/docker-compose.yml)  | Lokaler Stack: Keycloak 26.5.7, PostgreSQL 18, Portal, API, LDAP-Tools  |
-| [lab/ldif/](lab/ldif/team01)    | Änderungs- und Rücknahme-LDIFs je Team                                  |
+| [lab/ldif/](lab/ldif)    | Änderungs- und Rücknahme-LDIFs je Team                                  |
 | [scripts/](scripts)             | Bereitstellung, Initialisierung, Prüfung, Reset und Abbau in PowerShell |
 
 Der lokale Stack heißt `keycloak-ad-workshop` und verwendet die Ports 8080, 5173 und 3001.
