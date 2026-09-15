@@ -156,7 +156,7 @@ Ein späterer Moduswechsel baut vorhandene Mapper nicht automatisch passend um.
 
 ---
 
-## 2.8 Selbst bearbeiten: Lab 07c · 30 Minuten
+## 2.8 Selbst bearbeiten: Lab 07c, 30 Minuten
 
 1. Verzeichnis lesen und Benutzerquelle anbinden.
 2. Benutzer importieren und einen frischen Login testen.
@@ -164,13 +164,9 @@ Ein späterer Moduswechsel baut vorhandene Mapper nicht automatisch passend um.
 
 Prüft den Vornamen, den Federation Link und die geerbte Rolle.
 
-Eine Person erklärt jeweils, was der nächste Klick bewirken soll.
-
-[Anleitung für Lab 07c](../../labs/assignments/modul-07c-ldap-federation/README.md)
-
 ---
 
-## 2.9 Gegenproben · 15 Minuten
+## 2.9 Gegenproben,  15 Minuten
 
 Sucht Hans zuerst unter `ou=users`, dann unter `ou=groups`.
 Bind und Filter bleiben gleich. Sagt vor beiden Aufrufen das Ergebnis voraus.

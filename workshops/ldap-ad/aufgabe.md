@@ -8,8 +8,7 @@ Am Ende dieser Übung hast du:
 - Anna im LDAP einer weiteren Gruppe zugeordnet und ihre geerbten Keycloak-Rollen geprüft
 - Die Gruppenänderung zurückgenommen und den Ausgangszustand wiederhergestellt
 
-**Dauer:** 15 Minuten nach dem vollständigen Lab 07c, anschließend gemeinsame AD-Auswertung.
-**Arbeitsform:** Zweiergruppen; eine Person bedient, die andere formuliert die Vorhersage.
+**Dauer:** 15 Minuten nach dem vollständigen Lab 07c.
 
 ## Voraussetzungen
 
@@ -68,11 +67,6 @@ Haltet fest:
 
 1. Welche Einstellung blieb identisch, welche änderte sich?
 2. Warum belegt ein erfolgreicher Bind noch nicht, dass Keycloak Hans findet?
-3. Was würden `One Level` und `Subtree` bei Benutzern in untergeordneten OUs ändern?
-
-Testet die falsche Suchbasis nur mit `ldapsearch`. Wenn ihr `Users DN` im bestehenden
-Keycloak-Provider ändert, betrifft das auch bereits importierte Benutzer und erschwert
-den Vergleich der beiden Suchen.
 
 ## Teil 2: Anna erhält vorübergehend eine weitere Gruppe
 
@@ -154,15 +148,3 @@ Von den fachlichen Rollen darf sie jetzt nur noch `vertrieb` erben; technische S
 können zusätzlich auftauchen. Meldet LDAP beim Hinzufügen oder Entfernen einen Fehler,
 lest zuerst die Gruppenmitglieder aus. Möglicherweise wurde die Änderung bereits ausgeführt.
 
-## Teil 3: Transfer auf Active Directory
-
-Besprecht anschließend, was sich bei einem Active Directory ändern würde:
-
-- Das AD-Team verschiebt Hans in eine andere OU. Welche Identifikatoren und Suchgrenzen sind betroffen?
-- Anna ist nur über eine verschachtelte AD-Gruppe berechtigt. Welche Mapper-Einstellung müsst ihr prüfen?
-- Ein Konto wird im AD deaktiviert. Was prüft ihr getrennt für neuen Login, SSO, Refresh und vorhandenes Token?
-- LDAP ist erreichbar, TLS schlägt fehl. Welche Nachweise braucht ihr vom AD- und Plattformteam?
-- Der Windows-Desktop ist angemeldet. Reicht die LDAP-Anbindung für eine Anmeldung ohne Passwortdialog?
-
-[lab]: ../../labs/assignments/modul-07c-ldap-federation/README.md
-[wechsel]: ../../labs/assignments/TROUBLESHOOTING.md#container-name-konflikt
