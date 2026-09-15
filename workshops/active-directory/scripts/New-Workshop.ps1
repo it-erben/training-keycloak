@@ -105,6 +105,14 @@ if ($regionInfo -and $regionInfo.PSObject.Properties['quotas']) {
         if ($need -gt 0 -and ($q.limit - $q.usage) -lt $need) { $quotaProblems += "$($q.metric): frei $($q.limit - $q.usage), benoetigt $need" }
     }
 }
+# Globales Netz-Quota: neue Projekte erlauben fuenf VPCs, das Default-Netz zaehlt mit.
+$projectInfo = Get-GcloudJson -Arguments @('compute', 'project-info', 'describe', $P)
+if ($projectInfo -and $projectInfo.PSObject.Properties['quotas']) {
+    $networkExists = $null -ne (Get-GcloudJson -Arguments @('compute', 'networks', 'describe', $names.Network, $P) -IgnoreNotFound)
+    foreach ($q in $projectInfo.quotas) {
+        if ($q.metric -eq 'NETWORKS' -and -not $networkExists -and ($q.limit - $q.usage) -lt 1) { $quotaProblems += "NETWORKS: $($q.usage) von $($q.limit) belegt (Default-Netz loeschen oder Quota erhoehen)" }
+    }
+}
 if ($quotaProblems) { throw "Quota reicht nicht aus: $($quotaProblems -join '; ')" }
 $gcloudVersion = Get-GcloudJson -Arguments @('version')
 

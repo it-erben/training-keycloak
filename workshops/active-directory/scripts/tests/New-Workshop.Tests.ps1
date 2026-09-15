@@ -20,6 +20,7 @@ BeforeAll {
                 'images describe-from-family' { return '{"name":"windows-server-2022-dc-v20260909","selfLink":"https://x/img"}' }
                 'machine-types describe' { return '{"name":"e2-standard-2","guestCpus":2,"memoryMb":8192}' }
                 'regions describe' { return '{"quotas":[{"metric":"CPUS","limit":24,"usage":0},{"metric":"IN_USE_ADDRESSES","limit":8,"usage":0},{"metric":"STATIC_ADDRESSES","limit":8,"usage":0}]}' }
+                'project-info describe' { return '{"quotas":[{"metric":"NETWORKS","limit":5,"usage":1}]}' }
                 '^version' { return '{"Google Cloud SDK":"565.0.0"}' }
                 'describe' { throw 'ERROR: (gcloud) Could not fetch resource: - The resource was not found' }
                 default { throw "unexpected gcloud call: $a" }
@@ -69,6 +70,11 @@ Describe 'New-Workshop -PlanOnly' {
         Set-ReadMocks -Overrides @{ '^services list' = '[{"config":{"name":"iap.googleapis.com"}}]' }
         $common = Get-CommonArgs
         { & $Script @common -PlanOnly } | Should -Throw '*compute.googleapis.com*'
+    }
+    It 'aborts when the network quota is exhausted' {
+        Set-ReadMocks -Overrides @{ 'project-info describe' = '{"quotas":[{"metric":"NETWORKS","limit":5,"usage":5}]}' }
+        $common = Get-CommonArgs
+        { & $Script @common -PlanOnly } | Should -Throw '*NETWORKS*'
     }
     It 'aborts when billing is disabled' {
         Set-ReadMocks -Overrides @{ '^billing projects describe' = '{"billingEnabled":false}' }
@@ -122,6 +128,7 @@ Describe 'New-Workshop create path' {
                 'images describe-from-family' { return '{"name":"img-1","selfLink":"https://x/img"}' }
                 'machine-types describe' { return '{"name":"e2-standard-2","guestCpus":2,"memoryMb":8192}' }
                 'regions describe' { return '{"quotas":[]}' }
+                'project-info describe' { return '{"quotas":[{"metric":"NETWORKS","limit":5,"usage":1}]}' }
                 '^version' { return '{"Google Cloud SDK":"565.0.0"}' }
                 'addresses describe kcad-dc01-external' {
                     if ($global:KcadCalls | Where-Object { $_ -match 'addresses create kcad-dc01-external' }) { return '{"name":"kcad-dc01-external","address":"198.51.100.7","selfLink":"https://x/ext"}' }

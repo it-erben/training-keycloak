@@ -7,8 +7,15 @@ Flotten-Skript, werden über Nacht gestoppt und am Kursmorgen gestartet. Vor der
 müssen vorliegen: Projekt-ID mit aktivierter Abrechnung, Compute Engine API und IAP API, Region
 und Zone, die öffentliche Ausgangs-IP des Schulungsraums als CIDR (höchstens `/24`), der eigene
 Principal für den IAP-Tunnel und ein öffentlicher SSH-Schlüssel (`~/.ssh/id_ed25519.pub`).
-`New-Workshop.ps1` bricht bei fehlenden APIs, fehlender Abrechnung oder zu weiten Quellnetzen ab
-und aktiviert nichts von selbst.
+`New-Workshop.ps1` bricht bei fehlenden APIs, fehlender Abrechnung, erschöpftem Netz-Quota oder zu
+weiten Quellnetzen ab und aktiviert nichts von selbst. Fünf Umgebungen brauchen fünf VPCs; in einem
+neuen Projekt belegt das `default`-Netz eines der fünf erlaubten Netze und muss vorher weg:
+
+```powershell
+gcloud compute firewall-rules list --project <projekt> --filter "network~'/default$'" --format "value(name)" |
+  ForEach-Object { gcloud compute firewall-rules delete $_ --project <projekt> --quiet }
+gcloud compute networks delete default --project <projekt> --quiet
+```
 
 Je Person gehen an sie: IP des eigenen DC, die Datei `workshop-ca.crt`, der CA-Fingerprint und die
 Passwörter für `hans`, `anna`, `bind` und `operator`. `Invoke-WorkshopFleet.ps1 -Action Packages`

@@ -44,7 +44,9 @@ verschieben, das Portal erwartet Keycloak dann allerdings weiterhin auf 8080.
 der Ausgangs-IP des Schulungsraums, TCP 3389 und 22 aus dem IAP-Bereich `35.235.240.0/20`), eine
 reservierte interne und eine externe IPv4-Adresse, eine Datendisk 20 GiB, die VM `e2-standard-2` mit
 Bootdisk 64 GiB (beide pd-balanced) und eine IAP-Tunnelbindung für den Trainer. Die VMs haben kein
-Service-Konto. Jede Umgebung hat ein eigenes Manifest unter `.run/<präfix>/`.
+Service-Konto. Jede Umgebung hat ein eigenes Manifest unter `.run/<präfix>/`. Neue Projekte erlauben fünf
+VPC-Netze; für fünf Umgebungen muss das ungenutzte `default`-Netz gelöscht oder das Quota `NETWORKS`
+erhöht sein. `New-Workshop.ps1` prüft das vor dem Anlegen.
 
 Listenpreise Frankfurt (`europe-west3`), Cloud Billing Catalog vom 15.09.2026, in USD je VM:
 
