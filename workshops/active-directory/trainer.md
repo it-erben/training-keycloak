@@ -181,7 +181,9 @@ Strategie: Hans 200 auf `/api/urlaubsantraege` und 403 auf `/alle`, Anna 200 auf
 Probelauf am 15.09.2026 im Projekt `keycloak-qards`, Zone `europe-west3-a`, Image
 `windows-server-2022-dc-v20260909`, `e2-standard-2`, gcloud 565.0.0, Keycloak 26.5.7, PostgreSQL 18.
 Gastzugang über SSH per IAP, Bereitstellung, Promotion und Vorbereitung dauerten zusammen rund 75 Minuten
-einschließlich dreier Neustarts. Trainerprüfung 25 von 25 PASS (mit IAP-Tunnel), Gastprüfung 16 von 16 PASS.
+einschließlich dreier Neustarts. Der Probelauf lief mit drei Teams; Standard sind seitdem zwei Teams
+(`-Teams` in `Initialize-Workshop.ps1` und `Test-Workshop.ps1`). Trainerprüfung 25 von 25 PASS (mit
+IAP-Tunnel), Gastprüfung 16 von 16 PASS.
 
 ### Aufgabe 1
 

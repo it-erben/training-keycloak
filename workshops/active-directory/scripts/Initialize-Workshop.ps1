@@ -11,7 +11,7 @@ $SecretsPath mit eingeschraenkter ACL, das oeffentliche CA-Zertifikat in $Output
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 param(
-    [ValidatePattern('^\d{2}$')][string[]]$Teams = @('01', '02', '03'),
+    [ValidatePattern('^\d{2}$')][string[]]$Teams = @('01', '02'),
     [Parameter(Mandatory)][datetime]$CertificateValidUntil,
     [string]$DcFqdn = 'dc01.ad.mustertech.test',
     [string]$OutputPath = 'C:\Workshop\out',

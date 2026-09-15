@@ -5,7 +5,7 @@
 #   Befehle: create | strategy direct|recursive | users-dn users|team | sync | logout-sessions | status | delete
 set -euo pipefail
 
-TEAM="${TEAM:?TEAM=01|02|03 setzen}"
+TEAM="${TEAM:?TEAM=01|02 setzen}"
 REALM=mustertech
 KCADM=/opt/keycloak/bin/kcadm.sh
 BASE="DC=ad,DC=mustertech,DC=test"

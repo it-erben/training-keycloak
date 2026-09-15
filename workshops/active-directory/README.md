@@ -1,6 +1,6 @@
 # Workshop: Keycloak an Active Directory auf GCP
 
-Sechs Teilnehmer verbinden in drei Zweiergruppen ihr lokales Keycloak per LDAPS mit einem
+Zwei Gruppen verbinden ihr lokales Keycloak per LDAPS mit einem
 vorbereiteten Active Directory und verfolgen Änderungen im Verzeichnis bis zur Portal-API.
 Das Verzeichnis läuft als Windows Server 2022 mit AD DS auf Google Compute Engine; der
 Trainer stellt es vor dem Kurs bereit und baut es danach wieder ab. Die 90 Minuten

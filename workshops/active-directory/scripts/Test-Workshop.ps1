@@ -14,7 +14,7 @@ Schreibt einen JSON-Bericht und beendet sich mit Exit-Code 1 bei mindestens eine
 param(
     [Parameter(Mandatory)][ValidateSet('Trainer', 'Guest')][string]$Mode,
     [string]$ManifestPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run', 'manifest.json')),
-    [ValidatePattern('^\d{2}$')][string[]]$Teams = @('01', '02', '03'),
+    [ValidatePattern('^\d{2}$')][string[]]$Teams = @('01', '02'),
     [string]$SecretsPath = '',
     [string]$LabPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', 'lab')),
     [string]$ReportPath = ([System.IO.Path]::Combine($PSScriptRoot, '..', '.run')),

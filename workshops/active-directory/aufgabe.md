@@ -11,11 +11,11 @@ Am Ende dieser Übung habt ihr:
 - Rechteentzug und Kontodeaktivierung getrennt an LDAP, Keycloak, Sitzung und API beobachtet
 - Alle Änderungen zurückgenommen und den Ausgangszustand nachgewiesen
 
-**Dauer:** 90 Minuten in Zweiergruppen. Eine Person bedient den Stack, ihr wechselt euch bei den Aufgaben ab.
+**Gruppen:** Zwei Gruppen mit je einem lokalen Stack. Eine Person bedient ihn, ihr wechselt euch bei den Aufgaben ab.
 
 ## Voraussetzungen
 
-Vom Trainer bekommt ihr eure Teamnummer (`01`, `02` oder `03`), die öffentliche IP des
+Vom Trainer bekommt ihr eure Teamnummer (`01` oder `02`), die öffentliche IP des
 Domain Controllers, den SHA256-Fingerprint der Workshop-CA und vier Passwörter:
 für `t01.hans`, `t01.anna`, das Bind-Konto `t01.bind` und das Übungskonto `t01.operator`.
 Alle Beispiele zeigen Team 01; ersetzt `t01` und `Team01` durch eure Nummer.
@@ -67,7 +67,7 @@ Danach erreicht ihr Keycloak unter <http://localhost:8080> (`admin` / `admin`), 
 unter <http://localhost:5173> und die API unter <http://localhost:3001>. Der Realm `mustertech`
 enthält Rollen, Gruppen und Clients, aber noch keinen LDAP-Provider und keine AD-Benutzer.
 
-## Aufgabe 1: AD-Einträge lesen (0-15 Minuten)
+## Aufgabe 1: AD-Einträge lesen
 
 Sagt vorher, wie der DN von Hans aussieht und welche Gruppen bei ihm direkt eingetragen sind.
 
@@ -110,7 +110,7 @@ docker compose exec ldap-tools ldapsearch -LLL -x -H ldaps://dc01.ad.mustertech.
 Klärt zu zweit: Warum steht `Manager` bei Anna nicht in `memberOf`, obwohl sie später Managerrechte
 bekommen soll? Welche Kette führt von Anna zu `Manager`?
 
-## Aufgabe 2: Keycloak über LDAPS verbinden (15-35 Minuten)
+## Aufgabe 2: Keycloak über LDAPS verbinden
 
 Öffnet in der Admin-Konsole den Realm `mustertech`, dann **User federation → Add Ldap providers**.
 Sagt vor dem Speichern voraus, ob "Test connection" und "Test authentication" mit dem Bind-Konto
@@ -158,7 +158,7 @@ Meldet euch jetzt im **privaten Browserfenster** unter <http://localhost:5173> a
 Klärt: Welche Rollen zeigt **Mein Profil**, und warum antwortet `/api/urlaubsantraege`
 so, wie es antwortet, obwohl die Anmeldung gegen AD funktioniert hat?
 
-## Aufgabe 3: Gruppen und verschachtelte Gruppen (35-55 Minuten)
+## Aufgabe 3: Gruppen und verschachtelte Gruppen
 
 Legt unter **User federation → ad-team01 → Mappers → Add mapper** den Gruppen-Mapper an:
 
@@ -209,7 +209,7 @@ catch { $_.Exception.Response.StatusCode.value__ }
 Schaut euch Annas Access Token an (Portal, **Access Token anzeigen**, dann [jwt.io](https://jwt.io)):
 `iat`, `exp` und `realm_access.roles`. Wie lange ist der Token gültig?
 
-## Aufgabe 4: Hans nach Moved verschieben (55-65 Minuten)
+## Aufgabe 4: Hans nach Moved verschieben
 
 Sichert vorher drei Werte von Hans in einer Datei: seinen DN aus Aufgabe 1, seine dekodierte
 objectGUID und seine Keycloak-Benutzer-ID (Admin-Konsole, **Users → Hans**, ID in der Adresszeile).
@@ -243,7 +243,7 @@ Erweitert dann im Provider **Users DN** auf `OU=Team01,OU=Workshop,DC=ad,DC=must
 Der Filter bleibt. Speichert, **Sync all users**, Hans erneut anmelden. Vergleicht DN, objectGUID
 und Keycloak-Benutzer-ID mit den gesicherten Werten: Was ist gleich geblieben, was nicht?
 
-## Aufgabe 5: Rechte entziehen und Konto sperren (65-80 Minuten)
+## Aufgabe 5: Rechte entziehen und Konto sperren
 
 Meldet Anna an und kopiert ihren Access Token aus dem Portal in eine Datei `anna.jwt`
 (nur der Token, ohne Zeilenumbruch). Merkt euch die Uhrzeit und `exp`.
@@ -294,7 +294,7 @@ Lasst dabei ein Fenster mit angemeldetem Hans offen. Prüft nacheinander, jeweil
 4. Ein vorher gesicherter Token von Hans gegen `/api/profile` bis `exp`.
 5. **Sessions** in der Admin-Konsole: Existiert Hans' Sitzung noch?
 
-## Aufgabe 6: Rücknahme und Auswertung (80-90 Minuten)
+## Aufgabe 6: Rücknahme und Auswertung
 
 Nehmt alles in dieser Reihenfolge zurück, jeweils mit dem Übungskonto:
 
