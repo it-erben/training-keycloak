@@ -4,82 +4,92 @@
 
 Am Ende dieser Übung hast du:
 
-- HTTPS mit einem Reverse Proxy konfiguriert
-- Produktionsrelevante Einstellungen verstanden
-- Backup & Restore Strategien kennengelernt
-- Health Checks und Monitoring vorbereitet
+- Keycloak hinter einem HTTPS-Proxy betrieben und den öffentlichen Issuer geprüft
+- Eine Datenbanksicherung zurückgespielt und den wiederhergestellten Stand nachgewiesen
+- Einen Datenbankausfall anhand von Login, Readiness und Logs eingegrenzt
 
-**Geschätzte Dauer:** 35-45 Minuten
+**Geschätzte Dauer:** 40-50 Minuten einschließlich Auswertung, ohne erstmalige Image-Downloads.
+Der zusätzliche CLI-Export am Ende benötigt etwa 5-10 Minuten.
 
----
+## Auftrag: Mustertech bereitet den Betrieb vor
 
-## Voraussetzungen
+Das Mitarbeiterportal funktioniert. Vor der Übergabe an den Betrieb fehlen drei Nachweise:
+Erreichbarkeit über HTTPS, Wiederherstellung nach einer Fehländerung und Diagnose eines Ausfalls.
+Du führst die Versuche an einer eigenen lokalen Installation durch. Notiere vor jedem Versuch
+kurz deine Erwartung und halte danach das tatsächliche Ergebnis fest.
 
-- Docker Desktop installiert und gestartet, Docker Compose ab 2.24.4
-- Grundverständnis für Docker und Netzwerke
+| Versuch           | Erwartung vor dem Test | Beobachtung mit Nachweis | Was bleibt ungeprüft? |
+| ----------------- | ---------------------- | ------------------------ | --------------------- |
+| HTTPS und Issuer  |                        |                          |                       |
+| Wiederherstellung |                        |                          |                       |
+| Datenbankausfall  |                        |                          |                       |
 
-### Umgebung starten
+Eine funktionierende lokale Übung ersetzt keine Produktionsabnahme. Zertifikatsvertrauen,
+Secret-Verwaltung und Datenbank-Hochverfügbarkeit bleiben hier außerhalb des Aufbaus.
+
+## Voraussetzungen und Start
+
+- Docker Desktop und Docker Compose ab 2.24.4 (`docker compose version`)
+- Grundlagen zu Docker und Netzwerken; Modul 10a ist abgeschlossen
+- Bash oder PowerShell; unter Windows wird für HTTP-Abfragen ausdrücklich `curl.exe` verwendet
+
+> **Hinweis:** Beende die Container der vorherigen Übung mit `docker compose down -v`
+> in deren Verzeichnis. Das löscht deren Lab-Daten. Container-Namen und Volumes werden wiederverwendet;
+> Einzelheiten stehen im [Troubleshooting](../TROUBLESHOOTING.md#container-name-konflikt).
+
+Wechsle vom Verzeichnis `labs/` nach:
 
 ```bash
 cd assignments/modul-10b-best-practices
-docker compose up -d
 ```
 
-> **Hinweis:** Falls die Container der vorherigen Übung noch laufen, stoppe
-> diese zuerst mit `docker compose down -v` im Verzeichnis der vorherigen Übung.
-> Details siehe [Troubleshooting](../TROUBLESHOOTING.md#container-name-konflikt).
+Bei einer Wiederholung benenne deine Dateien `docker-compose.override.yml` und
+`traefik-dynamic.yml` zunächst um. Sonst lädt Compose die bereits fertige Proxy-Konfiguration.
+Ein eventuell gesetztes `COMPOSE_FILE` muss für dieses Lab entfernt sein, damit die automatische
+Dateiauswahl greift.
 
-Warte, bis `docker compose ps` Keycloak als `healthy` zeigt. Der Realm "mustertech" wird
-automatisch importiert mit allen Sicherheitskonfigurationen aus dem vorherigen
-Modul.
+Starte die Basisumgebung. Die folgenden Docker-Befehle gelten für Bash und PowerShell.
+Führe sie einzeln aus und halte bei Fehlern an, bevor du den nächsten Befehl startest:
 
-> **Hinweis:** Die Benutzerpasswörter in diesem Modul lauten `Muster1234!` (
-> statt `test1234`), da eine strenge Passwort-Policy aktiv ist.
-
----
-
-## Teil 1: Produktionsmodus vs. Entwicklungsmodus
-
-### Schritt 1.1: Unterschiede verstehen
-
-| Aspekt      | Development (`start-dev`) | Production (`start`) |
-|:------------|:--------------------------|:---------------------|
-| HTTPS       | Optional                  | **Erforderlich**     |
-| Hostname    | Flexibel                  | Fest konfiguriert    |
-| Caching     | Deaktiviert               | Aktiviert            |
-| Hot-Reload  | Ja                        | Nein                 |
-| Performance | Geringer                  | Optimiert            |
-
-### Schritt 1.2: Produktionsstart-Befehl
-
-`start` benötigt einen festen öffentlichen Hostnamen und einen TLS-Aufbau. In diesem
-Lab beendet Traefik TLS; Keycloak empfängt intern HTTP. Die folgenden Einstellungen
-gehören deshalb zusammen:
-
-```yaml
-services:
-  assignment-keycloak:
-    command: start --import-realm
-    environment:
-      KC_HOSTNAME: https://keycloak.localhost:8443
-      KC_HOSTNAME_STRICT: "true"
-      KC_PROXY_HEADERS: xforwarded
-      KC_HTTP_ENABLED: "true"
+```bash
+docker compose up -d --wait --wait-timeout 180 assignment-keycloak assignment-mailpit
+docker compose run --rm assignment-setup
+docker compose ps
 ```
 
-Bei TLS direkt an Keycloak werden stattdessen `KC_HTTPS_CERTIFICATE_FILE` und
-`KC_HTTPS_CERTIFICATE_KEY_FILE` samt eingebundenen Zertifikatsdateien benötigt.
-Die frühere Option `KC_PROXY=edge` gibt es in Keycloak 26 nicht mehr.
+Keycloak muss `healthy` sein. Der einmalige Setup-Aufruf muss mit Exitcode 0 enden; er setzt
+die lokale SSL-Einstellung im Master-Realm. Prüfe eine Anmeldung an
+<http://localhost:8080/realms/mustertech/account/> als `hans.mueller` mit `Muster1234!`.
+Die Admin-Konsole unter <http://localhost:8080/admin/> verwendet `admin` / `admin`.
+Alle Kennwörter sind ausschließlich Testzugänge.
 
-![Realm Settings im Produktionsmodus](screenshots/04-realm-settings-general.png)
+Für jede neue Anmeldung in dieser Aufgabe schließe zuerst **alle privaten Browserfenster**
+und öffne dann ein neues. Zusätzliche private Fenster können dieselbe Sitzung teilen; sonst
+prüfst du möglicherweise eine bestehende SSO-Sitzung statt Benutzername und Passwort.
 
----
+## Teil 1: HTTPS einrichten und prüfen (15 Minuten)
 
-## Teil 2: HTTPS mit Traefik Reverse Proxy
+### Schritt 1.1: Den Weg einer Anfrage erklären
 
-### Schritt 2.1: Traefik hinzufügen
+Der Browser soll Keycloak über `https://keycloak.localhost:8443` erreichen. Traefik nimmt
+HTTPS an und leitet die Anfrage im Docker-Netz über HTTP an Keycloak weiter:
 
-Erstelle im Lab-Verzeichnis `docker-compose.prod.yml`:
+```text
+Browser -- HTTPS :8443 --> Traefik -- HTTP :8080 --> Keycloak --> PostgreSQL
+                                                    |
+                                       Management :9000 nur lokal
+```
+
+Notiere, bevor du die Konfiguration anlegst:
+
+1. An welcher Stelle endet TLS?
+2. Welche URL muss im `issuer` stehen: die öffentliche Adresse oder der interne Containername?
+3. Warum darf der Browser den internen HTTP-Port nach der Umstellung nicht direkt erreichen?
+
+### Schritt 1.2: Proxy und Produktionsmodus konfigurieren
+
+Erstelle `docker-compose.override.yml` im Lab-Verzeichnis. Compose lädt diese Datei bei
+jedem `docker compose`-Aufruf automatisch zusätzlich zur Basisdatei.
 
 ```yaml
 services:
@@ -103,13 +113,16 @@ services:
     environment:
       KC_HOSTNAME: https://keycloak.localhost:8443
       KC_HOSTNAME_STRICT: "true"
-      KC_PROXY_HEADERS: xforwarded
-      KC_HTTP_ENABLED: "true"
 ```
 
-`!override` ersetzt die Portliste der Basisdatei. Port 8080 bleibt damit im
-Docker-Netz; nur Traefik ist für den Browser erreichbar. Der Management-Port 9000
-ist für die lokalen Monitoring-Schritte auf die Loopback-Adresse begrenzt.
+**Ergänze unter `environment` zwei Einstellungen:** Keycloak soll intern HTTP annehmen
+(`KC_HTTP_ENABLED`), und es soll die vom Proxy gesetzten `X-Forwarded-*`-Header auswerten
+(`KC_PROXY_HEADERS`). Leite die Werte aus dem Anfrageweg ab; bei Bedarf hilft die
+[Keycloak-Dokumentation zum Reverse Proxy](https://www.keycloak.org/server/reverseproxy).
+Die alte Option `KC_PROXY=edge` wird nicht mehr verwendet.
+
+`!override` ersetzt die Portliste der Basisdatei. Dadurch entfällt die bisherige Freigabe von
+8080; der Management-Port bleibt an die lokale Loopback-Adresse gebunden.
 
 Erstelle daneben `traefik-dynamic.yml`:
 
@@ -129,102 +142,61 @@ http:
           - url: "http://assignment-keycloak:8080"
 ```
 
-### Schritt 2.2: HTTPS starten und prüfen
-
-Die Befehle funktionieren in Bash und PowerShell:
+Prüfe die zusammengeführte Konfiguration und starte sie:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml config --quiet
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-docker compose -f docker-compose.yml -f docker-compose.prod.yml ps
+docker compose config --quiet
+docker compose up -d --wait --wait-timeout 180 assignment-keycloak traefik
+docker compose ps
 ```
 
-Öffne <https://keycloak.localhost:8443/admin/> und melde dich mit `admin` / `admin` an.
-Traefik erzeugt hier ein selbstsigniertes Standardzertifikat. Bestätige die
-Zertifikatsausnahme nur für dieses lokale Lab. Für den Produktivbetrieb sind ein
-zum Hostnamen passendes, vertrauenswürdiges Zertifikat und eigene Zugangsdaten nötig.
+Bei einem Fehler prüfe `docker compose logs --tail 50 assignment-keycloak traefik`.
+Die Installation bleibt für den Rest der Übung in dieser HTTPS-Konfiguration.
 
-Falls `keycloak.localhost` nicht aufgelöst wird, ergänze `127.0.0.1 keycloak.localhost`
-in `/etc/hosts` (Linux/macOS) bzw. `C:\Windows\System32\drivers\etc\hosts` (Windows).
-Prüfe die Discovery; der `issuer` muss `https://keycloak.localhost:8443/realms/mustertech` sein.
+### Schritt 1.3: HTTPS, Issuer und Login nachweisen
+
+Öffne <https://keycloak.localhost:8443/admin/>. Traefik liefert ein selbstsigniertes
+Standardzertifikat. Bestätige die Ausnahme ausschließlich für dieses lokale Lab.
+Falls der Name nicht aufgelöst wird, ergänze `127.0.0.1 keycloak.localhost` in `/etc/hosts`
+(Linux/macOS) oder `C:\Windows\System32\drivers\etc\hosts` (Windows, Administratorrechte nötig).
+
+Frage die Discovery ab. `--insecure` überbrückt hier nur die Prüfung des Testzertifikats.
+`--resolve` setzt für diese einzelne Anfrage die Adresse des Testservers.
 
 **Bash:**
 
 ```bash
-curl --fail --insecure --resolve keycloak.localhost:8443:127.0.0.1 \
-  https://keycloak.localhost:8443/realms/mustertech/.well-known/openid-configuration
+curl --fail --insecure --resolve keycloak.localhost:8443:127.0.0.1 https://keycloak.localhost:8443/realms/mustertech/.well-known/openid-configuration
 ```
 
 **PowerShell:**
 
 ```powershell
-curl.exe --fail --insecure --resolve keycloak.localhost:8443:127.0.0.1 `
-  https://keycloak.localhost:8443/realms/mustertech/.well-known/openid-configuration
+curl.exe --fail --insecure --resolve keycloak.localhost:8443:127.0.0.1 https://keycloak.localhost:8443/realms/mustertech/.well-known/openid-configuration
 ```
 
-`--insecure` überbrückt hier ausschließlich die Prüfung des lokalen Testzertifikats.
-Prüfe außerdem den Benutzerlogin unter <https://keycloak.localhost:8443/realms/mustertech/account/>.
+Vergleiche `issuer` und `authorization_endpoint` mit deiner Vorhersage. Melde dich anschließend
+in einem frischen privaten Browserfenster unter
+<https://keycloak.localhost:8443/realms/mustertech/account/> als Hans an.
+Prüfe mit `docker compose ps`, dass kein Host-Port 8080 mehr für Keycloak veröffentlicht wird.
 
----
+**Nachweis:** Notiere den Issuer und das Login-Ergebnis. Erkläre außerdem, welcher Schutz durch
+die Zertifikatsausnahme bei diesem Test nicht geprüft wird.
 
-## Teil 3: Sicherheitseinstellungen
+## Teil 2: Einen Sicherungsstand wiederherstellen (15 Minuten)
 
-### Schritt 3.1: Wichtige Produktionseinstellungen
+### Schritt 2.1: Sicherungsumfang beurteilen
 
-- Setze `KC_HOSTNAME` auf die vollständige öffentliche HTTPS-URL.
-- Bei TLS-Terminierung am Proxy bleibt `KC_HTTP_ENABLED: "true"`. Der Proxy überschreibt
-  die `X-Forwarded-*`-Header; Clients dürfen den internen HTTP-Port nicht direkt erreichen.
-- Stelle Health- und Metrics-Endpunkte nur dem internen Monitoring bereit.
-- Bei direktem HTTPS oder TLS-Passthrough aktiviere stattdessen HTTPS an Keycloak.
-  Dafür werden eigene Zertifikatsdateien benötigt; `KC_PROXY_HEADERS` ist bei Passthrough nicht gesetzt.
+Öffne in der Admin-Konsole **Realm settings** -> **Action** -> **Partial export**.
+Exportiere Gruppen/Rollen und Clients. Suche im JSON nach dem regulären Benutzer `hans.mueller`.
+Service-Account-Benutzer können im Partial Export enthalten sein.
 
-### Schritt 3.2: Datenbank-Sicherheit
+Entscheide: Reicht diese Datei, um die aktuelle Installation einschließlich Benutzerkonten und
+Kennwörtern wiederherzustellen? Für den folgenden Versuch sicherst du die PostgreSQL-Datenbank.
 
-Die Labdatei enthält ein festes Testpasswort. Ein Produktivaufbau benötigt eigene
-Datenbank-Zugangsdaten aus einer Secret-Verwaltung. PostgreSQL kann sie mit
-`POSTGRES_PASSWORD_FILE` aus einem Docker-Secret lesen. Keycloak braucht denselben
-Wert über seine eigene Konfiguration; das PostgreSQL-Secret setzt `KC_DB_PASSWORD`
-nicht automatisch. Beschränke außerdem den Netzwerkzugriff auf die Datenbank.
+### Schritt 2.2: Datenbank sichern
 
-### Schritt 3.3: Admin-Credentials
-
-**Niemals** die Lab-Zugangsdaten in Produktion verwenden. Für einen frischen Server
-heißen die Bootstrap-Variablen `KC_BOOTSTRAP_ADMIN_USERNAME` und
-`KC_BOOTSTRAP_ADMIN_PASSWORD`. Erstelle danach einen persönlichen Admin mit MFA und
-entferne den temporären Bootstrap-Admin sowie die Bootstrap-Zugangsdaten.
-
-### Schritt 3.4: Zur lokalen HTTP-Umgebung zurückkehren
-
-Die folgenden Backup- und Monitoring-Schritte verwenden wieder die Basisdatei.
-Beende die Proxy-Variante ohne `-v`, damit die Daten erhalten bleiben:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml down
-docker compose up -d
-```
-
-Warte erneut auf `healthy`; die Admin-Konsole ist wieder unter <http://localhost:8080> erreichbar.
-
----
-
-## Teil 4: Backup & Restore
-
-### Schritt 4.1: Realm exportieren
-
-**Manuell (Admin-Konsole):**
-
-1. Öffne **Realm settings** → **Action** → **Partial export**.
-2. Wähle Gruppen/Rollen und Clients und exportiere die Konfiguration.
-3. Prüfe das JSON. Reguläre Benutzer fehlen; Service-Account-Benutzer können enthalten sein.
-
-Ein Partial Export ist kein vollständiges Backup. Auch `GET /admin/realms/mustertech`
-liefert nur Realm-Einstellungen, nicht die Clients, Rollen, Gruppen und Benutzer.
-
-![Realm Action Menü mit Partial Export](screenshots/06-realm-action-menu.png)
-
-**Vollständiger Realm-Export mit Benutzerkonfiguration:**
-
-Lege zuerst das Zielverzeichnis an.
+Lege das Verzeichnis `backup` an.
 
 **Bash:**
 
@@ -238,191 +210,180 @@ mkdir -p backup
 New-Item -ItemType Directory -Force backup
 ```
 
-Stoppe Keycloak vor dem Export. Ein zweiter Serverprozess im laufenden Container
-würde unter anderem um Port 9000 konkurrieren. Die folgenden Befehle gelten für beide Shells:
+Stoppe Keycloak für die Sicherung. Traefik und PostgreSQL bleiben aktiv. Der Dump wird im
+Container geschrieben und anschließend kopiert; so verändert keine Shell-Umleitung sein Binärformat.
 
 ```bash
 docker compose stop assignment-keycloak
-docker compose run --name assignment-export --no-deps assignment-keycloak export --dir /tmp/realm-export
+docker compose exec -T assignment-postgres pg_dump -U keycloak -Fc -f /tmp/keycloak.dump keycloak
+docker compose cp assignment-postgres:/tmp/keycloak.dump backup/keycloak.dump
+docker compose exec -T assignment-postgres pg_restore --list /tmp/keycloak.dump
+docker compose up -d --wait --wait-timeout 180 assignment-keycloak
+```
+
+Fahre nur fort, wenn Dump und Inhaltsverzeichnis ohne Fehler enden. Das Inhaltsverzeichnis
+belegt die Lesbarkeit des Archivs; die Wiederherstellung prüfst du erst im nächsten Schritt.
+Der Dump enthält sensible Daten. `backup/` ist von Git ausgeschlossen.
+
+### Schritt 2.3: Eine Änderung bewusst zurücknehmen
+
+Lege **nach** der Sicherung im Realm `mustertech` einen Benutzer `restore-probe` an.
+Aktualisiere die Benutzerliste und bestätige, dass er existiert.
+
+Notiere vor der Wiederherstellung:
+
+- Muss `restore-probe` danach noch vorhanden sein?
+- Was erwartest du für Hans und sein Passwort?
+- Welche Änderungen seit der Sicherung gehen ebenfalls verloren?
+
+**Die folgenden Befehle ersetzen die Daten dieses Labs durch den Sicherungsstand.** Keycloak
+bleibt während des Restore gestoppt, damit es keine Änderungen schreibt oder alte Cache-Inhalte nutzt.
+
+```bash
+docker compose stop assignment-keycloak
+docker compose cp backup/keycloak.dump assignment-postgres:/tmp/keycloak.dump
+docker compose exec -T assignment-postgres pg_restore -U keycloak -d keycloak --clean --if-exists --exit-on-error /tmp/keycloak.dump
+```
+
+Bei einem Restore-Fehler stoppe die Befehlsfolge und prüfe die Ausgabe. Ein neuer Start ist erst
+nach einem erfolgreichen Restore sinnvoll. In PowerShell zeigt `$LASTEXITCODE`, in Bash `$?`
+unmittelbar nach dem Befehl dessen Exitcode; erfolgreich ist `0`. Starte danach Keycloak:
+
+```bash
+docker compose up -d --wait --wait-timeout 180 assignment-keycloak
+```
+
+**Nachweis:** Prüfe Realm und Clients, suche `restore-probe` und melde Hans in einem frischen
+privaten Fenster über HTTPS an. Erst diese Gegenprobe zeigt, ob der erwartete Stand wieder nutzbar ist.
+
+Überlege zum Abschluss, welche Dateien außerhalb der Datenbank für diesen Aufbau ebenfalls
+benötigt werden. Woran scheitert ein Restore, wenn zwar der Dump vorhanden ist, aber die passende
+Keycloak-Version oder die Proxy-Konfiguration fehlt?
+
+## Teil 3: Einen Datenbankausfall untersuchen (10-15 Minuten)
+
+### Schritt 3.1: Den gesunden Zustand festhalten
+
+Lies Liveness, Readiness und Metriken vom lokalen Management-Port. `-i` zeigt zusätzlich den
+HTTP-Status. Für die Diagnose verwenden wir kein `--fail`, damit auch die Antwort bei HTTP 503
+sichtbar bleibt.
+
+**Bash:**
+
+```bash
+curl -i --max-time 20 http://localhost:9000/health/live
+curl -i --max-time 20 http://localhost:9000/health/ready
+curl --fail --max-time 20 http://localhost:9000/metrics
+```
+
+**PowerShell:**
+
+```powershell
+curl.exe -i --max-time 20 http://localhost:9000/health/live
+curl.exe -i --max-time 20 http://localhost:9000/health/ready
+curl.exe --fail --max-time 20 http://localhost:9000/metrics
+```
+
+Notiere die HTTP-Statuscodes und suche in der Readiness-Antwort nach dem Datenbankcheck.
+Health und Metrics sind in der Basisdatei bereits aktiviert. Suche außerdem eine JVM-Metrik
+und notiere ihren Namen samt Wert; damit ist noch keine Alarmierung eingerichtet.
+
+### Schritt 3.2: Vorhersagen, dann die Datenbank stoppen
+
+Keycloak und Traefik bleiben eingeschaltet. Was erwartest du für Liveness, Readiness und eine
+**neue** Benutzeranmeldung, wenn PostgreSQL ausfällt? Reicht es zur Diagnose, eine bereits
+geöffnete Seite anzusehen?
+
+Stoppe ausschließlich die Datenbank dieses Labs:
+
+```bash
+docker compose stop assignment-postgres
+```
+
+Wiederhole die beiden Health-Abfragen aus Schritt 3.1. Der Pool muss defekte Verbindungen erst
+erkennen; frage bei unverändertem Ergebnis nach einigen Sekunden erneut ab.
+Versuche in einem frischen privaten Fenster einen neuen Login als Hans. Notiere auch Wartezeit
+oder Fehlermeldung, statt nur auf die Darstellung der Login-Seite zu achten.
+
+Sieh in die Logs und den Containerstatus:
+
+```bash
+docker compose logs --since 2m --tail 80 assignment-keycloak
+docker compose ps -a
+```
+
+Ordne deine Befunde den drei Stationen Proxy, Keycloak und Datenbank zu. Würde ein Neustart
+von Keycloak die Ursache beheben? Begründe deine Antwort mit einer Logzeile oder einem Health-Check.
+
+### Schritt 3.3: Wiederanlauf prüfen
+
+Starte die Datenbank wieder, auch wenn du den Versuch vorzeitig abbrichst:
+
+```bash
+docker compose up -d --wait --wait-timeout 180 assignment-postgres
+```
+
+Wiederhole die Readiness-Abfrage, bis sie wieder HTTP 200 liefert. Prüfe dann einen frischen
+HTTPS-Login als Hans. Falls Keycloak nach einer Minute noch keine Verbindung bekommt, sichere
+zuerst die Logs und starte anschließend nur diesen Dienst neu:
+
+```bash
+docker compose restart assignment-keycloak
+```
+
+**Nachweis:** Ergänze deine Tabelle um den Ausfall und die Erholung. Trenne den laufenden
+Serverprozess, die Bereitschaft zur Verarbeitung und die tatsächlich geprüfte Benutzeranmeldung.
+
+## Auswertung und Übergabe
+
+Zeige die drei Nachweise einer anderen Person oder der Gruppe. Erkläre eine Beobachtung,
+die anders ausgefallen ist als erwartet.
+
+Für einen späteren Produktivbetrieb fehlen unter anderem ein vertrauenswürdiges Zertifikat,
+eigene Secrets, ein dauerhaft eingerichtetes Monitoring und eine abgesicherte Datenbank.
+Wähle einen dieser Punkte und nenne eine konkrete Prüfung für die Betriebsübergabe.
+Im folgenden Kubernetes-Lab untersuchst du zusätzlich Skalierung und den Ausfall eines Keycloak-Pods.
+
+## Zusatz: CLI-Export mit Benutzerkonfiguration (5-10 Minuten)
+
+Vergleiche bei verbleibender Zeit den Partial Export mit dem CLI-Export. Stoppe dafür Keycloak;
+der Export startet einen eigenen Prozess mit derselben Datenbankkonfiguration.
+Die HTTPS- und Proxy-Dateien bleiben unverändert.
+
+```bash
+docker compose stop assignment-keycloak
+docker compose run --name assignment-export --no-deps assignment-keycloak export --dir /tmp/realm-export --realm mustertech
+```
+
+Prüfe den Exitcode des Exports. Kopiere die Dateien nur nach erfolgreichem Abschluss:
+
+```bash
 docker cp assignment-export:/tmp/realm-export/. backup/
 docker rm assignment-export
-docker compose up -d assignment-keycloak
+docker compose up -d --wait --wait-timeout 180 assignment-keycloak
 ```
 
-Der Export muss mit Exitcode 0 enden. Der Befehl exportiert alle Realms.
-Prüfe `backup/mustertech-realm.json`: Die Datei enthält unter anderem Clients, Rollen und Gruppen.
-`backup/mustertech-users-0.json` enthält die Benutzer
-`hans.mueller`, `anna.schmidt` und `max.admin`.
-Der Export enthält sensible Benutzer- und Clientdaten. Bewahre ihn geschützt auf und committe ihn nicht.
-Laufende Sitzungen werden damit nicht gesichert; für die gesamte Installation
-ist das Datenbank-Backup in Schritt 4.2 maßgeblich.
+In `mustertech-realm.json`
+stehen unter anderem Clients, Rollen und Gruppen; `mustertech-users-0.json` enthält reguläre
+Benutzer und deren Credential-Daten. Behandle diese Dateien entsprechend vertraulich.
+Vergleiche den Inhalt mit dem Partial Export. Laufende Sitzungen und Event-Historie werden
+vom CLI-Export nicht gesichert.
 
-### Schritt 4.2: Datenbank-Backup und Wiederherstellung
+## Aufräumen
 
-Die folgenden Befehle funktionieren in Bash und PowerShell. Der Dump wird zunächst
-im Container geschrieben und anschließend kopiert, damit keine Shell-Umleitung das
-Binärformat verändert. `backup/` wurde in Schritt 4.1 angelegt.
+Nach Abschluss und Auswertung:
 
 ```bash
-docker compose stop assignment-keycloak
-docker exec assignment-postgres pg_dump -U keycloak -Fc -f /tmp/keycloak.dump keycloak
-docker cp assignment-postgres:/tmp/keycloak.dump backup/keycloak.dump
-docker compose up -d assignment-keycloak
+docker compose down -v
 ```
 
-Lege nach dem Backup in der Admin-Konsole einen Benutzer `restore-probe` an.
-Spiele dann den Dump zurück. **Dies ersetzt den Datenbestand dieses Labs durch den
-Sicherungsstand.** Keycloak muss währenddessen gestoppt bleiben.
+Das entfernt auch Traefik und die Datenbank dieses Labs. Die selbst erstellten Proxy-Dateien
+und `backup/` bleiben auf dem Rechner; sie werden nicht versioniert. Entferne nicht mehr
+benötigte Sicherungen nach dem Kurs.
 
-```bash
-docker compose stop assignment-keycloak
-docker cp backup/keycloak.dump assignment-postgres:/tmp/keycloak.dump
-docker exec assignment-postgres pg_restore -U keycloak -d keycloak --clean --if-exists --exit-on-error /tmp/keycloak.dump
-docker compose up -d assignment-keycloak
-```
+## Quellen und Trainerunterlage
 
-Fahre bei einem Fehler nicht mit dem nächsten Befehl fort. `pg_restore` muss ohne
-SQL-Fehler mit Exitcode 0 enden. Warte auf `healthy` und prüfe anschließend:
-
-1. Der Realm `mustertech` und seine Clients sind vorhanden.
-2. `restore-probe` fehlt, weil der Benutzer erst nach der Sicherung angelegt wurde.
-3. Eine neue Anmeldung als `hans.mueller` mit `Muster1234!` an der Account Console funktioniert.
-
-### Schritt 4.3: Backup-Strategie
-
-| Was           | Wie oft      | Aufbewahrung    |
-|:--------------|:-------------|:----------------|
-| Datenbank     | Täglich      | 30 Tage         |
-| Realm-Export  | Wöchentlich  | 12 Wochen       |
-| Konfiguration | Bei Änderung | Git-versioniert |
-
----
-
-## Teil 5: Health Checks & Monitoring
-
-### Schritt 5.1: Health Endpoints
-
-Keycloak bietet Health Endpoints (wenn aktiviert):
-
-```bash
-# Liveness (Keycloak läuft?)
-curl http://localhost:9000/health/live
-
-# Readiness (Keycloak bereit?)
-curl http://localhost:9000/health/ready
-
-# Alle Checks
-curl http://localhost:9000/health
-```
-
-![Health Endpoint Antwort](screenshots/01-health-endpoint.png)
-
-> **Hinweis:** Ab Keycloak 25 werden Health- und Metrics-Endpoints auf einem
-> separaten Management-Port (Standard: 9000) bereitgestellt.
-
-![Health Readiness Endpoint](screenshots/02-health-ready.png)
-
-### Schritt 5.2: Metriken für Prometheus
-
-```bash
-curl http://localhost:9000/metrics
-```
-
-![Metrics Endpoint im Prometheus-Format](screenshots/03-metrics-endpoint.png)
-
-Liefert Metriken im Prometheus-Format:
-
-- JVM-Metriken (Heap, GC, Threads)
-- HTTP-Request-Metriken
-- Datenbank-Connection-Pool
-- Cache-Statistiken
-
-### Schritt 5.3: docker-compose Health Check
-
-```yaml
-services:
-  assignment-keycloak:
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - >-
-          exec 3<>/dev/tcp/127.0.0.1/9000 &&
-          printf 'GET /health/ready HTTP/1.0\r\nHost: localhost\r\n\r\n' >&3 &&
-          head -n 1 <&3 | grep -q ' 200 '
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 90s
-```
-
-Im Keycloak-Image fehlt `curl`. Dieser Check nutzt die vorhandene Bash und prüft
-die HTTP-Antwort des Readiness-Endpunkts.
-
----
-
-## Teil 6: Clustering (Überblick)
-
-### Schritt 6.1: Cluster-Architektur
-
-Für Hochverfügbarkeit:
-
-```text
-          Load Balancer
-               │
-       ┌───────┴───────┐
-       │               │
-  ┌────▼────┐   ┌────▼────┐
-  │Keycloak │   │Keycloak │
-  │ Node 1  │   │ Node 2  │
-  └────┬────┘   └────┬────┘
-       │               │
-       └───────┬───────┘
-               │
-        ┌──────▼──────┐
-        │ PostgreSQL  │
-        │  (shared)   │
-        └─────────────┘
-```
-
-### Schritt 6.2: Wichtige Cluster-Einstellungen
-
-```yaml
-services:
-  assignment-keycloak:
-    environment:
-      KC_CACHE: ispn
-      KC_CACHE_STACK: jdbc-ping
-```
-
-Die Knoten finden sich in dieser Version über die gemeinsame Datenbank.
-Das Fragment startet keinen zweiten Knoten; Skalierung und Ausfallverhalten werden
-im folgenden Kubernetes-Lab praktisch geprüft.
-
-![Sessions Übersicht](screenshots/05-sessions-page.png)
-
----
-
-## Zusammenfassung
-
-Du hast erfolgreich:
-
-- [x] Unterschiede zwischen Dev und Prod verstanden
-- [x] HTTPS mit Reverse Proxy konfiguriert
-- [x] Backup & Restore Strategien kennengelernt
-- [x] Health Checks und Monitoring vorbereitet
-
----
-
-## Troubleshooting
-
-### Container-Name-Konflikt
-
-Siehe zentrales Troubleshooting: [Container-Name-Konflikt](../TROUBLESHOOTING.md#container-name-konflikt)
-
----
-
-## Weiterführende Ressourcen
-
-- [Keycloak Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/)
-- [Keycloak Operator (Kubernetes)](https://www.keycloak.org/operator/installation)
-- [Red Hat SSO (Kommerzieller Support)](https://access.redhat.com/products/red-hat-single-sign-on)
+- [Keycloak: Reverse Proxy](https://www.keycloak.org/server/reverseproxy)
+- [Keycloak: Import und Export](https://www.keycloak.org/server/importExport)
+- [Keycloak: Health Checks](https://www.keycloak.org/observability/health)
+- [Trainerlösung und Auswertung](trainer.md)
