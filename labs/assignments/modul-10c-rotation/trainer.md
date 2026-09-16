@@ -39,7 +39,7 @@ von `OLD_SECRET` und `NEW_SECRET` verändern; rotiere genau einmal.
 | Nach Rotation, Übergangszeit aktiv | 200                        | 200                  | 200                    |
 | Nach Invalidate des alten Secrets  | 401, `unauthorized_client` | 200                  | 200                    |
 
-Zum Entwerten dient **Invalidate** neben **Rotated secret**. `TOKEN_BEFORE` bleibt bis zu seinem
+Zum Entwerten dient **Invalidate** neben **Secret rotated**. `TOKEN_BEFORE` bleibt bis zu seinem
 Ablauf verwendbar: Die API prüft Signatur, Issuer und Zeitangaben des JWT. Ob sich das
 Client-Secret seit der Ausstellung geändert hat, fragt sie bei Keycloak nicht ab.
 

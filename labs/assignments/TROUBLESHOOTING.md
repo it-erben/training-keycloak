@@ -235,14 +235,14 @@ Die folgenden Befehle werden im Verzeichnis `modul-10c-rotation` ausgeführt.
 Bash blendet die Eingabe aus, PowerShell zeigt Platzhalter. Füge das Secret ein und drücke Enter.
 Es liegt danach in `OLD_SECRET` oder `NEW_SECRET`; gib diese Variablen nicht zur Kontrolle aus.
 
-### Rotated secret fehlt oder das neue Secret wird abgelehnt
+### Secret rotated fehlt oder das neue Secret wird abgelehnt
 
 Prüfe, ob das Lab mit dem Realm-Import von 10c gestartet wurde. Unter **Realm settings** ->
 **Client policies** muss `lab-confidential` aktiv sein und das Profil `lab-rotation` verwenden.
-Erst nach **Regenerate** erscheint das bisherige Secret als **Rotated secret**.
+Erst nach **Regenerate** erscheint das bisherige Secret als **Secret rotated**.
 
 Erhält eine Anfrage mit `NEW_SECRET` HTTP 401 und `unauthorized_client`, kopiere das aktuelle
-**Client secret** erneut. Wiederhole die verdeckte Eingabe aus Schritt 1.2 und dann die
+**Client Secret** erneut. Wiederhole die verdeckte Eingabe aus Schritt 1.2 und dann die
 Token-Anfrage. Rotiere dafür nicht noch einmal.
 
 ### Token-Variable leer oder die API antwortet unerwartet mit HTTP 401

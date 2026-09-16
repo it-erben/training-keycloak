@@ -64,7 +64,7 @@ Der Setup-Schritt verwendet einmalig das offizielle Keycloak-Image, um den lokal
 Admin-Zugang vorzubereiten. Alle folgenden HTTP-Aufrufe laufen direkt in deiner Shell.
 
 Warte auf den erfolgreichen Abschluss beider Befehle. Öffne <http://localhost:8080/admin/>
-und melde dich mit `admin` / `admin` an. Wähle den Realm **mustertech**.
+und melde dich mit `admin` / `admin` an. Klicke auf **Manage realms** und wähle **mustertech**.
 
 Der Realm enthält den vertraulichen Client `sync-service` mit Service Account; als API läuft
 die Portal-API aus Modul 06. Die Client Policy `lab-confidential` verwendet das Profil
@@ -167,7 +167,7 @@ Bei einem unerwarteten Fehler klärst du die Ursache, bevor du weiterarbeitest.
 
 ### Schritt 1.1: Ausgangszustand prüfen
 
-Öffne **Clients** -> **sync-service** -> **Credentials**. Kopiere das aktuelle **Client secret**.
+Öffne **Clients** -> **sync-service** -> **Credentials**. Kopiere das aktuelle **Client Secret**.
 Lies es in die Variable `OLD_SECRET` ein:
 
 **Bash:**
@@ -224,9 +224,10 @@ Notiere die `kid` des Tokens. An ihr erkennst du, welchen Signaturschlüssel die
 
 ### Schritt 1.2: Secret mit Übergangszeit rotieren
 
-Klicke bei **Client secret** auf **Regenerate** und bestätige gegebenenfalls den Dialog.
-Die Credentials-Seite zeigt nun das aktuelle und das rotierte Secret samt Ablaufzeit.
-Kopiere das **neue aktuelle** Secret und lies es in `NEW_SECRET` ein:
+Klicke bei **Client Secret** auf **Regenerate** und bestätige gegebenenfalls den Dialog.
+Die zweite Schaltfläche **Regenerate** weiter unten gehört zum **Registration access token**.
+Das neue Secret steht nun unter **Client Secret**, das bisherige unter **Secret rotated**.
+Kopiere das neue Secret und lies es in `NEW_SECRET` ein:
 
 **Bash:**
 
@@ -285,7 +286,7 @@ und benenne die Anfrage, die du vor dem Abschalten auf jeder Instanz erfolgreich
 Für diese Frage musst du keine weiteren Container starten.
 
 Im Lab hast du das neue Secret bereits mit einer Token-Anfrage geprüft. Führe hier den Wechsel zu Ende:
-Auf derselben Credentials-Seite klicke beim **Rotated secret** auf **Invalidate** und bestätige.
+Auf derselben Credentials-Seite klicke bei **Secret rotated** auf **Invalidate** und bestätige.
 Teste danach dieselben Anmeldeinformationen erneut:
 
 **Bash:**
@@ -389,10 +390,10 @@ Show-Token $TOKEN_KEY_BEFORE
 Notiere die `kid` von `TOKEN_KEY_BEFORE`. Suche sie in der JWKS-Ausgabe; dort gehört sie zu
 `alg: RS256` und `use: sig`. Weitere Schlüssel können anderen Algorithmen oder Zwecken dienen.
 
-Öffne **Realm settings** -> **Keys**. Finde unter Keys die kid des Providers rsa-original und 
-vergleiche sie mit der kid von `TOKEN_KEY_BEFORE`.
+Öffne **Realm settings** -> **Keys**. Finde in der Schlüsselliste die `kid` des Providers
+**rsa-original** und vergleiche sie mit der `kid` von `TOKEN_KEY_BEFORE`.
 Wechsle zu **Providers** und öffne **rsa-original**. Im Feld **Priority** steht `100`.
-Kehre anschließend über **Keys** zur Provider-Liste zurück.
+Klicke danach oben auf **Keys**, um zur Provider-Liste zurückzukehren.
 
 ### Schritt 2.2: Einen neuen Schlüssel aktivieren
 
@@ -563,7 +564,8 @@ $response.Content
 
 `TOKEN_KEY_BEFORE` muss noch mindestens fünf Minuten gültig sein; der API-Aufruf muss HTTP 200 liefern.
 Der Neustart entfernt ältere Cache-Einträge, der Aufruf lädt den alten Schlüssel neu.
-Führe die folgenden Schritte bis zur nächsten API-Anfrage innerhalb einer Minute aus.
+Ab diesem HTTP-200-Aufruf läuft die Minute: Stelle **Enabled** auf **Off**, prüfe das JWKS und
+rufe die API danach erneut mit `TOKEN_KEY_BEFORE` auf.
 
 Stelle bei **rsa-original** jetzt zusätzlich **Enabled** auf **Off** und speichere.
 Prüfe das JWKS:
@@ -601,7 +603,9 @@ $response.Content
 
 **Erwartet:** HTTP 200. Obwohl der Schlüssel im JWKS fehlt, kann die API ihn aus ihrem Cache verwenden.
 Bei HTTP 401 ist dieser Cache-Effekt noch nicht nachgewiesen. Stelle `rsa-original` wieder auf
-**Enabled: On**, prüfe seine `kid` im JWKS und wiederhole diesen Schritt ab dem Füllen des Caches.
+**Enabled: On**, prüfe seine `kid` im JWKS und beginne Schritt 2.4 erneut bei
+`docker compose restart api`. Fülle den Cache wieder mit einem erfolgreichen API-Aufruf für
+`TOKEN_KEY_BEFORE`, bevor du den alten Schlüssel erneut deaktivierst.
 Falls die Token-Laufzeit nicht mehr reicht, setze das Lab zurück und beginne erneut.
 
 Leere für eine reproduzierbare Gegenprobe den Prozess-Cache durch einen Neustart ausschließlich der API:
