@@ -1,0 +1,97 @@
+name: keycloak-10c
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_db_password
+    volumes:
+      - database:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.7
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_db_password
+      KC_HOSTNAME: http://localhost:${KEYCLOAK_PORT:-8080}
+      KC_FEATURES: client-secret-rotation
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "127.0.0.1:${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - ./realm-import.json:/opt/keycloak/data/import/realm-import.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000 &&
+          printf 'GET /health/ready HTTP/1.0\r\nHost: localhost\r\n\r\n' >&3 &&
+          head -n 1 <&3 | grep -q ' 200 '
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 90s
+
+  setup:
+    image: quay.io/keycloak/keycloak:26.5.7
+    entrypoint: /bin/bash
+    command:
+      - -ec
+      - |
+        /opt/keycloak/bin/kcadm.sh config credentials \
+          --server http://keycloak:8080 --realm master --user admin --password admin
+        /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    profiles: [tools]
+
+  api:
+    build: ../services/portal-api
+    environment:
+      VITE_KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_PUBLIC_URL: http://localhost:${KEYCLOAK_PORT:-8080}
+      VITE_KEYCLOAK_REALM: mustertech
+    ports:
+      - "127.0.0.1:${API_PORT:-3001}:3001"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://localhost:3001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  tools:
+    image: python:3.13-alpine
+    entrypoint: [python, /tools/lab.py]
+    volumes:
+      - ./tools:/tools:ro
+      - state:/state
+    stdin_open: true
+    tty: true
+    profiles: [tools]
+
+volumes:
+  database:
+  state:

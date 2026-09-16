@@ -38,8 +38,19 @@ jobs:
           name: workshop-folien
           path: workshop-pdfs/*.pdf
           if-no-files-found: error
+  rotation-tools:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v6.2.0
+        with:
+          python-version: "3.13"
+      - name: Test rotation lab tools
+        run: python -m unittest discover -s labs/assignments/modul-10c-rotation/tools
   release:
-    needs: [lint, slides, workshop-slides]
+    needs: [lint, slides, workshop-slides, rotation-tools]
     permissions:
       contents: write
       issues: write
