@@ -20,26 +20,26 @@ jeweils vor dem nächsten Schritt beantworten. Sammle die Begründungen, bevor d
   `remaining-rotation-period: 0`; Policy `lab-confidential` für vertrauliche Clients.
 - Ausgangsprovider `rsa-original`: RS256, Priorität 100, Enabled und Active eingeschaltet.
 - Access Tokens gelten eine Stunde. Bei längeren Unterbrechungen vor der Schlüsselrotation
-  ein frisches `key-before` ausstellen, solange `rsa-original` noch aktiv signiert.
+  ein frisches `TOKEN_KEY_BEFORE` ausstellen, solange `rsa-original` noch aktiv signiert.
 
 Das vorbereitete Secret `rotation-demo-secret` und `admin` / `admin` sind öffentliche Lab-Werte.
-Die Datenbank und der Werkzeugspeicher haben projektbezogene Volumes. Die Startdatei verwendet
-keine global festgelegten Container-Namen.
+Die Datenbank hat ein projektbezogenes Volume. Secrets und Tokens liegen während der Übung
+in Shell-Variablen. Die Startdatei verwendet keine global festgelegten Container-Namen.
 
 ## Musterlösung: Secret-Rotation
 
 Die Profile und Policy sind bereits importiert. Auf **Clients** -> **sync-service** ->
 **Credentials** reicht deshalb **Regenerate**, um das bisherige Secret als rotiertes Secret
 weiterzuführen. Ein weiterer Klick auf **Regenerate** während des Versuchs würde die Zuordnung
-von `old` und `new` verändern; rotiere genau einmal.
+von `OLD_SECRET` und `NEW_SECRET` verändern; rotiere genau einmal.
 
-| Zeitpunkt                          | Altes Secret               | Neues Secret         | Token `before` an der API |
-| ---------------------------------- | -------------------------- | -------------------- | ------------------------- |
-| Vor Rotation                       | 200                        | Noch nicht vorhanden | 200                       |
-| Nach Rotation, Übergangszeit aktiv | 200                        | 200                  | 200                       |
-| Nach Invalidate des alten Secrets  | 401, `unauthorized_client` | 200                  | 200                       |
+| Zeitpunkt                          | Altes Secret               | Neues Secret         | Altes Token an der API |
+| ---------------------------------- | -------------------------- | -------------------- | ---------------------- |
+| Vor Rotation                       | 200                        | Noch nicht vorhanden | 200                    |
+| Nach Rotation, Übergangszeit aktiv | 200                        | 200                  | 200                    |
+| Nach Invalidate des alten Secrets  | 401, `unauthorized_client` | 200                  | 200                    |
 
-Zum Entwerten dient **Invalidate** neben **Rotated secret**. `before` bleibt bis zu seinem
+Zum Entwerten dient **Invalidate** neben **Rotated secret**. `TOKEN_BEFORE` bleibt bis zu seinem
 Ablauf verwendbar: Die API prüft Signatur, Issuer und Zeitangaben des JWT. Ob sich das
 Client-Secret seit der Ausstellung geändert hat, fragt sie bei Keycloak nicht ab.
 
@@ -56,7 +56,7 @@ Token belegt nur, dass dieses Token noch akzeptiert wird.
 Zuerst muss auch B das neue Secret verwenden. Anschließend muss auf jeder Instanz eine
 frische Client-Credentials-Anfrage an den Token-Endpunkt mit dem neuen Secret gelingen.
 Erst wenn alle verwendenden Instanzen umgestellt und geprüft sind, wird das alte Secret invalidiert.
-Die zwei Instanzen sind eine Entscheidungsaufgabe; im Lab stellt das Prüfwerkzeug die Anfragen.
+Die zwei Instanzen sind eine Entscheidungsaufgabe; im Lab stellt das Terminal die Anfragen.
 
 ## Musterlösung: Signaturschlüssel
 
@@ -80,7 +80,7 @@ Einträge mit RS256 und `use: sig`.
 ### Vorhersage: Ein passiver Schlüssel mit höherer Priorität
 
 Auch mit Priorität `300` signiert `rsa-original` kein neues Token, solange **Active: Off** gilt.
-`priority-check` muss dieselbe `kid` wie `key-after` haben und gehört damit zu `rsa-rotation`.
+`TOKEN_PRIORITY_CHECK` muss dieselbe `kid` wie `TOKEN_KEY_AFTER` haben und gehört damit zu `rsa-rotation`.
 Die Priorität bestimmt die Auswahl unter den geeigneten aktiven Providern. Sie hebt den
 passiven Zustand nicht auf.
 
@@ -94,7 +94,7 @@ Die wiederverwendete Portal-API verwendet `jwks-rsa` mit aktiviertem Cache. Nach
 vorherigen erfolgreichen Zugriff kann ein Token noch akzeptiert werden, obwohl Keycloak
 den betreffenden öffentlichen Schlüssel nicht mehr veröffentlicht. Vorhandene Cache-Einträge
 verschwinden dadurch nicht automatisch. Deshalb wird die API vor dem Versuch neu gestartet
-und der Cache mit einer erfolgreichen Anfrage für `key-before` gefüllt. Ein weiterer Aufruf
+und der Cache mit einer erfolgreichen Anfrage für `TOKEN_KEY_BEFORE` gefüllt. Ein weiterer Aufruf
 ohne Neustart würde einen bereits vorhandenen Eintrag nicht zuverlässig erneuern.
 
 Nach dem Deaktivieren muss die alte `kid` im JWKS fehlen, während die API das alte Token noch
@@ -102,8 +102,8 @@ mit HTTP 200 akzeptiert. Erst dann folgt der zweite API-Neustart. Bei 401 schon 
 Neustart ist kein Cache-Kontrast beobachtet worden; der Versuch wird wie in der Aufgabe beschrieben wiederholt.
 
 Nach `docker compose restart api` startet der Prozess mit leerem Cache. Wenn das noch gültige
-`key-before` jetzt eine 401-Antwort erhält, fehlt der API der passende öffentliche Schlüssel.
-Mit `key-after` klappt der Aufruf weiterhin. Diese Gegenprobe zeigt, dass die API erreichbar
+`TOKEN_KEY_BEFORE` jetzt eine 401-Antwort erhält, fehlt der API der passende öffentliche Schlüssel.
+Mit `TOKEN_KEY_AFTER` klappt der Aufruf weiterhin. Diese Gegenprobe zeigt, dass die API erreichbar
 ist und Tokens mit dem neuen Schlüssel prüfen kann.
 
 Zum Abschluss `rsa-original` wieder auf **Enabled: On**, **Active: Off** stellen, die alte
@@ -118,7 +118,7 @@ Effekt hier sichtbar, ersetzt aber keine Planung für die laufenden Anwendungen.
 
 ## Typische Verständnisfragen
 
-**Warum funktioniert `before` trotz ungültigem Secret?**
+**Warum funktioniert `TOKEN_BEFORE` trotz ungültigem Secret?**
 Keycloak hat das Secret bei der Token-Anfrage geprüft und anschließend das Token signiert.
 Weil die API dieses JWT anhand der Signatur und Claims prüft, bräuchte sie einen zusätzlichen
 Mechanismus, um einen späteren Widerruf zu bemerken.
@@ -127,22 +127,37 @@ Mechanismus, um einen späteren Widerruf zu bemerken.
 Er muss zur Prüfung zuvor signierter Tokens verfügbar bleiben. Active steuert hier das Signieren
 neuer Tokens; Enabled steuert die Verfügbarkeit des Providers.
 
-**Ist die Ausgabe von `inspect` schon eine Signaturprüfung?**
-Nein. Das Werkzeug dekodiert nur die Base64URL-kodierten Teile. Der API-Aufruf führt die Prüfung
+**Ist die Ausgabe von `show_token` oder `Show-Token` schon eine Signaturprüfung?**
+Nein. Die Funktion dekodiert nur die Base64URL-kodierten Teile. Der API-Aufruf führt die Prüfung
 aus. Ein Client-Secret kann die RSA-Signatur eines Tokens weder erzeugen noch verifizieren.
 
 **Ist ein Entfernen aus dem JWKS ein vollständiger Widerruf?**
 Nein. Anwendungen können Schlüssel zwischenspeichern; weitere Verifikatoren können eigene
 Aktualisierungsregeln verwenden. Deshalb trennt die Aufgabe JWKS-Beobachtung und API-Gegenprobe.
 
-## Prüfwerkzeug und Tests
+## HTTP-Anfragen erklären
 
-Die Änderungen an Keycloak erfolgen in der Admin-Konsole. Das Prüfwerkzeug fordert Tokens an,
-speichert sie und ruft damit `/api/profile` auf. `--expect 401` kennzeichnet einen beabsichtigten
-Fehler; bei einem anderen Status endet das Werkzeug mit Exitcode 1.
+Bash verwendet `curl` für HTTP und `jq` zum Lesen der JSON-Antwort. PowerShell verwendet
+`Invoke-RestMethod` für Token und JWKS sowie `Invoke-WebRequest` für Antworten, deren Status
+sichtbar sein soll. Die Anfragen stehen vollständig in der Aufgabe. Der Tools-Container
+gehört nicht zum Teilnehmerablauf.
 
-Vor jeder Token-Anfrage löscht es eine vorhandene Token-Datei mit demselben Namen. Schlägt
-der Versuch fehl, kann der nächste API-Aufruf deshalb nicht versehentlich ein älteres Token verwenden.
+Lass die Gruppe beim ersten Request den Token-Endpunkt, den Grant-Typ und die beiden
+Client-Zugangsdaten zeigen. Beim API-Aufruf soll sie den Bearer-Header finden. Frage nach
+der Secret-Rotation, warum die API weiterhin dasselbe `TOKEN_BEFORE` erhält.
+
+Die Shell-Variablen bleiben nur im aktuellen Terminal erhalten. Bash ersetzt die Token-Variable
+auch bei einer fehlgeschlagenen Anfrage; `pipefail`, `--fail-with-body` und `jq -e` zeigen den
+Fehler an. PowerShell leert sie vor der Anfrage und bricht bei einem HTTP-Fehler ab.
+Die erwarteten 401-Antworten werden separat ausgegeben und nicht als Token gespeichert.
+Bei API-Aufrufen vergleichen die Teilnehmer den sichtbaren Status selbst mit der Erwartung.
+
+## Optionales Prüfwerkzeug
+
+`tools/lab.py` bleibt für automatisierte Prüfungen und Trainerdiagnosen erhalten. Es ist ein
+separater HTTP-Client, kein Bestandteil von Keycloak. Seine benannten Dateien haben keinen
+Zugriff auf die Shell-Variablen der Teilnehmer. Für die Aufgabe muss der Container weder
+gestartet noch verstanden werden.
 
 Unit-Tests, ohne laufendes Keycloak:
 
@@ -150,9 +165,9 @@ Unit-Tests, ohne laufendes Keycloak:
 docker compose run --rm --entrypoint python tools -m unittest discover -s /tools
 ```
 
-Das ist auch unter PowerShell derselbe Befehl. Die Tests prüfen die Eingabenamen, den Umgang
-mit einem fehlgeschlagenen Token-Request und unerwartete Statuscodes über einen lokalen HTTP-Testserver.
-Die eigentlichen Rotationsschritte müssen zusätzlich gegen das laufende Lab geprüft werden.
+Die Tests prüfen die Eingabenamen, den Umgang mit einem fehlgeschlagenen Token-Request und
+unerwartete Statuscodes über einen lokalen HTTP-Testserver. Sie prüfen nicht die Befehle
+in der Anleitung. Diese müssen zusätzlich mit Bash und PowerShell gegen das Lab laufen.
 
 ## Reset und Diagnose
 
@@ -164,12 +179,14 @@ docker compose up -d --build --wait --wait-timeout 240
 docker compose run --rm setup
 ```
 
-Verwende den Reset nur im Verzeichnis von 10c. Ein Import überschreibt einen vorhandenen Realm
+Mit `--profile tools` wird beim Reset auch ein eventuell vorhandener Werkzeugspeicher entfernt.
+Öffne für den nächsten Durchlauf ein neues Terminal und beginne mit dessen Vorbereitung aus
+der Aufgabe. Verwende den Reset nur im Verzeichnis von 10c. Ein Import überschreibt einen vorhandenen Realm
 nicht; ein einfacher Container-Neustart setzt deshalb weder Secrets noch Schlüssel zurück.
-Bei abweichenden Resultaten zuerst den gespeicherten Token prüfen und dann die Logs lesen:
+Bei abweichenden Resultaten zuerst `TOKEN_KEY_BEFORE` mit der Dekodierfunktion aus der
+Aufgabe prüfen und dann die Logs lesen:
 
 ```bash
-docker compose run --rm tools inspect key-before
 docker compose logs --tail 50 api keycloak
 ```
 
