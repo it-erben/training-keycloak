@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-python@v6.2.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
       - name: Test rotation lab tools
         run: python -m unittest discover -s labs/assignments/modul-10c-rotation/tools
   release:
