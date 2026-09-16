@@ -8,24 +8,11 @@ Am Ende dieser Übung hast du:
 - Eine Datenbanksicherung zurückgespielt und den wiederhergestellten Stand nachgewiesen
 - Einen Datenbankausfall anhand von Login, Readiness und Logs eingegrenzt
 
-**Geschätzte Dauer:** 40-50 Minuten einschließlich Auswertung, ohne erstmalige Image-Downloads.
-Der zusätzliche CLI-Export am Ende benötigt etwa 5-10 Minuten.
-
 ## Auftrag: Mustertech bereitet den Betrieb vor
 
-Das Mitarbeiterportal funktioniert. Vor der Übergabe an den Betrieb fehlen drei Nachweise:
+Das Mitarbeiterportal funktioniert. Vor der Übergabe an den Betrieb fehlen drei Themen:
 Erreichbarkeit über HTTPS, Wiederherstellung nach einer Fehländerung und Diagnose eines Ausfalls.
-Du führst die Versuche an einer eigenen lokalen Installation durch. Notiere vor jedem Versuch
-kurz deine Erwartung und halte danach das tatsächliche Ergebnis fest.
-
-| Versuch           | Erwartung vor dem Test | Beobachtung mit Nachweis | Was bleibt ungeprüft? |
-| ----------------- | ---------------------- | ------------------------ | --------------------- |
-| HTTPS und Issuer  |                        |                          |                       |
-| Wiederherstellung |                        |                          |                       |
-| Datenbankausfall  |                        |                          |                       |
-
-Eine funktionierende lokale Übung ersetzt keine Produktionsabnahme. Zertifikatsvertrauen,
-Secret-Verwaltung und Datenbank-Hochverfügbarkeit bleiben hier außerhalb des Aufbaus.
+Du prüfst diese drei Themen an einer lokalen Testinstallation.
 
 ## Voraussetzungen und Start
 
@@ -67,7 +54,7 @@ Für jede neue Anmeldung in dieser Aufgabe schließe zuerst **alle privaten Brow
 und öffne dann ein neues. Zusätzliche private Fenster können dieselbe Sitzung teilen; sonst
 prüfst du möglicherweise eine bestehende SSO-Sitzung statt Benutzername und Passwort.
 
-## Teil 1: HTTPS einrichten und prüfen (15 Minuten)
+## Teil 1: HTTPS einrichten und prüfen
 
 ### Schritt 1.1: Den Weg einer Anfrage erklären
 
@@ -80,7 +67,7 @@ Browser -- HTTPS :8443 --> Traefik -- HTTP :8080 --> Keycloak --> PostgreSQL
                                        Management :9000 nur lokal
 ```
 
-Notiere, bevor du die Konfiguration anlegst:
+Beantworte, bevor du die Konfiguration anlegst:
 
 1. An welcher Stelle endet TLS?
 2. Welche URL muss im `issuer` stehen: die öffentliche Adresse oder der interne Containername?
@@ -119,7 +106,6 @@ services:
 (`KC_HTTP_ENABLED`), und es soll die vom Proxy gesetzten `X-Forwarded-*`-Header auswerten
 (`KC_PROXY_HEADERS`). Leite die Werte aus dem Anfrageweg ab; bei Bedarf hilft die
 [Keycloak-Dokumentation zum Reverse Proxy](https://www.keycloak.org/server/reverseproxy).
-Die alte Option `KC_PROXY=edge` wird nicht mehr verwendet.
 
 `!override` ersetzt die Portliste der Basisdatei. Dadurch entfällt die bisherige Freigabe von
 8080; der Management-Port bleibt an die lokale Loopback-Adresse gebunden.
@@ -153,10 +139,10 @@ docker compose ps
 Bei einem Fehler prüfe `docker compose logs --tail 50 assignment-keycloak traefik`.
 Die Installation bleibt für den Rest der Übung in dieser HTTPS-Konfiguration.
 
-### Schritt 1.3: HTTPS, Issuer und Login nachweisen
+### Schritt 1.3: HTTPS, Issuer und Login testen
 
 Öffne <https://keycloak.localhost:8443/admin/>. Traefik liefert ein selbstsigniertes
-Standardzertifikat. Bestätige die Ausnahme ausschließlich für dieses lokale Lab.
+Standardzertifikat. Bestätige die Ausnahme nur für dieses lokale Lab.
 Falls der Name nicht aufgelöst wird, ergänze `127.0.0.1 keycloak.localhost` in `/etc/hosts`
 (Linux/macOS) oder `C:\Windows\System32\drivers\etc\hosts` (Windows, Administratorrechte nötig).
 
@@ -180,10 +166,10 @@ in einem frischen privaten Browserfenster unter
 <https://keycloak.localhost:8443/realms/mustertech/account/> als Hans an.
 Prüfe mit `docker compose ps`, dass kein Host-Port 8080 mehr für Keycloak veröffentlicht wird.
 
-**Nachweis:** Notiere den Issuer und das Login-Ergebnis. Erkläre außerdem, welcher Schutz durch
+Notiere den Issuer und das Login-Ergebnis. Erkläre außerdem, welcher Schutz durch
 die Zertifikatsausnahme bei diesem Test nicht geprüft wird.
 
-## Teil 2: Einen Sicherungsstand wiederherstellen (15 Minuten)
+## Teil 2: Ein Backup wiederherstellen
 
 ### Schritt 2.1: Sicherungsumfang beurteilen
 
@@ -253,16 +239,16 @@ unmittelbar nach dem Befehl dessen Exitcode; erfolgreich ist `0`. Starte danach 
 docker compose up -d --wait --wait-timeout 180 assignment-keycloak
 ```
 
-**Nachweis:** Prüfe Realm und Clients, suche `restore-probe` und melde Hans in einem frischen
+Prüfe Realm und Clients, suche `restore-probe` und melde Hans in einem frischen
 privaten Fenster über HTTPS an. Erst diese Gegenprobe zeigt, ob der erwartete Stand wieder nutzbar ist.
 
 Überlege zum Abschluss, welche Dateien außerhalb der Datenbank für diesen Aufbau ebenfalls
 benötigt werden. Woran scheitert ein Restore, wenn zwar der Dump vorhanden ist, aber die passende
 Keycloak-Version oder die Proxy-Konfiguration fehlt?
 
-## Teil 3: Einen Datenbankausfall untersuchen (10-15 Minuten)
+## Teil 3: Einen Datenbankausfall untersuchen
 
-### Schritt 3.1: Den gesunden Zustand festhalten
+### Schritt 3.1: Vor dem Stoppen
 
 Lies Liveness, Readiness und Metriken vom lokalen Management-Port. `-i` zeigt zusätzlich den
 HTTP-Status. Für die Diagnose verwenden wir kein `--fail`, damit auch die Antwort bei HTTP 503
@@ -284,11 +270,11 @@ curl.exe -i --max-time 20 http://localhost:9000/health/ready
 curl.exe --fail --max-time 20 http://localhost:9000/metrics
 ```
 
-Notiere die HTTP-Statuscodes und suche in der Readiness-Antwort nach dem Datenbankcheck.
+Merke dir die HTTP-Statuscodes und suche in der Readiness-Antwort nach dem Datenbankcheck.
 Health und Metrics sind in der Basisdatei bereits aktiviert. Suche außerdem eine JVM-Metrik
 und notiere ihren Namen samt Wert; damit ist noch keine Alarmierung eingerichtet.
 
-### Schritt 3.2: Vorhersagen, dann die Datenbank stoppen
+### Schritt 3.2: Datenbank stoppen
 
 Keycloak und Traefik bleiben eingeschaltet. Was erwartest du für Liveness, Readiness und eine
 **neue** Benutzeranmeldung, wenn PostgreSQL ausfällt? Reicht es zur Diagnose, eine bereits
@@ -331,20 +317,7 @@ zuerst die Logs und starte anschließend nur diesen Dienst neu:
 docker compose restart assignment-keycloak
 ```
 
-**Nachweis:** Ergänze deine Tabelle um den Ausfall und die Erholung. Trenne den laufenden
-Serverprozess, die Bereitschaft zur Verarbeitung und die tatsächlich geprüfte Benutzeranmeldung.
-
-## Auswertung und Übergabe
-
-Zeige die drei Nachweise einer anderen Person oder der Gruppe. Erkläre eine Beobachtung,
-die anders ausgefallen ist als erwartet.
-
-Für einen späteren Produktivbetrieb fehlen unter anderem ein vertrauenswürdiges Zertifikat,
-eigene Secrets, ein dauerhaft eingerichtetes Monitoring und eine abgesicherte Datenbank.
-Wähle einen dieser Punkte und nenne eine konkrete Prüfung für die Betriebsübergabe.
-Im folgenden Kubernetes-Lab untersuchst du zusätzlich Skalierung und den Ausfall eines Keycloak-Pods.
-
-## Zusatz: CLI-Export mit Benutzerkonfiguration (5-10 Minuten)
+## Zusatz: CLI-Export mit Benutzerkonfiguration
 
 Vergleiche bei verbleibender Zeit den Partial Export mit dem CLI-Export. Stoppe dafür Keycloak;
 der Export startet einen eigenen Prozess mit derselben Datenbankkonfiguration.
@@ -371,7 +344,7 @@ vom CLI-Export nicht gesichert.
 
 ## Aufräumen
 
-Nach Abschluss und Auswertung:
+Nach Abschluss der Übung:
 
 ```bash
 docker compose down -v
