@@ -5,14 +5,14 @@
 10c startet mit einem eigenen Realm. Du kannst es deshalb direkt nach Modul 10 einsetzen
 oder nach Modul 12 anschließen, wenn die Teilnehmer ihre bisherige Umgebung bereits abgebaut haben.
 Plane 35-45 Minuten ein. Etwa 15 Minuten entfallen auf die Secrets, 20 auf die
-Signaturschlüssel; am Schluss bleiben fünf Minuten für die Ergebnistabelle.
+Signaturschlüssel; am Schluss bleiben fünf Minuten, um die beiden Entscheidungen zu besprechen.
 Lade die Images und baue die API vor Beginn, damit die Gruppe nicht auf Downloads warten muss.
 
 Alle bearbeiten denselben Ablauf mit vorgegebenen Prüfbefehlen. Erkläre vorab, wo die beiden
 Geheimnisse verwendet werden: Das Client-Secret liegt beim Dienst und bei Keycloak. Der private
 Signaturschlüssel bleibt bei Keycloak; die API lädt nur den öffentlichen Schlüssel.
-Lass die Teilnehmer vor **Invalidate** kurz vorhersagen, ob `before` noch funktioniert.
-Nach dem API-Aufruf können sie ihre Vermutung am Ergebnis prüfen.
+Lass die Teilnehmer die Frage zu den zwei Dienstinstanzen und die Vorhersage zur Priorität
+jeweils vor dem nächsten Schritt beantworten. Sammle die Begründungen, bevor du die Lösung zeigst.
 
 ## Vorbereiteter Zustand
 
@@ -49,6 +49,17 @@ Die `kid` bleibt gleich, weil die Secret-Rotation das Schlüsselpaar des Realms 
 Die API-Ausgabe `service-account-sync-service` zeigt außerdem, wer hier zugreift: der Service
 Account des Clients. Für diesen Client-Credentials-Flow meldet sich kein Mensch an.
 
+### Entscheidung: Zwei Dienstinstanzen umstellen
+
+Das alte Secret darf im beschriebenen Rollout noch nicht entfallen. Instanz B braucht es,
+sobald sie ein neues Token anfordert. Ein erfolgreicher API-Aufruf mit einem vorhandenen
+Token belegt nur, dass dieses Token noch akzeptiert wird.
+
+Zuerst muss auch B das neue Secret verwenden. Anschließend muss auf jeder Instanz eine
+frische Client-Credentials-Anfrage an den Token-Endpunkt mit dem neuen Secret gelingen.
+Erst wenn alle verwendenden Instanzen umgestellt und geprüft sind, wird das alte Secret invalidiert.
+Die zwei Instanzen sind eine Entscheidungsaufgabe; im Lab stellt das Prüfwerkzeug die Anfragen.
+
 ## Musterlösung: Signaturschlüssel
 
 Unter **Realm settings** -> **Keys** -> **Providers** einen Provider vom Typ `rsa-generated`
@@ -68,12 +79,29 @@ verwenden, unterscheiden sie sich in ihrer `kid`, über die die API den passende
 Schlüssel findet. Im JWKS können weitere Schlüssel stehen; für diesen Versuch zählen die
 Einträge mit RS256 und `use: sig`.
 
+### Vorhersage: Ein passiver Schlüssel mit höherer Priorität
+
+Auch mit Priorität `300` signiert `rsa-original` kein neues Token, solange **Active: Off** gilt.
+`priority-check` muss dieselbe `kid` wie `key-after` haben und gehört damit zu `rsa-rotation`.
+Die Priorität bestimmt die Auswahl unter den geeigneten aktiven Providern. Sie hebt den
+passiven Zustand nicht auf.
+
+Danach wird die Priorität von `rsa-original` wieder auf `100` gesetzt. Falls die alte `kid`
+erscheint, zuerst die gespeicherten Werte von **Active** und **Priority** prüfen. Entscheidend
+für die Auswertung ist, ob die Teilnehmer Auswahl und Signierfähigkeit auseinanderhalten.
+
 ### Cache als Teil des Versuchs
 
 Die wiederverwendete Portal-API verwendet `jwks-rsa` mit aktiviertem Cache. Nach einem
 vorherigen erfolgreichen Zugriff kann ein Token noch akzeptiert werden, obwohl Keycloak
 den betreffenden öffentlichen Schlüssel nicht mehr veröffentlicht. Vorhandene Cache-Einträge
-verschwinden dadurch nicht automatisch.
+verschwinden dadurch nicht automatisch. Deshalb wird die API vor dem Versuch neu gestartet
+und der Cache mit einer erfolgreichen Anfrage für `key-before` gefüllt. Ein weiterer Aufruf
+ohne Neustart würde einen bereits vorhandenen Eintrag nicht zuverlässig erneuern.
+
+Nach dem Deaktivieren muss die alte `kid` im JWKS fehlen, während die API das alte Token noch
+mit HTTP 200 akzeptiert. Erst dann folgt der zweite API-Neustart. Bei 401 schon vor diesem
+Neustart ist kein Cache-Kontrast beobachtet worden; der Versuch wird wie in der Aufgabe beschrieben wiederholt.
 
 Nach `docker compose restart api` startet der Prozess mit leerem Cache. Wenn das noch gültige
 `key-before` jetzt eine 401-Antwort erhält, fehlt der API der passende öffentliche Schlüssel.

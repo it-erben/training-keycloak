@@ -23,12 +23,19 @@ API, ob ältere Tokens noch angenommen werden. Dafür verwendest du dieselben ge
 Tokens vor und nach der Änderung.
 
 ```text
-sync-service -- Client-ID + Secret --> Keycloak -- signiertes Access Token --> sync-service
-sync-service -- Access Token --> Portal-API -- öffentliche Schlüssel aus JWKS --> Keycloak
+sync-service -- Token-Anfrage: Client-ID + Secret --> Keycloak
+sync-service <-- signiertes Access Token ---------- Keycloak
+
+sync-service -- API-Anfrage mit Access Token ------> Portal-API
+Portal-API   -- GET auf den JWKS-Endpunkt ----------> Keycloak
+Portal-API   <-- JWKS mit öffentlichen Schlüsseln --- Keycloak
+sync-service <-- Antwort nach Token-Prüfung -------- Portal-API
 ```
 
 Das Secret authentifiziert den Client am Token-Endpunkt. Den privaten Signaturschlüssel
 verwendet Keycloak zum Signieren; die API prüft die Signatur mit dem öffentlichen Schlüssel.
+Liegt der passende öffentliche Schlüssel bereits im API-Cache, entfällt der JWKS-Abruf.
+Im Lab übernimmt das Prüfwerkzeug die Anfragen des `sync-service`.
 
 ## Voraussetzungen
 
@@ -117,6 +124,15 @@ docker compose run --rm tools token new overlap-new
 
 ### Schritt 1.3: Altes Secret ungültig machen
 
+**Entscheide zuerst:** Im Produktivbetrieb laufen zwei Instanzen des `sync-service`.
+Instanz A verwendet bereits das neue Secret, Instanz B noch das alte. Beide können die API
+gerade erfolgreich aufrufen, weil sie noch gültige Tokens besitzen.
+
+Darf das alte Secret jetzt invalidiert werden? Notiere deine Entscheidung mit einer Begründung
+und benenne die Anfrage, die du vor dem Abschalten auf jeder Instanz erfolgreich prüfen müsstest.
+Für diese Frage musst du keine weiteren Container starten.
+
+Im Lab hast du das neue Secret bereits mit einer Token-Anfrage geprüft. Führe hier den Wechsel zu Ende:
 Auf derselben Credentials-Seite klicke beim **Rotated secret** auf **Invalidate** und bestätige.
 Teste danach dieselben Anmeldeinformationen erneut:
 
@@ -197,12 +213,40 @@ docker compose run --rm tools api key-before
 Mit **Active: Off** schaltest du das Signieren mit diesem Schlüssel aus. Solange **Enabled: On**
 bleibt, können Anwendungen den öffentlichen Schlüssel weiterhin abrufen und ältere Tokens prüfen.
 
+**Vorhersage vor dem nächsten Klick:** Du erhöhst die Priorität von `rsa-original` auf `300`,
+lässt den Provider aber passiv. `rsa-rotation` bleibt aktiv mit Priorität `200`.
+Welcher Provider wird das nächste Token signieren? Notiere seine erwartete `kid` und begründe
+deine Wahl anhand von **Active** und **Priority**.
+
+Stelle nun bei `rsa-original` nur **Priority** auf `300` und speichere. Fordere ein frisches Token an:
+
+```bash
+docker compose run --rm tools token new priority-check
+```
+
+Vergleiche die ausgegebene `kid` mit deiner Vorhersage. Erkläre eine Abweichung, bevor du
+fortfährst. Stelle anschließend **Priority** wieder auf `100`; **Active: Off** und **Enabled: On** bleiben stehen.
+
 ### Schritt 2.4: Alten Schlüssel deaktivieren und den Cache prüfen
 
 Jetzt deaktivierst du den alten Schlüssel, obwohl `key-before` noch gültig ist.
 Damit untersuchst du, was bei einer zu kurzen Übergangszeit passiert. Im Produktivbetrieb
 müsstest du zuvor die Laufzeiten aller betroffenen Token-Arten und die Schlüssel-Caches der
 Anwendungen berücksichtigen.
+
+Beginne mit einem frisch gefüllten Cache. Solange `rsa-original` noch **Enabled: On** ist,
+starte die API neu und rufe sie mit dem alten Token auf:
+
+```bash
+docker compose run --rm tools inspect key-before
+docker compose restart api
+docker compose up -d --wait --wait-timeout 60 api
+docker compose run --rm tools api key-before
+```
+
+`key-before` muss noch mindestens fünf Minuten gültig sein; der API-Aufruf muss HTTP 200 liefern.
+Der Neustart entfernt ältere Cache-Einträge, der Aufruf lädt den alten Schlüssel neu.
+Führe die folgenden Schritte bis zur nächsten API-Anfrage innerhalb einer Minute aus.
 
 Stelle bei **rsa-original** jetzt zusätzlich **Enabled** auf **Off** und speichere.
 Prüfe das JWKS:
@@ -211,17 +255,16 @@ Prüfe das JWKS:
 docker compose run --rm tools jwks
 ```
 
-**Erwartet:** Die `kid` von `key-before` fehlt. Die API hat den alten Schlüssel allerdings bereits
-abgerufen und zwischengespeichert. Prüfe, ob dieser Cache-Eintrag noch wirksam ist:
+**Erwartet:** Die `kid` von `key-before` fehlt. Prüfe jetzt dasselbe Token an der API:
 
 ```bash
 docker compose run --rm tools api key-before
 ```
 
-Liegt der alte Schlüssel noch im Cache, antwortet die API mit HTTP 200. Ist der Cache-Eintrag
-bereits abgelaufen, erhältst du HTTP 401; das Werkzeug meldet dann eine Abweichung von seiner
-Standarderwartung. Notiere deinen Statuscode. Beide Ergebnisse sind an dieser Stelle möglich.
-Ein Schlüssel, der aus dem JWKS entfernt wurde, kann also in einer Anwendung noch verfügbar sein.
+**Erwartet:** HTTP 200. Obwohl der Schlüssel im JWKS fehlt, kann die API ihn aus ihrem Cache verwenden.
+Bei HTTP 401 ist dieser Cache-Effekt noch nicht nachgewiesen. Stelle `rsa-original` wieder auf
+**Enabled: On**, prüfe seine `kid` im JWKS und wiederhole diesen Schritt ab dem Füllen des Caches.
+Falls die Token-Laufzeit nicht mehr reicht, setze das Lab zurück und beginne erneut.
 
 Leere für eine reproduzierbare Gegenprobe den Prozess-Cache durch einen Neustart ausschließlich der API:
 
@@ -233,7 +276,8 @@ docker compose run --rm tools api key-after
 ```
 
 **Erwartet:** Das alte Token erhält HTTP 401, das neue weiterhin HTTP 200. Durch den Neustart
-musste die API die Schlüssel neu abrufen. So lässt sich der Cache-Effekt im Lab gezielt prüfen.
+musste die API die Schlüssel neu abrufen. Erst der Wechsel von **200 vor dem Neustart zu 401 danach**
+zeigt hier den Einfluss des Caches. Das Entfernen aus dem JWKS allein hatte den Zugriff noch nicht verhindert.
 
 ### Schritt 2.5: Übergangszustand wiederherstellen
 
@@ -241,22 +285,6 @@ Aktiviere bei **rsa-original** wieder **Enabled: On**, lasse **Active: Off**.
 Prüfe zuerst, dass die alte `kid` wieder im JWKS steht. Starte anschließend die API wie in
 Schritt 2.4 neu und wiederhole beide Token-Prüfungen mit der Erwartung HTTP 200.
 So endest du mit einem neuen aktiven und einem alten passiven Schlüssel.
-
-## Ergebnis festhalten (5 Minuten)
-
-Trage die tatsächlich beobachteten HTTP-Statuscodes ein:
-
-| Prüfung                                                | Ergebnis |
-| ------------------------------------------------------ | -------- |
-| Neues Token mit altem Secret während der Übergangszeit |          |
-| Neues Token mit altem Secret nach Invalidierung        |          |
-| Bereits ausgestelltes Token nach Secret-Invalidierung  |          |
-| Altes Token bei passivem Signaturschlüssel             |          |
-| Altes Token bei deaktiviertem Schlüssel, leerer Cache  |          |
-| Neues Token mit neuem Signaturschlüssel                |          |
-
-Erkläre anhand dieser Tabelle, welche Rotation den Zugang zum Token-Endpunkt verändert
-und welche Rotation die Prüfung bereits ausgestellter Tokens betrifft.
 
 ## Nachsehen und wiederholen
 
