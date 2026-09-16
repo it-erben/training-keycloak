@@ -14,59 +14,108 @@ Am Ende dieser Übung hast du:
 Du bekommst einen eigenen Domain Controller. Niemand sonst arbeitet in deinem Verzeichnis, du kannst
 also alles ausprobieren und zum Schluss zurücksetzen.
 
+**Geschätzte Dauer:** 90 Minuten, zuzüglich der erstmaligen Image-Downloads.
+
 ## Voraussetzungen
 
-Vom Trainer bekommst du die öffentliche IP deines Domain Controllers, den SHA256-Fingerprint deiner
-Workshop-CA, die Datei `workshop-ca.crt` und vier Passwörter: für `hans`, `anna`, das Bind-Konto
-`bind` und das Übungskonto `operator`. Der Hostname `dc01.ad.mustertech.test` ist bei allen gleich;
-dein lokaler Stack zeigt ihn auf deine IP.
+Du bekommst eine eigene AD-IP, die Datei `workshop-ca.crt` samt SHA256-Fingerprint und
+vier Passwörter: für `hans`, `anna`, `bind` und `operator`. Der Hostname
+`dc01.ad.mustertech.test` ist bei allen gleich; dein lokaler Stack zeigt ihn auf deine IP.
+Verwende nur dein eigenes Teilnehmerpaket.
 
-Alle Befehle starten in `workshops/active-directory/lab` des Kurs-Repositories.
+### Auf dem vorbereiteten Windows-Schulungsrechner
 
-> **Hinweis:** Falls die Container einer vorherigen Übung noch laufen, stoppe diese zuerst
-> mit `docker compose down -v` im Verzeichnis der vorherigen Übung. Details siehe
+Öffne auf dem Desktop `AD-Workshop/START-HIER.html` und eine **Windows PowerShell**.
+Die PowerShell-Blöcke dieser Anleitung funktionieren auch mit Windows PowerShell 5.1.
+Führe sie auf dem Windows-Rechner aus, nicht in Git Bash oder in einer zusätzlichen WSL-Shell.
+Bei mehrzeiligen PowerShell-Befehlen muss der Backtick das letzte Zeichen der Zeile sein.
+
+```powershell
+Set-Location "$HOME/Desktop/AD-Workshop/workshops/active-directory/lab"
+docker info --format '{{.OSType}}'
+docker compose version
+```
+
+Erwartet werden `linux` und eine Compose-Version. Docker Desktop muss laufen.
+Im Paket sind `.env`, `certs/workshop-ca.crt`, `secrets/bind.pw` und `secrets/operator.pw`
+bereits vorbereitet. Die vier Passwörter stehen in `AD-Workshop/zugangsdaten.txt`.
+Überschreibe diese Dateien nicht mit denen eines anderen Teilnehmers.
+
+Prüfe die Verbindung zu deiner AD-IP aus `.env`:
+
+```powershell
+$adIp = ((Get-Content .env | Where-Object { $_ -match '^AD_PUBLIC_IP=' }) -split '=', 2)[1].Trim()
+Test-NetConnection $adIp -Port 636
+```
+
+Bei `TcpTestSucceeded : False` informiere den Trainer mit Rechnernummer und AD-IP.
+Dieser Test prüft nur TCP. Zertifikat und Anmeldung werden anschließend gesondert geprüft.
+
+### Bei einem frischen Git-Clone
+
+Überspringe diesen Abschnitt, wenn du das vorbereitete Desktop-Paket verwendest.
+Wechsle im Kurs-Repository nach `workshops/active-directory/lab`. Kopiere `.env.example`
+nach `.env`, ersetze dort `AD_PUBLIC_IP` durch deine IP und lege deine CA-Datei in `certs/` ab:
+
+**Bash:**
+
+```bash
+cp .env.example .env
+cp ~/Downloads/workshop-ca.crt certs/workshop-ca.crt
+```
+
+**PowerShell:**
+
+```powershell
+Copy-Item .env.example .env
+Copy-Item "$HOME/Downloads/workshop-ca.crt" certs/workshop-ca.crt
+notepad .env
+```
+
+### Stack starten und prüfen
+
+Alle folgenden Befehle starten im Verzeichnis `workshops/active-directory/lab`.
+
+> **Hinweis:** Eine vorherige Übung kann die Ports 8080, 5173 oder 3001 belegen.
+> Halte sie mit `docker compose stop` in ihrem eigenen Lab-Verzeichnis an; ihre Daten bleiben erhalten.
+> Die laufenden Container zeigt `docker ps`. Weitere Hinweise stehen im
 > [Troubleshooting](../../labs/assignments/TROUBLESHOOTING.md#container-name-konflikt).
 
-1. `.env` anlegen und deine IP eintragen, die CA-Datei nach `certs/` kopieren.
+Die folgenden einzeiligen Docker-Befehle funktionieren in Bash und PowerShell:
 
-   **Bash:**
+```bash
+docker compose up -d --build --wait --wait-timeout 180
+docker compose ps -a
+docker compose logs --tail 30 setup
+```
 
-   ```bash
-   cp .env.example .env
-   cp ~/Downloads/workshop-ca.crt certs/workshop-ca.crt
-   ```
+Erwartet: `Setup complete` im Setup-Log. Der einmalige `setup`-Container darf danach mit
+Exit-Code `0` beendet sein. Bei einem Fehler lies `docker compose logs --tail 80 keycloak setup`.
+Fahre erst fort, wenn Keycloak bereit ist und das Setup erfolgreich war.
 
-   **PowerShell:**
+Vergleiche den CA-Fingerprint mit deinem Teilnehmerpaket:
 
-   ```powershell
-   Copy-Item .env.example .env
-   Copy-Item ~\Downloads\workshop-ca.crt certs\workshop-ca.crt
-   ```
+```bash
+docker compose exec ldap-tools openssl x509 -in /certs/workshop-ca.crt -noout -fingerprint -sha256
+```
 
-2. Stack starten und warten, bis der Setup-Container "Setup complete" meldet:
+Nur beim frischen Clone: Lege anschließend die beiden Werkzeugpasswörter ab. Beim vorbereiteten
+Desktop-Paket ist das bereits erledigt. Die Eingabe bleibt unsichtbar:
 
-   ```bash
-   docker compose up -d --build
-   docker compose logs -f setup
-   ```
+```bash
+docker compose exec -it ldap-tools save-secret bind
+docker compose exec -it ldap-tools save-secret operator
+```
 
-3. Fingerprint der CA mit dem Wert vom Trainer vergleichen. Erst wenn er passt, geht es weiter:
+Öffne die Admin-Konsole <http://localhost:8080> (`admin` / `admin`) in Chrome.
+Das Portal läuft unter <http://localhost:5173>, die API unter <http://localhost:3001>.
+Der Realm `mustertech` enthält Rollen, Gruppen und Clients; LDAP-Provider und AD-Benutzer
+richtest du in der Übung selbst ein.
 
-   ```bash
-   docker compose exec ldap-tools openssl x509 -in /certs/workshop-ca.crt -noout -fingerprint -sha256
-   ```
-
-4. Bind- und Übungspasswort im Werkzeugcontainer ablegen. Die Dateien landen in `secrets/`
-   und bleiben außerhalb von Git:
-
-   ```bash
-   docker compose exec -it ldap-tools save-secret bind
-   docker compose exec -it ldap-tools save-secret operator
-   ```
-
-Danach erreichst du Keycloak unter <http://localhost:8080> (`admin` / `admin`), das Portal
-unter <http://localhost:5173> und die API unter <http://localhost:3001>. Der Realm `mustertech`
-enthält Rollen, Gruppen und Clients, aber noch keinen LDAP-Provider und keine AD-Benutzer.
+Nutze für Hans **Edge InPrivate**, für Anna **Firefox Privat**. Private Fenster desselben Browsers
+teilen ihre Sitzung. Für einen frischen Login schließe alle privaten Fenster dieses Browsers
+und öffne ein neues. Bewahre Tokens vor dem Schließen wie in Aufgabe 5 beschrieben auf.
+Passwörter und vollständige Tokens gehören weder in Git noch in gemeinsame Chats.
 
 ## Aufgabe 1: AD-Einträge lesen
 
@@ -75,7 +124,7 @@ Sag vorher, wie der DN von Hans aussieht und welche Gruppen bei ihm direkt einge
 **Bash:**
 
 ```bash
-docker compose exec ldap-tools ldapsearch -LLL -x -H ldaps://dc01.ad.mustertech.test:636 \
+docker compose exec ldap-tools ldapsearch -LLL -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 \
   -D "bind@ad.mustertech.test" -y /secrets/bind.pw \
   -b "OU=Workshop,DC=ad,DC=mustertech,DC=test" \
   "(sAMAccountName=hans)" dn userPrincipalName objectGUID memberOf
@@ -84,7 +133,7 @@ docker compose exec ldap-tools ldapsearch -LLL -x -H ldaps://dc01.ad.mustertech.
 **PowerShell:**
 
 ```powershell
-docker compose exec ldap-tools ldapsearch -LLL -x -H ldaps://dc01.ad.mustertech.test:636 `
+docker compose exec ldap-tools ldapsearch -LLL -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 `
   -D "bind@ad.mustertech.test" -y /secrets/bind.pw `
   -b "OU=Workshop,DC=ad,DC=mustertech,DC=test" `
   "(sAMAccountName=hans)" dn userPrincipalName objectGUID memberOf
@@ -102,9 +151,19 @@ und die direkten Gruppen aus `memberOf`; behalte die Ausgaben im Terminal oder i
 
 Lies danach die Gruppe `Manager`:
 
+**Bash:**
+
 ```bash
-docker compose exec ldap-tools ldapsearch -LLL -x -H ldaps://dc01.ad.mustertech.test:636 \
+docker compose exec ldap-tools ldapsearch -LLL -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 \
   -D "bind@ad.mustertech.test" -y /secrets/bind.pw \
+  -b "OU=Groups,OU=Workshop,DC=ad,DC=mustertech,DC=test" "(cn=Manager)" member
+```
+
+**PowerShell:**
+
+```powershell
+docker compose exec ldap-tools ldapsearch -LLL -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 `
+  -D "bind@ad.mustertech.test" -y /secrets/bind.pw `
   -b "OU=Groups,OU=Workshop,DC=ad,DC=mustertech,DC=test" "(cn=Manager)" member
 ```
 
@@ -203,12 +262,25 @@ curl -s -o /dev/null -w '%{http_code}\n' http://localhost:3001/api/urlaubsantrae
 **PowerShell:**
 
 ```powershell
-try { Invoke-WebRequest http://localhost:3001/api/urlaubsantraege/alle }
-catch { $_.Exception.Response.StatusCode.value__ }
+curl.exe -s -o NUL -w "%{http_code}" http://localhost:3001/api/urlaubsantraege/alle
 ```
 
-Schau dir Annas Access Token an (Portal, **Access Token anzeigen**, dann [jwt.io](https://jwt.io)):
-`iat`, `exp` und `realm_access.roles`. Wie lange ist der Token gültig?
+Schau dir Annas Access Token an (Portal, **Access Token anzeigen**): `iat`, `exp` und
+`realm_access.roles`. Kopiere nur den Token in die Zwischenablage und dekodiere die Nutzdaten
+lokal in PowerShell. Diese Anzeige prüft keine Signatur; das erledigt die API bei jedem Aufruf.
+
+```powershell
+$jwt = (Get-Clipboard -Raw).Trim()
+$payload = $jwt.Split('.')[1].Replace('-', '+').Replace('_', '/')
+$payload = $payload.PadRight([int]([Math]::Ceiling($payload.Length / 4.0) * 4), '=')
+$claims = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($payload)) | ConvertFrom-Json
+$claims | Select-Object iat, exp, realm_access
+[DateTimeOffset]::FromUnixTimeSeconds($claims.exp).ToLocalTime()
+$claims.exp - $claims.iat
+```
+
+Die letzte Zeile zeigt die Gültigkeitsdauer in Sekunden. Unter Bash kannst du die angezeigten
+Werte direkt vergleichen; zum Lesen ist kein externer Token-Dienst nötig.
 
 ## Aufgabe 4: Hans nach Moved verschieben
 
@@ -221,14 +293,14 @@ Verschiebe Hans mit dem Übungskonto. Die LDIF-Datei liegt im Werkzeugcontainer 
 **Bash:**
 
 ```bash
-docker compose exec ldap-tools ldapmodify -x -H ldaps://dc01.ad.mustertech.test:636 \
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 \
   -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/01-hans-nach-moved.ldif
 ```
 
 **PowerShell:**
 
 ```powershell
-docker compose exec ldap-tools ldapmodify -x -H ldaps://dc01.ad.mustertech.test:636 `
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 `
   -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/01-hans-nach-moved.ldif
 ```
 
@@ -236,7 +308,8 @@ Suche Hans jetzt zweimal mit dem Bind-Konto: einmal unter
 `OU=Users,OU=Workshop,DC=ad,DC=mustertech,DC=test`, einmal unter `OU=Workshop,DC=ad,DC=mustertech,DC=test`.
 Welche Suche findet ihn, und was zeigt `objectGUID`?
 
-Melde Hans im privaten Fenster an. Schau genau hin, was passiert, und prüfe in der
+Starte einen frischen Login als Hans (alle Edge-InPrivate-Fenster vorher schließen).
+Schau genau hin, was passiert, und prüfe in der
 Admin-Konsole, ob sein Benutzer noch da ist, ob er aktiviert ist und was Keycloak
 beim Anmeldeversuch protokolliert (`docker compose logs keycloak`).
 
@@ -246,13 +319,39 @@ und Keycloak-Benutzer-ID mit den gesicherten Werten: Was ist gleich geblieben, w
 
 ## Aufgabe 5: Rechte entziehen und Konto sperren
 
-Melde Anna an und kopiere ihren Access Token aus dem Portal in eine Datei `anna.jwt`
-(nur der Token, ohne Zeilenumbruch). Merke dir die Uhrzeit und `exp`.
+Melde Anna frisch an und sichere ihren aktuellen Access Token aus dem Portal in `anna.jwt`.
+Kopiere dafür nur den Token in die Zwischenablage. Merke dir die Uhrzeit und `exp`.
+
+**PowerShell:**
+
+```powershell
+$token = (Get-Clipboard -Raw).Trim()
+[IO.File]::WriteAllText((Join-Path (Get-Location) 'anna.jwt'), $token, [Text.UTF8Encoding]::new($false))
+```
+
+**Bash:**
+
+```bash
+read -r -s -p 'Annas Access Token: ' token; printf '\n'
+printf '%s' "$token" > anna.jwt
+unset token
+```
+
+Lass diese Datei beim späteren Anmelden unverändert, damit du wirklich den alten Token testest.
 
 Nimm Anna aus `Teamleitung`:
 
+**Bash:**
+
 ```bash
-docker compose exec ldap-tools ldapmodify -x -H ldaps://dc01.ad.mustertech.test:636 \
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 \
+  -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/02-anna-aus-teamleitung.ldif
+```
+
+**PowerShell:**
+
+```powershell
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 `
   -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/02-anna-aus-teamleitung.ldif
 ```
 
@@ -268,10 +367,9 @@ curl -s -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $(cat anna.jw
 **PowerShell:**
 
 ```powershell
-$jwt = Get-Content anna.jwt -Raw
-$headers = @{ Authorization = "Bearer $jwt" }
-try { (Invoke-WebRequest http://localhost:3001/api/urlaubsantraege/alle -Headers $headers).StatusCode }
-catch { $_.Exception.Response.StatusCode.value__ }
+$jwt = (Get-Content anna.jwt -Raw).Trim()
+curl.exe -s -o NUL -w "%{http_code}" -H "Authorization: Bearer $jwt" `
+  http://localhost:3001/api/urlaubsantraege/alle
 ```
 
 Synchronisiere Gruppen und Benutzer in Keycloak, melde Anna ab und wieder an, klicke
@@ -279,37 +377,63 @@ Synchronisiere Gruppen und Benutzer in Keycloak, melde Anna ab und wieder an, kl
 LDAP (`memberOf` von Anna), Keycloak (Groups von Anna nach dem Sync), der alte Token gegen die API
 vor und nach `exp`, der neue Token gegen die API.
 
-Deaktiviere jetzt Hans. Lies vorher seinen aktuellen `userAccountControl`-Wert; die LDIF-Datei
+Melde Hans vor der Deaktivierung in Edge InPrivate an, sichere seinen Access Token mit demselben
+Verfahren in **`hans.jwt`** und notiere `exp`. Lass dieses Fenster geöffnet.
+Lies seinen aktuellen `userAccountControl`-Wert mit der LDAP-Suche aus Aufgabe 1;
+verwende die breite Suchbasis `OU=Workshop,DC=ad,DC=mustertech,DC=test` und ergänze das Attribut
+`userAccountControl`. Deaktiviere danach Hans; die LDIF-Datei
 setzt `66050` (Ausgangswert `66048` plus `ACCOUNTDISABLE` = 2). Hans liegt noch in `OU=Moved`:
 
+**Bash:**
+
 ```bash
-docker compose exec ldap-tools ldapmodify -x -H ldaps://dc01.ad.mustertech.test:636 \
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 \
+  -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/03-hans-deaktivieren.ldif
+```
+
+**PowerShell:**
+
+```powershell
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 `
   -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/03-hans-deaktivieren.ldif
 ```
 
 Lass dabei ein Fenster mit angemeldetem Hans offen. Prüfe nacheinander, jeweils mit Blick auf die Uhr:
 
-1. Neuer Login als Hans in einem weiteren privaten Fenster.
+1. Neuer Login als Hans in **Chrome Inkognito**. Das offene Edge-InPrivate-Fenster bleibt bestehen.
 2. Das offene Fenster: Seite neu laden, **Mein Profil** klicken.
 3. Nach **Sync all users**: Ist Hans in der Admin-Konsole noch **Enabled**?
-4. Ein vorher gesicherter Token von Hans gegen `/api/profile` bis `exp`.
+4. Den gesicherten Token aus `hans.jwt` gegen `/api/profile` bis `exp` testen, analog zu Anna.
 5. **Sessions** in der Admin-Konsole: Existiert Hans' Sitzung noch?
 
 ## Aufgabe 6: Rücknahme und Auswertung
 
 Nimm alles in dieser Reihenfolge zurück, jeweils mit dem Übungskonto:
 
+**Bash:**
+
 ```bash
-docker compose exec ldap-tools ldapmodify -x -H ldaps://dc01.ad.mustertech.test:636 \
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 \
   -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/04-hans-aktivieren.ldif
-docker compose exec ldap-tools ldapmodify -x -H ldaps://dc01.ad.mustertech.test:636 \
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 \
   -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/05-anna-in-teamleitung.ldif
-docker compose exec ldap-tools ldapmodify -x -H ldaps://dc01.ad.mustertech.test:636 \
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 \
+  -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/06-hans-zurueck-nach-users.ldif
+```
+
+**PowerShell:**
+
+```powershell
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 `
+  -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/04-hans-aktivieren.ldif
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 `
+  -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/05-anna-in-teamleitung.ldif
+docker compose exec ldap-tools ldapmodify -x -o nettimeout=10 -H ldaps://dc01.ad.mustertech.test:636 `
   -D "operator@ad.mustertech.test" -y /secrets/operator.pw -f /ldif/06-hans-zurueck-nach-users.ldif
 ```
 
 Setze im Provider **Users DN** wieder auf `OU=Users,OU=Workshop,DC=ad,DC=mustertech,DC=test`.
-Entscheide, ob die Strategie rekursiv bleibt, und begründe das. Synchronisiere Gruppen und
+Stelle für den Vergleich die rekursive Strategie aus Aufgabe 3 ein. Synchronisiere Gruppen und
 Benutzer, beende unter **Sessions** alle Sitzungen der beiden Benutzer.
 
 Nachweis des Ausgangszustands: frischer Login als Hans und als Anna, dann
@@ -323,8 +447,12 @@ Zum Abschluss beantwortest du für die Auswertung:
 3. Was bleibt beim OU-Wechsel stabil, und wovon hängt ab, ob Keycloak den Benutzer weiter kennt?
 4. Welche Stelle bemerkt Rechteentzug und Deaktivierung zuerst, welche zuletzt, und warum?
 
-Lass den Stack laufen, bis der Trainer die Ergebnisse gesehen hat. Danach:
+Lass den Stack laufen, bis der Trainer die Ergebnisse gesehen hat. Zum Pausieren genügt
+`docker compose stop`. Wenn du die Übungsdaten bewusst verwerfen möchtest, führe ausschließlich
+im AD-Lab-Verzeichnis aus:
 
 ```bash
 docker compose down -v
 ```
+
+Entferne anschließend die lokalen Dateien `anna.jwt` und `hans.jwt`, wenn du sie angelegt hast.
