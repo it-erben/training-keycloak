@@ -232,8 +232,8 @@ Die folgenden Befehle werden im Verzeichnis `modul-10c-rotation` ausgeführt.
 
 ### Secret-Eingabe zeigt keine Zeichen
 
-Das Prüfwerkzeug blendet die Eingabe aus. Füge das Secret ein und drücke Enter.
-Danach bestätigt es den gespeicherten Namen, etwa `old` oder `new`.
+Bash blendet die Eingabe aus, PowerShell zeigt Platzhalter. Füge das Secret ein und drücke Enter.
+Es liegt danach in `OLD_SECRET` oder `NEW_SECRET`; gib diese Variablen nicht zur Kontrolle aus.
 
 ### Rotated secret fehlt oder das neue Secret wird abgelehnt
 
@@ -241,29 +241,51 @@ Prüfe, ob das Lab mit dem Realm-Import von 10c gestartet wurde. Unter **Realm s
 **Client policies** muss `lab-confidential` aktiv sein und das Profil `lab-rotation` verwenden.
 Erst nach **Regenerate** erscheint das bisherige Secret als **Rotated secret**.
 
-Erhält eine Anfrage mit `new` HTTP 401 und `unauthorized_client`, kopiere das aktuelle
-**Client secret** erneut und speichere es:
+Erhält eine Anfrage mit `NEW_SECRET` HTTP 401 und `unauthorized_client`, kopiere das aktuelle
+**Client secret** erneut. Wiederhole die verdeckte Eingabe aus Schritt 1.2 und dann die
+Token-Anfrage. Rotiere dafür nicht noch einmal.
+
+### Token-Variable leer oder die API antwortet unerwartet mit HTTP 401
+
+Nur eine erfolgreiche Token-Anfrage legt ein verwendbares Token in der Variable ab.
+Prüfe zuerst die Ausgabe der zugehörigen Anfrage. Nach dem Schließen des Terminals sind
+Variablen und Dekodierfunktion verloren; beginne dann mit einem vollständigen Reset des Labs.
+
+Ist `TOKEN_KEY_BEFORE` vorhanden, zeige seine Restlaufzeit mit der Funktion aus der Aufgabe:
+
+**Bash:**
 
 ```bash
-docker compose run --rm tools secret new
+show_token "$TOKEN_KEY_BEFORE"
 ```
 
-### Token-Datei fehlt oder die API antwortet unerwartet mit HTTP 401
+**PowerShell:**
 
-Nur eine erfolgreiche Token-Anfrage speichert ein Token. Führe den zugehörigen Schritt
-erneut aus, falls die Datei fehlt. Ist das Token vorhanden, prüfe seine Restlaufzeit:
-
-```bash
-docker compose run --rm tools inspect key-before
+```powershell
+Show-Token $TOKEN_KEY_BEFORE
 ```
 
 Ein negativer Wert bedeutet, dass das Token abgelaufen ist. Für den Vergleich der Schlüssel
-muss `key-before` ausgestellt werden, solange `rsa-original` noch aktiv signiert.
+muss `TOKEN_KEY_BEFORE` ausgestellt werden, solange `rsa-original` noch aktiv signiert.
 Bei einer 401-Antwort direkt nach dem Deaktivieren des alten Schlüssels kann dessen
 Cache-Eintrag bereits abgelaufen sein. Der Cache-Effekt ist damit noch nicht nachgewiesen.
 Stelle den alten Provider wieder auf **Enabled: On**, lasse **Active: Off** und prüfe seine
 `kid` im JWKS. Wiederhole Schritt 2.4 ab dem API-Neustart und dem Füllen des Caches.
 Reicht die Restlaufzeit des Tokens nicht mehr, verwende den vollständigen Reset aus der Aufgabe.
+
+### curl, jq oder ein PowerShell-Parameter fehlt
+
+Für die Bash-Blöcke werden Bash, `curl` ab 7.76 und `jq` benötigt. Unter Windows laufen diese
+Befehle in Ubuntu. Für die PowerShell-Blöcke verwende `pwsh` ab Version 7.1; die mit Windows
+mitgelieferte PowerShell 5.1 kennt `-MaskInput` und `-SkipHttpErrorCheck` nicht.
+
+### Token-Anfrage liefert HTML statt JSON
+
+Der Token-Endpunkt antwortet mit JSON, auch bei ungültigen Zugangsdaten. Ein HTML-Dokument
+oder ein JSON-Parsefehler kann bedeuten, dass `TOKEN_URL` auf eine andere Anwendung zeigt.
+Prüfe die Adresse und die Portzuordnung mit `docker compose ps`. Ein lokaler Port-Forward
+kann denselben Host-Port verwenden. Die direkten HTTP-Aufrufe aus 10c laufen über die
+Host-Ports, während Container untereinander ihre Compose-Dienstnamen verwenden.
 
 ### Neue Tokens haben weiterhin die alte kid
 

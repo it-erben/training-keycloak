@@ -82,6 +82,7 @@ services:
       timeout: 5s
       retries: 10
 
+  # Optional für automatisierte Prüfungen; das Lab verwendet HTTP-Aufrufe vom Host.
   tools:
     image: python:3.13-alpine
     entrypoint: [python, /tools/lab.py]
