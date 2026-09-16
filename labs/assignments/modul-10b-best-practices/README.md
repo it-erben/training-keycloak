@@ -128,7 +128,7 @@ http:
           - url: "http://assignment-keycloak:8080"
 ```
 
-Prüfe die zusammengeführte Konfiguration und starte sie:
+Prüfe die zusammengeführte Konfiguration, indem du den Stack startest:
 
 ```bash
 docker compose config --quiet
@@ -147,7 +147,7 @@ Falls der Name nicht aufgelöst wird, ergänze `127.0.0.1 keycloak.localhost` in
 (Linux/macOS) oder `C:\Windows\System32\drivers\etc\hosts` (Windows, Administratorrechte nötig).
 
 Frage die Discovery ab. `--insecure` überbrückt hier nur die Prüfung des Testzertifikats.
-`--resolve` setzt für diese einzelne Anfrage die Adresse des Testservers.
+`--resolve` setzt für diese einzelne Anfrage die Adresse des Testservers:
 
 **Bash:**
 
@@ -161,7 +161,7 @@ curl --fail --insecure --resolve keycloak.localhost:8443:127.0.0.1 https://keycl
 curl.exe --fail --insecure --resolve keycloak.localhost:8443:127.0.0.1 https://keycloak.localhost:8443/realms/mustertech/.well-known/openid-configuration
 ```
 
-Vergleiche `issuer` und `authorization_endpoint` mit deiner Vorhersage. Melde dich anschließend
+Schau dir `issuer` und `authorization_endpoint` an und prüfe, ob du diese Werte erwartest hast. Melde dich anschließend
 in einem frischen privaten Browserfenster unter
 <https://keycloak.localhost:8443/realms/mustertech/account/> als Hans an.
 Prüfe mit `docker compose ps`, dass kein Host-Port 8080 mehr für Keycloak veröffentlicht wird.
