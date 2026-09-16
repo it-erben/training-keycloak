@@ -355,7 +355,7 @@ Dass Keycloak das alte Client-Secret inzwischen ablehnt, erfährt sie dabei nich
 
 ## Teil 2: Signaturschlüssel wechseln
 
-### Schritt 2.1: Alten Schlüssel zuordnen
+### Schritt 2.1: Alten Schlüssel finden
 
 Hole unmittelbar vor diesem Versuch ein Token mit dem gültigen neuen Secret:
 
@@ -389,7 +389,8 @@ Show-Token $TOKEN_KEY_BEFORE
 Notiere die `kid` von `TOKEN_KEY_BEFORE`. Suche sie in der JWKS-Ausgabe; dort gehört sie zu
 `alg: RS256` und `use: sig`. Weitere Schlüssel können anderen Algorithmen oder Zwecken dienen.
 
-Öffne **Realm settings** -> **Keys**. Ordne die `kid` dem Provider **rsa-original** zu.
+Öffne **Realm settings** -> **Keys**. Finde unter Keys die kid des Providers rsa-original und 
+vergleiche sie mit der kid von `TOKEN_KEY_BEFORE`.
 Wechsle zu **Providers** und öffne **rsa-original**. Im Feld **Priority** steht `100`.
 Kehre anschließend über **Keys** zur Provider-Liste zurück.
 
