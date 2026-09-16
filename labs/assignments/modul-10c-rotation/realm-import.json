@@ -1,0 +1,85 @@
+{
+  "realm": "mustertech",
+  "id": "mustertech",
+  "enabled": true,
+  "displayName": "Mustertech GmbH",
+  "sslRequired": "none",
+  "defaultSignatureAlgorithm": "RS256",
+  "accessTokenLifespan": 3600,
+  "clients": [
+    {
+      "clientId": "sync-service",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "rotation-demo-secret",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    }
+  ],
+  "components": {
+    "org.keycloak.keys.KeyProvider": [
+      {
+        "name": "rsa-original",
+        "providerId": "rsa-generated",
+        "config": {
+          "priority": [
+            "100"
+          ],
+          "enabled": [
+            "true"
+          ],
+          "active": [
+            "true"
+          ],
+          "algorithm": [
+            "RS256"
+          ],
+          "keySize": [
+            "2048"
+          ]
+        }
+      }
+    ]
+  },
+  "clientProfiles": {
+    "profiles": [
+      {
+        "name": "lab-rotation",
+        "executors": [
+          {
+            "executor": "secret-rotation",
+            "configuration": {
+              "expiration-period": 86400,
+              "rotated-expiration-period": 3600,
+              "remaining-rotation-period": 0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "clientPolicies": {
+    "policies": [
+      {
+        "name": "lab-confidential",
+        "enabled": true,
+        "conditions": [
+          {
+            "condition": "client-access-type",
+            "configuration": {
+              "type": [
+                "confidential"
+              ]
+            }
+          }
+        ],
+        "profiles": [
+          "lab-rotation"
+        ]
+      }
+    ]
+  }
+}

@@ -75,7 +75,7 @@ Bei den Modulen 06, 07, 09 und 10 verteilen sich die praktischen Aufgaben auf me
 | 07    | [Identity Provider und Föderation][folien-07]                | [07], [07b], [07c]         |
 | 08    | [Zugriffskontrolle und Authorization Services][folien-08]    | [08]                       |
 | 09    | [Theming, APIs und SPIs][folien-09]                          | [09a], [09b]               |
-| 10    | [Betrieb, Sicherheit und Best Practices][folien-10]          | [10a], [10b]               |
+| 10    | [Betrieb, Sicherheit und Best Practices][folien-10]          | [10a], [10b], [10c]        |
 | 11    | [Keycloak auf Kubernetes][folien-11]                         | [11]                       |
 | 12    | [Keycloak und PCI DSS][folien-12]                            | [12]                       |
 
@@ -138,5 +138,6 @@ Die Folien tragen den Lizenzhinweis `CC BY-NC-SA 4.0, Alexander Erben`.
 [09b]: labs/assignments/modul-09b-anpassung-apis/README.md
 [10a]: labs/assignments/modul-10a-sicherheit/README.md
 [10b]: labs/assignments/modul-10b-best-practices/README.md
+[10c]: labs/assignments/modul-10c-rotation/README.md
 [11]: labs/assignments/modul-11-kubernetes/README.md
 [12]: labs/assignments/modul-12-pci-dss/README.md
