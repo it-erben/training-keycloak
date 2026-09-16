@@ -225,3 +225,53 @@ docker compose up -d
 Eine reine Passwort-Anmeldung reicht nach der OTP-Einrichtung des Admins nicht mehr aus.
 Verwende das Audit-Skript wie in Modul 12 beschrieben und gib einen frischen Code ein.
 `kcadm.sh config credentials` in der verwendeten Version bietet keinen `--totp`-Parameter.
+
+## Rotation in Modul 10c
+
+Die folgenden Befehle werden im Verzeichnis `modul-10c-rotation` ausgeführt.
+
+### Secret-Eingabe zeigt keine Zeichen
+
+Das Prüfwerkzeug blendet die Eingabe aus. Füge das Secret ein und drücke Enter.
+Danach bestätigt es den gespeicherten Namen, etwa `old` oder `new`.
+
+### Rotated secret fehlt oder das neue Secret wird abgelehnt
+
+Prüfe, ob das Lab mit dem Realm-Import von 10c gestartet wurde. Unter **Realm settings** ->
+**Client policies** muss `lab-confidential` aktiv sein und das Profil `lab-rotation` verwenden.
+Erst nach **Regenerate** erscheint das bisherige Secret als **Rotated secret**.
+
+Erhält eine Anfrage mit `new` HTTP 401 und `unauthorized_client`, kopiere das aktuelle
+**Client secret** erneut und speichere es:
+
+```bash
+docker compose run --rm tools secret new
+```
+
+### Token-Datei fehlt oder die API antwortet unerwartet mit HTTP 401
+
+Nur eine erfolgreiche Token-Anfrage speichert ein Token. Führe den zugehörigen Schritt
+erneut aus, falls die Datei fehlt. Ist das Token vorhanden, prüfe seine Restlaufzeit:
+
+```bash
+docker compose run --rm tools inspect key-before
+```
+
+Ein negativer Wert bedeutet, dass das Token abgelaufen ist. Für den Vergleich der Schlüssel
+muss `key-before` ausgestellt werden, solange `rsa-original` noch aktiv signiert.
+Bei einer 401-Antwort direkt nach dem Deaktivieren des alten Schlüssels kann dessen
+Cache-Eintrag bereits abgelaufen sein. Das ist in Schritt 2.4 ein mögliches Ergebnis.
+
+### Neue Tokens haben weiterhin die alte kid
+
+Öffne **Realm settings** -> **Keys** -> **Providers**. Der neue Provider `rsa-rotation`
+braucht den Algorithmus `RS256`, Priorität `200` sowie **Enabled: On** und **Active: On**.
+Speichere die Einstellungen und fordere ein neues Token an.
+
+### Die API startet nicht
+
+Prüfe die Logs und ob ein anderes Lab die Host-Ports 8080 oder 3001 belegt:
+
+```bash
+docker compose logs --tail 40 api keycloak
+```

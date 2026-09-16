@@ -13,10 +13,14 @@ Am Ende dieser Übung hast du:
 
 ## Ausgangslage
 
-Der `sync-service` der Mustertech GmbH ruft eine geschützte API auf. Seine Zugangsdaten
-sollen gewechselt werden. Anschließend wechselt der Betreiber den Schlüssel, mit dem
-Keycloak Tokens signiert. Du führst beide Vorgänge getrennt durch und prüfst nach jedem
-Schritt, welche Anfragen noch funktionieren.
+Der `sync-service` der Mustertech GmbH ruft eine geschützte API auf. Heute wechselst du
+sein Client-Secret. Während der Umstellung sollen das alte und das neue Secret kurzzeitig
+funktionieren, danach nur noch das neue. Was passiert dabei mit Tokens, die der Dienst
+schon besitzt?
+
+Im zweiten Teil wechselst du den Signaturschlüssel des Realms. Auch hier prüfst du an der
+API, ob ältere Tokens noch angenommen werden. Dafür verwendest du dieselben gespeicherten
+Tokens vor und nach der Änderung.
 
 ```text
 sync-service -- Client-ID + Secret --> Keycloak -- signiertes Access Token --> sync-service
@@ -25,9 +29,8 @@ sync-service -- Access Token --> Portal-API -- öffentliche Schlüssel aus JWKS 
 
 Das Secret authentifiziert den Client am Token-Endpunkt. Den privaten Signaturschlüssel
 verwendet Keycloak zum Signieren; die API prüft die Signatur mit dem öffentlichen Schlüssel.
-Die zwei Rotationen ändern deshalb unterschiedliche Dinge.
 
-## Voraussetzungen und Start
+## Voraussetzungen
 
 - Docker Desktop und Docker Compose mit `--wait`-Unterstützung
 - Grundkenntnisse zu Clients, Access Tokens und Token-Prüfung aus Modul 06
@@ -52,20 +55,24 @@ docker compose run --rm setup
 Warte auf den erfolgreichen Abschluss beider Befehle. Öffne <http://localhost:8080/admin/>
 und melde dich mit `admin` / `admin` an. Wähle den Realm **mustertech**.
 
-Vorbereitet sind der vertrauliche Client `sync-service`, dessen Service Account und die
-Portal-API aus Modul 06. Die Client Policy `lab-confidential` bindet das Profil `lab-rotation`:
-Ein neues Secret gilt einen Tag, das rotierte Secret eine weitere Stunde. Die Tokens gelten
-in diesem Lab ebenfalls eine Stunde, damit sie während der Versuche nicht nebenbei ablaufen.
-Das sind Übungswerte, keine Empfehlung für den Produktivbetrieb. Die lokalen HTTP-Verbindungen
-vereinfachen das Lab; außerhalb dieser Testumgebung gehört TLS dazu.
+Der Realm enthält den vertraulichen Client `sync-service` mit Service Account; als API läuft
+die Portal-API aus Modul 06. Die Client Policy `lab-confidential` verwendet das Profil
+`lab-rotation`. Dadurch gilt ein neues Secret einen Tag, während das bisherige nach der
+Rotation noch eine Stunde akzeptiert wird. Auch die Tokens gelten im Lab eine Stunde,
+damit sie während der Versuche nicht nebenbei ablaufen.
+
+Diese Laufzeiten sind für die Übung gewählt. Die Verbindungen laufen lokal über HTTP;
+im Produktivbetrieb brauchst du TLS und Laufzeiten, die zu deinen Anwendungen passen.
 
 ### Das Prüfwerkzeug
 
-`docker compose run --rm tools ...` startet einen kleinen Python-Client im Container.
-Auf dem Host musst du weder Python installieren noch Token-Variablen zwischen Shells übertragen.
-Das Werkzeug speichert Secrets und Tokens im eigenen Docker-Volume `state` und gibt keine
-vollständigen Tokens aus. Die Secrets gibst du verdeckt ein; zum Einfügen kann ein Rechtsklick
-oder die Einfügefunktion deines Terminals nötig sein.
+Alle Prüfaufrufe beginnen mit `docker compose run --rm tools`. Docker startet dafür einen
+Python-Client, der Secrets und Tokens unter den angegebenen Namen im Volume `state` speichert.
+So kannst du etwa `before` später erneut prüfen. Auf deinem Rechner brauchst du nur Docker;
+Python läuft im Container.
+
+Vollständige Tokens erscheinen nicht in der Ausgabe. Auch die Secret-Eingabe bleibt unsichtbar.
+Verwende zum Einfügen gegebenenfalls einen Rechtsklick oder die Einfügefunktion deines Terminals.
 
 Ein HTTP-Status muss zur angegebenen Erwartung passen, sonst endet das Werkzeug mit Fehler.
 Die Erwartung ist standardmäßig `200`. Führe jeden Befehl einzeln aus und kläre Abweichungen,
@@ -91,7 +98,7 @@ docker compose run --rm tools api before
 ```
 
 **Erwartet:** zweimal HTTP 200. Die API meldet `service-account-sync-service`.
-Notiere die `kid` des Tokens. Sie bezeichnet den Signaturschlüssel, nicht das Client-Secret.
+Notiere die `kid` des Tokens. An ihr erkennst du, welchen Signaturschlüssel die API zur Prüfung braucht.
 
 ### Schritt 1.2: Secret mit Übergangszeit rotieren
 
@@ -128,8 +135,8 @@ docker compose run --rm tools api before
 ```
 
 **Erwartet:** HTTP 200, solange das Token noch nicht abgelaufen ist.
-Die API bekommt das Access Token, nicht das Client-Secret. Das Ungültigmachen des Secrets
-widerruft dieses bereits ausgestellte Token nicht.
+Die API prüft das vorgelegte Access Token anhand seiner Signatur und Claims.
+Dass Keycloak das alte Client-Secret inzwischen ablehnt, erfährt sie dabei nicht.
 
 ## Teil 2: Signaturschlüssel wechseln (15-20 Minuten)
 
@@ -146,7 +153,8 @@ Notiere die `kid` von `key-before`. Suche sie in der JWKS-Ausgabe; dort gehört 
 `alg: RS256` und `use: sig`. Weitere Schlüssel können anderen Algorithmen oder Zwecken dienen.
 
 Öffne **Realm settings** -> **Keys**. Ordne die `kid` dem Provider **rsa-original** zu.
-Unter **Providers** hat dieser Provider die Priorität `100`.
+Wechsle zu **Providers** und öffne **rsa-original**. Im Feld **Priority** steht `100`.
+Kehre anschließend über **Keys** zur Provider-Liste zurück.
 
 ### Schritt 2.2: Einen neuen Schlüssel aktivieren
 
@@ -186,13 +194,15 @@ docker compose run --rm tools api key-before
 ```
 
 **Erwartet:** Der alte öffentliche Schlüssel bleibt veröffentlicht; das alte Token funktioniert.
-Passiv bedeutet hier: Der Schlüssel dient noch zur Prüfung vorhandener Tokens, aber nicht mehr
-zum Signieren neuer Tokens. Das neue Schlüsselpaar bleibt aktiv.
+Mit **Active: Off** schaltest du das Signieren mit diesem Schlüssel aus. Solange **Enabled: On**
+bleibt, können Anwendungen den öffentlichen Schlüssel weiterhin abrufen und ältere Tokens prüfen.
 
 ### Schritt 2.4: Alten Schlüssel deaktivieren und den Cache prüfen
 
-Dieser Schritt zeigt absichtlich eine zu frühe Entfernung. Im normalen Betrieb muss die
-Übergangszeit alle betroffenen Token-Arten, deren Laufzeiten und die Cache-Strategie berücksichtigen.
+Jetzt deaktivierst du den alten Schlüssel, obwohl `key-before` noch gültig ist.
+Damit untersuchst du, was bei einer zu kurzen Übergangszeit passiert. Im Produktivbetrieb
+müsstest du zuvor die Laufzeiten aller betroffenen Token-Arten und die Schlüssel-Caches der
+Anwendungen berücksichtigen.
 
 Stelle bei **rsa-original** jetzt zusätzlich **Enabled** auf **Off** und speichere.
 Prüfe das JWKS:
@@ -208,9 +218,10 @@ abgerufen und zwischengespeichert. Prüfe, ob dieser Cache-Eintrag noch wirksam 
 docker compose run --rm tools api key-before
 ```
 
-Solange der alte Schlüssel im Cache liegt, kann die API weiterhin HTTP 200 liefern. Bei bereits
-abgelaufenem Cache erhältst du HTTP 401 und das Werkzeug meldet eine Abweichung. Beides notierst du.
-**Das Entfernen aus dem JWKS ist keine sofortige globale Tokensperre.**
+Liegt der alte Schlüssel noch im Cache, antwortet die API mit HTTP 200. Ist der Cache-Eintrag
+bereits abgelaufen, erhältst du HTTP 401; das Werkzeug meldet dann eine Abweichung von seiner
+Standarderwartung. Notiere deinen Statuscode. Beide Ergebnisse sind an dieser Stelle möglich.
+Ein Schlüssel, der aus dem JWKS entfernt wurde, kann also in einer Anwendung noch verfügbar sein.
 
 Leere für eine reproduzierbare Gegenprobe den Prozess-Cache durch einen Neustart ausschließlich der API:
 
@@ -221,8 +232,8 @@ docker compose run --rm tools api key-before --expect 401
 docker compose run --rm tools api key-after
 ```
 
-**Erwartet:** Das alte Token erhält HTTP 401, das neue weiterhin HTTP 200. Der Neustart dient hier
-der Messung mit leerem Cache; er ist keine allgemeine Anleitung zur Schlüsselrotation in Produktion.
+**Erwartet:** Das alte Token erhält HTTP 401, das neue weiterhin HTTP 200. Durch den Neustart
+musste die API die Schlüssel neu abrufen. So lässt sich der Cache-Effekt im Lab gezielt prüfen.
 
 ### Schritt 2.5: Übergangszustand wiederherstellen
 
@@ -247,22 +258,17 @@ Trage die tatsächlich beobachteten HTTP-Statuscodes ein:
 Erkläre anhand dieser Tabelle, welche Rotation den Zugang zum Token-Endpunkt verändert
 und welche Rotation die Prüfung bereits ausgestellter Tokens betrifft.
 
-## Hilfe und Wiederholung
+## Nachsehen und wiederholen
 
-- **Secret-Eingabe bleibt leer sichtbar:** Das Werkzeug unterdrückt die Anzeige absichtlich. Einfügen, dann Enter.
-- **Kein Rotated secret sichtbar:** Prüfe, ob du im frischen Lab 10c bist und `lab-confidential` aktiv ist.
-- **`unauthorized_client` mit `new`:** Kopiere das aktuelle Secret erneut; nicht das Feld Rotated secret.
-- **Token-Datei fehlt:** Führe die zugehörige erfolgreiche Token-Anfrage aus. Ein Fehler speichert kein Token.
-- **Unerwartetes HTTP 401:** Prüfe die Restlaufzeit mit dem untenstehenden Befehl. Negative Werte bedeuten abgelaufen.
-- **Neue Tokens haben die alte `kid`:** Algorithmus RS256, Priorität 200 und Active/Enabled des neuen Providers prüfen.
-- **API startet nicht:** Prüfe `docker compose logs --tail 40 api keycloak` und freie Host-Ports.
+Bei abweichenden Ergebnissen helfen die [Diagnoseschritte für 10c](../TROUBLESHOOTING.md#rotation-in-modul-10c).
+Mit `inspect` kannst du die `kid` und Restlaufzeit eines gespeicherten Tokens noch einmal ansehen:
 
 ```bash
 docker compose run --rm tools inspect key-before
 ```
 
-`inspect` dekodiert nur Header und Claims. Erst der API-Aufruf prüft die Signatur, den Issuer
-und die Laufzeit. Tokens aus diesem Lab gehören nicht in öffentliche Decoder-Webseiten.
+`inspect` dekodiert Header und Claims, ohne die Signatur zu prüfen. Dafür rufst du die API auf;
+sie prüft auch den Issuer und die Laufzeit. Du brauchst keine öffentliche Decoder-Webseite.
 
 Für einen vollständigen Neustart oder nach Abschluss:
 
