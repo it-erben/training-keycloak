@@ -14,8 +14,6 @@ Am Ende dieser Übung hast du:
 Du bekommst einen eigenen Domain Controller. Niemand sonst arbeitet in deinem Verzeichnis, du kannst
 also alles ausprobieren und zum Schluss zurücksetzen.
 
-**Geschätzte Dauer:** 90 Minuten, zuzüglich der erstmaligen Image-Downloads.
-
 ## Voraussetzungen
 
 Du bekommst eine eigene AD-IP, die Datei `workshop-ca.crt` samt SHA256-Fingerprint und

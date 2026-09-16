@@ -8,7 +8,6 @@ Am Ende dieses Workshops hast du:
 - Ein Verfahren für die Datenübernahme gewählt und dessen Voraussetzungen erklärt
 - Abnahme, Umschaltung und Rückfall für eine Betriebsübernahme geplant
 
-**Geschätzte Dauer:** 60 Minuten einschließlich Einstieg und Auswertung.
 **Arbeitsform:** Zwei Dreiergruppen, Whiteboard oder Papier. Keine Änderungen an einem Cluster.
 
 ## Ausgangslage: Mustertech übernimmt den Betrieb
@@ -82,7 +81,7 @@ Ein laufender Pod allein zeigt noch nicht, ob sich ein Partner mit MFA anmelden 
 Bereitet eine siebenminütige Vorstellung vor. Zeigt das gewählte Verfahren, zwei
 entscheidende offene Punkte, eure Abnahmekriterien und den Rückfallplan.
 
-## Zusatzfall für 90 Minuten
+## Zusatzfall
 
 Nach der Umschaltung funktionieren neue Portal-Anmeldungen. Die API lehnt jedoch Tokens
 ab, und ein Batch-Dienst erhält keine neuen Tokens. Ein lokaler Partner hat im Ziel

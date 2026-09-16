@@ -3,7 +3,7 @@
 ## Deine Aufgabe
 
 Stelle den anderen Teilnehmenden den **Device Authorization Flow**
-(auch "Device Flow") vor (~10 Minuten). Nutze dieses Material als Grundlage. Du
+(auch "Device Flow") vor. Nutze dieses Material als Grundlage. Du
 kannst es ergänzen oder anpassen.
 
 ---

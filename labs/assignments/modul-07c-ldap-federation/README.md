@@ -12,8 +12,6 @@ Am Ende dieser Übung hast du:
 - LDAP-Gruppen auf **Keycloak Realm Roles** gemappt
 - Rollen-Claims in **OIDC-Tokens** überprüft
 
-**Geschätzte Dauer:** 30 Minuten
-
 ---
 
 ## Umgebung starten

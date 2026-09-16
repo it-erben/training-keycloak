@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - Das Management-CLI um API-Funktionen erweitert
 - Token Introspection implementiert
 
-**Geschätzte Dauer:** 35-45 Minuten
-
 ---
 
 ## Voraussetzungen

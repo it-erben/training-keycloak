@@ -2,9 +2,8 @@
 
 ## Deine Aufgabe
 
-Stelle den anderen Teilnehmenden den **Client Credentials Flow** vor (~10
-Minuten). Nutze dieses Material als Grundlage. Du kannst es ergänzen oder
-anpassen.
+Stelle den anderen Teilnehmenden den **Client Credentials Flow** vor.
+Nutze dieses Material als Grundlage. Du kannst es ergänzen oder anpassen.
 
 ---
 

@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - Bedingungen für MFA basierend auf Rollen konfiguriert
 - Den Flow mit verschiedenen Usern getestet
 
-**Geschätzte Dauer:** 25-30 Minuten
-
 ---
 
 ## Voraussetzungen

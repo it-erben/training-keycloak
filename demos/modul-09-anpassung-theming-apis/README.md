@@ -2,12 +2,12 @@
 
 Custom Theme zeigen und die Admin REST API live nutzen: User erstellen, auflisten und Clients abfragen.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Custom Theme zeigen | 3 Min |
-| Demo 2 | Admin REST API: Token holen | 2 Min |
-| Demo 3 | Admin REST API: User verwalten | 4 Min |
-| Demo 4 | Admin REST API: Clients abfragen | 3 Min |
+| Demo   | Thema                            |
+| :----- | :------------------------------- |
+| Demo 1 | Custom Theme zeigen              |
+| Demo 2 | Admin REST API: Token holen      |
+| Demo 3 | Admin REST API: User verwalten   |
+| Demo 4 | Admin REST API: Clients abfragen |
 
 ## Voraussetzungen
 

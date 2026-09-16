@@ -8,7 +8,6 @@ Am Ende dieses Workshops hast du:
 - Identitätsverwaltung und Datenzugriff der Anwendung getrennt betrachtet
 - Positive und negative Zugriffstests für die gewählte Architektur formuliert
 
-**Geschätzte Dauer:** 60 Minuten einschließlich Einstieg und Auswertung.
 **Arbeitsform:** Zwei Dreiergruppen, Whiteboard oder Papier. Kein laufendes Lab erforderlich.
 
 ## Ausgangslage: Mustertech wächst zusammen
@@ -75,12 +74,12 @@ Ergänzt mindestens vier Testfälle:
 
 ## Teil 3: Ergebnis vorstellen
 
-Ihr habt sieben Minuten für euren Entwurf. Zeigt die Architektur und erklärt an zwei
+Zeigt die Architektur und erklärt an zwei
 Stellen, warum ihr euch so entschieden habt. Führt dann einen erlaubten und einen
 verweigerten Zugriff durch das Diagramm. Die andere Gruppe versucht, einen Weg zu einem
 Dokument zu finden, auf das sie keinen Zugriff haben dürfte.
 
-## Zusatzfall für 90 Minuten
+## Zusatzfall
 
 Mustertech Süd verlangt künftig eine eigene Betriebsorganisation. Das zentrale IAM-Team
 soll Süd weder administrieren noch dessen Ausfallrisiko mitbestimmen können.

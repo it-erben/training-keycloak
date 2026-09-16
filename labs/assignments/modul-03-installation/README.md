@@ -8,8 +8,6 @@ Am Ende dieser Übung hast du:
 - Die Admin-Konsole kennengelernt
 - Den Realm "mustertech" für unser Mitarbeiterportal angelegt
 
-**Geschätzte Dauer:** 15 Minuten
-
 ---
 
 ## Voraussetzungen

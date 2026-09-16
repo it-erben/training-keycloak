@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - Policies basierend auf Rollen erstellt
 - Permissions konfiguriert und getestet
 
-**Geschätzte Dauer:** 25-30 Minuten
-
 ---
 
 ## Voraussetzungen

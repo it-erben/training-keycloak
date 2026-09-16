@@ -10,8 +10,6 @@ Am Ende dieser Übung hast du:
 - Session-Einstellungen angepasst
 - Die Sicherheitsmaßnahmen getestet
 
-**Geschätzte Dauer:** 10 Minuten
-
 ---
 
 ## Voraussetzungen

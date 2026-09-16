@@ -7,15 +7,15 @@ Umschaltung prüft. Dabei muss sie entscheiden, welche Daten fehlen, wer sie bes
 und wann ein Rückfall nötig wird. Das Verfahren hängt vom Softwarestand, den Erweiterungen
 und der Frage ab, ob bestehende Sitzungen erhalten bleiben müssen.
 
-| Minute | Moderation                                                          |
-| ------ | ------------------------------------------------------------------- |
-| 0-12   | Kurzfolien: Übergabeumfang, Methoden und Integrationsvertrag        |
-| 12-35  | Gruppen planen; nach 10 Minuten nach dem öffentlichen Issuer fragen |
-| 35-49  | Jede Gruppe stellt sieben Minuten vor                               |
-| 49-60  | Abbruchkriterien und Zustand nach einem Rückfall vergleichen        |
+| Phase         | Moderation                                                          |
+| ------------- | ------------------------------------------------------------------- |
+| Einstieg      | Kurzfolien: Übergabeumfang, Methoden und Integrationsvertrag        |
+| Gruppenarbeit | Gruppen planen; bei der Planung nach dem öffentlichen Issuer fragen |
+| Vorstellung   | Jede Gruppe stellt ihren Entwurf vor                                |
+| Auswertung    | Abbruchkriterien und Zustand nach einem Rückfall vergleichen        |
 
-Für die 23 Minuten Gruppenarbeit sind 7 Minuten Übergabefragen, 9 Minuten Verfahren und
-Umschaltplan sowie 7 Minuten Tests und Vorbereitung der Vorstellung vorgesehen.
+Die Gruppen klären zuerst die Übergabefragen und erarbeiten dann Verfahren und Umschaltplan.
+Anschließend legen sie Tests fest und bereiten die Vorstellung vor.
 Die Gruppe arbeitet auf Papier. Eine reale Installation wird dabei nicht verändert.
 
 ## Was vor der Übernahme geklärt sein muss
