@@ -8,7 +8,7 @@ Am Ende dieser Übung hast du:
 - Passwort-Policy, Sperrverhalten und Session-Timeouts auf die PCI-Grenzwerte gesetzt
 - MFA für alle Benutzer und für die Admin-Konsole erzwungen
 - Einen Helpdesk-Zugang eingerichtet, der nur Passwörter zurücksetzen darf
-- Alle User- und Admin-Events gespeichert und über die Admin-API abgezogen
+- User- und Admin-Events gespeichert, auf stdout geprüft und über die Admin-API abgezogen
 - Die Rotation von Client-Secrets über eine Client Policy erzwungen
 - Die Checkliste mit Soll, Ist und offenen Punkten außerhalb von Keycloak ausgefüllt
 
@@ -275,18 +275,60 @@ Prüfung, nicht die Sichtbarkeit eines Bedienelements.
 5. **Save**, dann Tab **Admin events settings**: **Save events** `On`,
    **Include representation** `On`, **Save**
 
-PCI DSS verlangt zwölf Monate Aufbewahrung, davon drei Monate sofort verfügbar. Die Datenbank
-hält 90 Tage; `jboss-logging` schreibt jedes Event zusätzlich nach stdout, von wo es das
-Log-System der Organisation für den Rest des Jahres übernimmt.
+PCI DSS verlangt zwölf Monate Aufbewahrung, davon drei Monate sofort verfügbar. Die
+Event-Datenbank hält die hier eingestellten 90 Tage. Für die längere Aufbewahrung braucht es
+zusätzlich ein zentrales Log-System; das Lab richtet keines ein.
 
-### Schritt 7.2: Events im Container-Log
+### Schritt 7.2: Audit-Events auf stdout prüfen
 
-```bash
-docker compose logs assignment-keycloak | grep 'type="LOGIN'
+Der Event-Listener `jboss-logging` schreibt User- und Admin-Events ins Keycloak-Log.
+Im Lab gibt Keycloak dieses Log über die Konsole auf stdout aus. Die Compose-Datei setzt
+bereits folgende Server-Option, damit auch erfolgreiche Ereignisse sichtbar sind:
+
+```yaml
+KC_SPI_EVENTS_LISTENER__JBOSS_LOGGING__SUCCESS_LEVEL: info
 ```
 
-Jede Zeile trägt `realmId`, `userId`, `ipAddress`, `clientId` und bei Fehlern `error`. Das
-sind die Felder, die 10.2.2 verlangt: Wer, Was, Wann, Erfolg, Herkunft, Ziel.
+Ohne diese Option protokolliert der Listener erfolgreiche Ereignisse auf `DEBUG`, die beim
+üblichen Log-Level `INFO` fehlen. Fehlgeschlagene Ereignisse erscheinen standardmäßig auf
+`WARN`. **Save events** steuert dagegen die Speicherung in der Event-Datenbank. Der
+Log-Listener ist davon unabhängig und muss in jedem zu überwachenden Realm eingetragen sein,
+also für die Admin-Anmeldung auch im Realm `master`.
+
+1. Öffne im Lab-Verzeichnis ein zweites Terminal und verfolge die neuen Log-Zeilen:
+
+   ```bash
+   docker compose logs --follow --since 1m assignment-keycloak
+   ```
+
+2. Öffne `http://localhost:8080/realms/mustertech/account/` in einem neuen privaten Fenster.
+   Melde dich einmal als `anna.schmidt` mit falschem Passwort an. Wiederhole die Anmeldung
+   anschließend mit dem richtigen Passwort und dem aktuellen OTP-Code.
+3. Ändere als Admin im Realm `mustertech` unter **Users** bei `lisa.audit` den Vornamen und
+   speichere. Setze ihn danach wieder auf den ursprünglichen Wert zurück.
+4. Beende die Log-Ausgabe mit **Strg+C**. Das beendet nur die Anzeige; Keycloak läuft weiter.
+   Filtere anschließend die Ereignisse der letzten fünf Minuten:
+
+   ```bash
+   docker compose logs --since 5m assignment-keycloak | grep 'org.keycloak.events'
+   ```
+
+Suche den fehlgeschlagenen Login (`type="LOGIN_ERROR"` mit `error="invalid_user_credentials"`)
+und den erfolgreichen Login (`type="LOGIN"`). Beide gehören zum Realm `mustertech`.
+Bei der Änderung des Vornamens erwartest du ein Admin-Event mit `operationType="UPDATE"`,
+`resourceType="USER"` und einem `resourcePath`, der die ID von `lisa.audit` enthält.
+Wenn du mit dem Admin aus `master` arbeitest, nennt auch das Admin-Event im Textlog diesen
+Realm. Dort steht der Realm der Admin-Anmeldung, obwohl du `lisa.audit` in `mustertech` änderst.
+
+Ordne dem Admin-Event den Zeitpunkt, den handelnden Admin, dessen IP-Adresse und den geänderten
+Benutzer zu. User-Events enthalten unter anderem `userId`, `ipAddress` und `clientId`;
+im Textlog eines Admin-Events bezeichnet `userId` den handelnden Admin. Der geänderte
+Benutzer steht im `resourcePath`. Bei einem unbekannten Login-Namen kann `userId` fehlen.
+Die Identität lässt sich dann nicht aus einer User-ID ablesen.
+
+Damit hast du die Ausgabe auf stdout nachgewiesen. Ein Log-Collector kann diese Ausgabe
+übernehmen. `docker compose logs` allein belegt weder zwölf Monate Aufbewahrung noch den
+Schutz vor nachträglicher Veränderung.
 
 ### Schritt 7.3: Events über die Admin-API abziehen
 
@@ -415,7 +457,7 @@ Du hast erfolgreich:
 - [x] Passwort-Policy, Sperrverhalten und Sessions auf die Grenzwerte gesetzt
 - [x] MFA für Benutzer und Admins ohne Ausnahme erzwungen
 - [x] Einen Helpdesk-Zugang mit Admin Permissions auf `reset-password` beschränkt
-- [x] Alle User- und Admin-Events gespeichert und über die Admin-API abgezogen
+- [x] User- und Admin-Events gespeichert, auf stdout geprüft und über die Admin-API abgezogen
 - [x] Client-Secrets über eine Client Policy rotiert
 
 ---
