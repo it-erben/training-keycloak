@@ -260,7 +260,10 @@ docker compose run --rm tools inspect key-before
 Ein negativer Wert bedeutet, dass das Token abgelaufen ist. Für den Vergleich der Schlüssel
 muss `key-before` ausgestellt werden, solange `rsa-original` noch aktiv signiert.
 Bei einer 401-Antwort direkt nach dem Deaktivieren des alten Schlüssels kann dessen
-Cache-Eintrag bereits abgelaufen sein. Das ist in Schritt 2.4 ein mögliches Ergebnis.
+Cache-Eintrag bereits abgelaufen sein. Der Cache-Effekt ist damit noch nicht nachgewiesen.
+Stelle den alten Provider wieder auf **Enabled: On**, lasse **Active: Off** und prüfe seine
+`kid` im JWKS. Wiederhole Schritt 2.4 ab dem API-Neustart und dem Füllen des Caches.
+Reicht die Restlaufzeit des Tokens nicht mehr, verwende den vollständigen Reset aus der Aufgabe.
 
 ### Neue Tokens haben weiterhin die alte kid
 
