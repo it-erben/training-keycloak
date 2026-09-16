@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - Das Theme in Keycloak aktiviert
 - E-Mail-Templates angepasst
 
-**Geschätzte Dauer:** 20 Minuten
-
 ---
 
 ## Voraussetzungen

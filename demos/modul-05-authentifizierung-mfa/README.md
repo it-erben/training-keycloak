@@ -3,12 +3,12 @@
 Den Browser-Flow duplizieren und OTP für **alle User** erzwingen (Required statt
 Conditional), anders als die Übung, die Conditional OTP nach Rolle konfiguriert.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Flow duplizieren | 2 Min |
-| Demo 2 | OTP auf Required setzen | 3 Min |
-| Demo 3 | Flow binden | 1 Min |
-| Demo 4 | Login testen | 3 Min |
+| Demo   | Thema                   |
+| :----- | :---------------------- |
+| Demo 1 | Flow duplizieren        |
+| Demo 2 | OTP auf Required setzen |
+| Demo 3 | Flow binden             |
+| Demo 4 | Login testen            |
 
 ## Voraussetzungen
 

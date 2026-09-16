@@ -4,7 +4,7 @@ Jede teilnehmende Person verbindet ihr lokales Keycloak per LDAPS mit einem eige
 vorbereiteten Active Directory und verfolgt Änderungen im Verzeichnis bis zur Portal-API.
 Jedes Verzeichnis läuft als eigener Windows Server 2022 mit AD DS auf Google Compute Engine;
 der Trainer stellt die Server vor dem Kurs bereit, stoppt sie über Nacht, startet sie am Morgen
-und baut sie danach ab. Die 90 Minuten enthalten keine Cloud-Bereitstellung.
+und baut sie danach ab. Die Cloud-Bereitstellung ist vor dem Workshop abgeschlossen.
 
 Voraussetzungen der Teilnehmer: Modul 06b (Portal und Portal-API), Modul 07 mit Lab 07c
 (LDAP-Provider, Group-Mapper) und Docker Compose. Voraussetzungen des Trainers: PowerShell 7,
@@ -12,14 +12,14 @@ gcloud CLI, OpenSSH-Client, Docker und ein GCP-Projekt mit aktivierter Compute E
 
 ## Ablauf
 
-| Minuten | Aufgabe                         | Nachweis                                            |
-| ------- | ------------------------------- | --------------------------------------------------- |
-| 0-15    | AD-Einträge lesen               | DN, UPN, GUID und direkte Mitglieder identifiziert  |
-| 15-35   | Keycloak über LDAPS verbinden   | Hans meldet sich frisch am Portal an                |
-| 35-55   | Verschachtelte Gruppe auflösen  | Anna erhält `manager`, Hans erhält HTTP 403         |
-| 55-65   | Hans nach `Moved` verschieben   | DN ändert sich, objectGUID bleibt                   |
-| 65-80   | Rechte entziehen, Konto sperren | LDAP, Keycloak, Sitzung und API getrennt beobachtet |
-| 80-90   | Rücknahme und Auswertung        | Ausgangszustand hergestellt und erklärt             |
+| Aufgabe                         | Nachweis                                            |
+| ------------------------------- | --------------------------------------------------- |
+| AD-Einträge lesen               | DN, UPN, GUID und direkte Mitglieder identifiziert  |
+| Keycloak über LDAPS verbinden   | Hans meldet sich frisch am Portal an                |
+| Verschachtelte Gruppe auflösen  | Anna erhält `manager`, Hans erhält HTTP 403         |
+| Hans nach `Moved` verschieben   | DN ändert sich, objectGUID bleibt                   |
+| Rechte entziehen, Konto sperren | LDAP, Keycloak, Sitzung und API getrennt beobachtet |
+| Rücknahme und Auswertung        | Ausgangszustand hergestellt und erklärt             |
 
 ## Unterlagen
 

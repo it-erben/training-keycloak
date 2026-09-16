@@ -3,14 +3,14 @@
 Das Rollenkonzept (Client Roles -> Composite Role -> Gruppe -> User) und Protocol Mapper
 live aufbauen, mit **anderen Clients und Usern** als in der Übung.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Client Roles anlegen | 2 Min |
-| Demo 2 | Composite Role erstellen | 2 Min |
-| Demo 3 | Gruppe + User anlegen | 2 Min |
-| Demo 4 | Protocol Mapper konfigurieren | 2 Min |
-| Demo 5 | Token evaluieren | 3 Min |
-| Demo 6 | Service Account testen | 2 Min |
+| Demo   | Thema                         |
+| :----- | :---------------------------- |
+| Demo 1 | Client Roles anlegen          |
+| Demo 2 | Composite Role erstellen      |
+| Demo 3 | Gruppe + User anlegen         |
+| Demo 4 | Protocol Mapper konfigurieren |
+| Demo 5 | Token evaluieren              |
+| Demo 6 | Service Account testen        |
 
 ## Voraussetzungen
 

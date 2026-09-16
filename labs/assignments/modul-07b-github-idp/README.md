@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - **Identity-First Login** verstanden: E-Mail-Eingabe bestimmt den Authentifizierungspfad
 - Domain-basiertes Routing getestet: `@mustertech.de` → Passwort, andere Domains → GitHub
 
-**Geschätzte Dauer:** 20 Minuten
-
 ---
 
 ## Voraussetzungen

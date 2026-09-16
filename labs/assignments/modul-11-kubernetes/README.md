@@ -12,8 +12,6 @@ Am Ende dieser Übung hast du:
 - Keycloak auf zwei Instanzen skaliert und den Infinispan-Cluster beobachtet
 - Health-Endpoints und Metriken über den Management-Port abgefragt
 
-**Geschätzte Dauer:** 45-60 Minuten
-
 ---
 
 ## Voraussetzungen

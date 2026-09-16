@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - Das Management-CLI mit Device Flow konfiguriert und getestet
 - Den Sync-Service mit Client Credentials konfiguriert und getestet
 
-**Geschätzte Dauer:** 50-60 Minuten
-
 ---
 
 ## Voraussetzungen

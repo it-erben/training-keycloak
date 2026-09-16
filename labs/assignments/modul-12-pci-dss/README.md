@@ -12,8 +12,6 @@ Am Ende dieser Übung hast du:
 - Die Rotation von Client-Secrets über eine Client Policy erzwungen
 - Die Checkliste mit Soll, Ist und offenen Punkten außerhalb von Keycloak ausgefüllt
 
-**Geschätzte Dauer:** 45-60 Minuten
-
 ---
 
 ## Voraussetzungen

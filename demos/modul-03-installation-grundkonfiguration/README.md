@@ -3,12 +3,12 @@
 Keycloak mit Docker Compose starten, die Admin-Konsole erkunden und den Realm **mustertech** einrichten. Das ist die
 Basis für alle folgenden Module.
 
-| Demo   | Thema                             | Dauer |
-|:-------|:----------------------------------|:------|
-| Demo 1 | Docker Compose starten            | 3 Min |
-| Demo 2 | Admin-Konsole erkunden            | 3 Min |
-| Demo 3 | Realm "mustertech" anlegen        | 3 Min |
-| Demo 4 | Realm-Einstellungen konfigurieren | 3 Min |
+| Demo     | Thema                               |
+| :------- | :---------------------------------- |
+| Demo 1   | Docker Compose starten              |
+| Demo 2   | Admin-Konsole erkunden              |
+| Demo 3   | Realm "mustertech" anlegen          |
+| Demo 4   | Realm-Einstellungen konfigurieren   |
 
 ## Voraussetzungen
 

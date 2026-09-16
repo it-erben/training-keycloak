@@ -72,7 +72,7 @@ section {
 **Die Lösung:**
 
 - 2014: **Keycloak** als kompletter Neustart
-- Ziel: **Developer Experience** - einfache Integration in Minuten
+- Ziel: **Developer Experience** - einfache Integration
 - Fokus auf moderne Standards (OAuth 2.0, OIDC) von Anfang an
 
 > **Vision:** "Security sollte nicht kompliziert sein."

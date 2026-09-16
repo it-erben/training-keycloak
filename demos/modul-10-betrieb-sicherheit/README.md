@@ -3,13 +3,13 @@
 Brute-Force-Detection, Password Policy und Events live konfigurieren und testen, mit
 einem dedizierten Demo-User, Fokus auf den Audit-Trail.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Brute-Force-Detection aktivieren | 2 Min |
-| Demo 2 | Password Policy einrichten | 2 Min |
-| Demo 3 | Events aktivieren | 2 Min |
-| Demo 4 | Brute-Force testen | 3 Min |
-| Demo 5 | Events prüfen (Audit-Trail) | 3 Min |
+| Demo   | Thema                            |
+| :----- | :------------------------------- |
+| Demo 1 | Brute-Force-Detection aktivieren |
+| Demo 2 | Password Policy einrichten       |
+| Demo 3 | Events aktivieren                |
+| Demo 4 | Brute-Force testen               |
+| Demo 5 | Events prüfen (Audit-Trail)      |
 
 ## Voraussetzungen
 

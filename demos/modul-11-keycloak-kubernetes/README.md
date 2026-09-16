@@ -3,12 +3,12 @@
 Operator, Self-Healing und Rolling Update live zeigen, auf dem Cluster aus Lab 11. Der Fokus liegt auf
 dem, was der Operator aus der Custom Resource macht.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Von der CR zum StatefulSet | 3 Min |
-| Demo 2 | Self-Healing: StatefulSet löschen | 2 Min |
-| Demo 3 | Skalieren und Cluster-View | 3 Min |
-| Demo 4 | Rolling Update beobachten | 3 Min |
+| Demo   | Thema                             |
+| :----- | :-------------------------------- |
+| Demo 1 | Von der CR zum StatefulSet        |
+| Demo 2 | Self-Healing: StatefulSet löschen |
+| Demo 3 | Skalieren und Cluster-View        |
+| Demo 4 | Rolling Update beobachten         |
 
 ## Voraussetzungen
 

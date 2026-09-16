@@ -2,8 +2,7 @@
 
 ## Durchführung
 
-Die Aufgabe dauert etwa 40-50 Minuten ohne erstmalige Downloads. Nach der Anmeldung im
-Ausgangszustand bearbeitet die Gruppe drei Versuche: HTTPS, Restore und Datenbankausfall.
+Nach der Anmeldung im Ausgangszustand bearbeitet die Gruppe drei Versuche: HTTPS, Restore und Datenbankausfall.
 Jede Person notiert zunächst eine Erwartung. Vor einem neuen Login müssen alle privaten
 Browserfenster geschlossen werden, damit keine bestehende SSO-Sitzung den Test verfälscht. Zur
 Auswertung genügen der Issuer, die Gegenprobe

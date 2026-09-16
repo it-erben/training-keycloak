@@ -8,8 +8,6 @@ Am Ende dieser Übung hast du:
 - Eine App integrieren mit Keycloak
 - User-Informationen aus dem Token angezeigt
 
-**Geschätzte Dauer:** 30-35 Minuten
-
 ---
 
 ### Umgebung starten

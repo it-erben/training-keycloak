@@ -3,12 +3,12 @@
 Ein automatisiertes Audit gegen den Lab-Stack, einmal vor dem Lab mit roten Zeilen, einmal
 danach mit grünen. Die Prüfung läuft als Skript gegen die Admin-API.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Audit-Skript vor dem Lab | 3 Min |
-| Demo 2 | Eine Prüfung im Skript nachvollziehen | 3 Min |
-| Demo 3 | Audit-Skript nach dem Lab | 2 Min |
-| Demo 4 | Admin Events als Nachweis | 3 Min |
+| Demo   | Thema                                 |
+| :----- | :------------------------------------ |
+| Demo 1 | Audit-Skript vor dem Lab              |
+| Demo 2 | Eine Prüfung im Skript nachvollziehen |
+| Demo 3 | Audit-Skript nach dem Lab             |
+| Demo 4 | Admin Events als Nachweis             |
 
 ## Voraussetzungen
 

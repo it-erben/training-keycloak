@@ -10,8 +10,6 @@ Am Ende dieser Übung hast du:
 - User zu Gruppen und Rollen zugewiesen
 - Benutzerdefinierte Attribute konfiguriert
 
-**Geschätzte Dauer:** 25-30 Minuten
-
 ---
 
 ## Voraussetzungen

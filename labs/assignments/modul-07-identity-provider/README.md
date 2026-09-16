@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - Attribute-Mapping zwischen Gitea und Keycloak eingerichtet
 - Social Login im Portal getestet
 
-**Geschätzte Dauer:** 20-25 Minuten
-
 ---
 
 ## Voraussetzungen

@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - Rollenbasierte Zugriffsbeschränkung über einen **Required Claim** getestet
 - Einen zweiten Client (`crm-app`) erstellt und die **Client Role Isolation** per Token-Vergleich verifiziert
 
-**Geschätzte Dauer:** 30-40 Minuten
-
 ---
 
 ## Voraussetzungen
@@ -59,7 +57,7 @@ Browser --> Gitea (Port 3000) --> Keycloak (Port 8080) --> PostgreSQL
 
 ---
 
-## Teil 1: Ausgangslage verstehen (~5 Min)
+## Teil 1: Ausgangslage verstehen
 
 ### Schritt 1.1: Gitea öffnen und Login versuchen
 

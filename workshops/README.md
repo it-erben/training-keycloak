@@ -5,18 +5,18 @@ für die fiktive Mustertech GmbH und plant die Übernahme einer Keycloak-Install
 Dafür genügen Whiteboard oder Papier. Außerdem liegt hier das Begleitmaterial zum
 LDAP-/AD-Block in Modul 07 mit Trainerleitfaden und Gegenproben für das OpenLDAP-Lab.
 
-| Einheit                                                | Voraussetzung                       | Dauer   |
-| ------------------------------------------------------ | ----------------------------------- | ------- |
-| [LDAP und Active Directory](ldap-ad/README.md)         | Modul 07, Docker Compose            | 90 Min. |
-| [Active Directory auf GCP](active-directory/README.md) | Modul 06b, Modul 07 mit Lab 07c     | 90 Min. |
-| [Mandantenfähigkeit](mandantenfaehigkeit/aufgabe.md)   | Realms, Clients, Federation, Rollen | 60 Min. |
-| [Betriebsübernahme](betriebsuebernahme/aufgabe.md)     | Betrieb, Kubernetes und Operator    | 60 Min. |
+| Einheit                                                | Voraussetzung                       |
+| ------------------------------------------------------ | ----------------------------------- |
+| [LDAP und Active Directory](ldap-ad/README.md)         | Modul 07, Docker Compose            |
+| [Active Directory auf GCP](active-directory/README.md) | Modul 06b, Modul 07 mit Lab 07c     |
+| [Mandantenfähigkeit](mandantenfaehigkeit/aufgabe.md)   | Realms, Clients, Federation, Rollen |
+| [Betriebsübernahme](betriebsuebernahme/aufgabe.md)     | Betrieb, Kubernetes und Operator    |
 
 ## Einsatz im Kurs
 
 Der LDAP-/AD-Block ist direkt in die [Folien von Modul 07](../slides/07-identity-provider-foederation/slides.md)
 integriert. Zwei Gegenproben machen Suchfehler und verzögert sichtbare Gruppenänderungen
-im Lab nachvollziehbar. Die 90 Minuten beziehen sich auf diesen Block einschließlich Lab 07c.
+im Lab nachvollziehbar.
 
 Die AD-Einheit ist eine optionale Vertiefung für Tag 3. Sie braucht einen vom Trainer
 vorbereiteten Windows-Server mit Active Directory auf Google Cloud; ohne Freigabe der
@@ -25,10 +25,10 @@ Cloud-Ressourcen bleibt das OpenLDAP-Lab 07c der Ersatz.
 Mandantenfähigkeit passt nach Modul 07 oder als Vertiefung an Tag 3. Betriebsübernahme
 schließt an die Module 10 und 11 an. Modul 12 bleibt ein eigener Schwerpunkt.
 
-Für jedes Planspiel sind 12 Minuten Einstieg, 23 Minuten Gruppenarbeit, zweimal 7 Minuten
-Vorstellung und 11 Minuten Auswertung vorgesehen. Zwei Dreiergruppen bearbeiten denselben
-Fall. Dabei dürfen unterschiedliche Entwürfe entstehen, solange die Gruppen erklären,
-welche Anforderungen ihre Entscheidung bestimmen.
+Jedes Planspiel beginnt mit einem fachlichen Einstieg. Zwei Dreiergruppen bearbeiten denselben
+Fall, stellen ihre Entwürfe vor und werten die Ergebnisse gemeinsam aus. Dabei dürfen
+unterschiedliche Entwürfe entstehen, solange die Gruppen erklären, welche Anforderungen
+ihre Entscheidung bestimmen.
 
 In jeder Gruppe zeichnet eine Person, eine hält Entscheidungen fest und eine prüft die
 Gegenbeispiele. Die Rollen wechseln im zweiten Workshop.
@@ -45,17 +45,11 @@ Die Gruppe erhält das Aufgabenblatt. Die Musterlösung bleibt beim Trainer, bis
 Entwürfe vorgestellt sind. Die Kurzfolien liefern den fachlichen Einstieg, den
 Arbeitsauftrag und die Fragen für die anschließende Diskussion.
 
-## Zeitvarianten
+## Zusatzfälle einsetzen
 
-- **45 Minuten:** 10 Minuten Einstieg, 15 Minuten Gruppenarbeit, zweimal 5 Minuten
-  Vorstellung, 10 Minuten Auswertung. Zusatzfragen entfallen.
-- **60 Minuten:** Vollständiger Ablauf wie oben.
-- **90 Minuten:** Nach dem Einstieg 35 Minuten Gruppenarbeit einschließlich Zusatzfall,
-  zweimal 10 Minuten Vorstellung, 15 Minuten Gegenprüfung und 8 Minuten Abschluss.
-
-In der 90-Minuten-Variante bearbeiten die Gruppen zunächst 23 Minuten den Hauptfall.
-Dann erhalten sie den Zusatzfall und haben weitere 12 Minuten, um ihren Entwurf anzupassen.
-Bei der Vorstellung zeigen sie beide Fassungen und erklären, was sich geändert hat.
+Die Gruppen bearbeiten zunächst den Hauptfall. Für eine Vertiefung erhalten sie anschließend
+den Zusatzfall und passen ihren Entwurf an. Bei der Vorstellung zeigen sie beide Fassungen
+und erklären, was sich geändert hat.
 
 ## Vorbereitung und Ausgabe
 
