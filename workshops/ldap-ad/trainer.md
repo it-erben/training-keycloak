@@ -5,7 +5,7 @@
 Die Gruppe verfolgt einen Login vom eingegebenen Benutzernamen bis zur Rolle in Keycloak.
 Dabei soll sie erklären können, warum ein erreichbares LDAP noch keinen erfolgreichen
 Login bedeutet und weshalb geänderte Rechte erst später in einer Anwendung ankommen können.
-Plane 90 Minuten einschließlich Lab 07c ein. Die praktischen Versuche laufen in OpenLDAP;
+Die praktischen Versuche laufen in OpenLDAP;
 für die AD-Fragen gibt es Musterantworten, aber keinen AD-Server im Lab.
 
 Nutze die [Ablauftabelle](README.md#ablauf) und den LDAP-Block (Folien 6-20) im
@@ -14,7 +14,7 @@ Lass die Gruppe vor jedem Versuch das Ergebnis vorhersagen. Zeige bei Bedarf, wo
 LDAP-Einträge oder geerbte Rollen findet. Die beiden LDIF-Dateien fügen Anna der Gruppe
 `entwicklung` hinzu und nehmen diese Änderung anschließend zurück.
 
-## Die ersten 15 Minuten: Ein Verzeichnis lesen
+## Ein Verzeichnis lesen
 
 Ein LDAP-Verzeichnis besteht aus Einträgen mit Attributen. `objectClass` beschreibt,
 welche Objektarten und Attribute ein Eintrag unterstützt. LDAP ist das Zugriffsprotokoll;
@@ -36,7 +36,7 @@ ein anderer Bezeichner als Keycloaks Benutzer-ID oder das OIDC-Subject.
 Frage am Baum: "Findet ihr Hans auch, wenn ihr mit demselben Filter unter `ou=groups` sucht?"
 Lass die Gruppe den Suchweg zeigen. Daran erkennst du, ob sie Basis, Scope und Filter auseinanderhält.
 
-## Minute 15-30: Anmeldung Schritt für Schritt
+## Anmeldung Schritt für Schritt
 
 Das [Diagramm](../../slides/07-identity-provider-foederation/images/ldap-login.svg)
 auf Folie 10 zeigt einen Login mit Simple Bind wie im Lab.
@@ -93,7 +93,7 @@ Gruppen. Wenn Anna einer Gruppe hinzugefügt wird, kann sich nur deren Gruppenei
 ändern. Eine Suche nach geänderten Benutzereinträgen muss das dann nicht erfassen.
 Darum reicht "Changed users sync" nicht für jede Änderung an Gruppenrechten.
 
-## Minute 30-60: Die Teilnehmer bearbeiten 07c
+## Die Teilnehmer bearbeiten 07c
 
 Starte mit der Umgebung und der Realm-Datei aus Lab 07c. Lass die Gruppe zunächst
 DN, `uid`, `givenName` und `member` in der LDAP-Ausgabe finden.
@@ -107,7 +107,7 @@ Am Ende sollen drei Nachweise vorliegen:
 Bestehe beim Login-Test auf einem privaten Browserfenster ohne vorhandene SSO-Sitzung.
 Sonst könnte die Anmeldung funktionieren, obwohl Keycloak das LDAP-Passwort gar nicht geprüft hat.
 
-## Minute 60-75: Musterlösungen der Gegenproben
+## Musterlösungen der Gegenproben
 
 ### A: Erfolgreiche Suche ohne Treffer
 
@@ -147,7 +147,7 @@ Auch die Anwendungssitzung bleibt beim Cache-Leeren bestehen. Lass die Gruppe de
 neuen Login, Refresh und API-Zugriff auseinanderhalten; bei Anwendungen mit Introspection
 gehört deren Verhalten ebenfalls in den Test.
 
-## Minute 75-90: Active Directory und Betrieb
+## Active Directory und Betrieb
 
 ### AD DS, Entra ID und Kerberos
 

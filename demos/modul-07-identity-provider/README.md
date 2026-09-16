@@ -3,11 +3,11 @@
 Gitea als externen OIDC Identity Provider konfigurieren und den First Login Flow erklären.
 Gitea läuft lokal als Container, ein externer Account ist nicht nötig.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Gitea Setup | 2 Min |
-| Demo 2 | IdP in Keycloak konfigurieren | 3 Min |
-| Demo 3 | Login testen & First Login Flow erklären | 4 Min |
+| Demo   | Thema                                    |
+| :----- | :--------------------------------------- |
+| Demo 1 | Gitea Setup                              |
+| Demo 2 | IdP in Keycloak konfigurieren            |
+| Demo 3 | Login testen & First Login Flow erklären |
 
 ## Voraussetzungen
 

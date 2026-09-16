@@ -10,7 +10,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Keycloak vom Dienstleister übernehmen
 
-Planspiel · Keycloak 26.5 · 60 Minuten
+Planspiel · Keycloak 26.5
 
 ---
 
@@ -84,7 +84,7 @@ Der Fall ist erfunden. Fehlende Informationen und Zugänge könnt ihr beim Diens
 
 ---
 
-## 6. Gruppenauftrag · 23 Minuten
+## 6. Gruppenauftrag
 
 Eine Person zeichnet, eine notiert Entscheidungen, eine sucht Fehler im Plan.
 Falls ihr den ersten Workshop bearbeitet habt, wechselt die Rollen.
@@ -94,7 +94,7 @@ Falls ihr den ersten Workshop bearbeitet habt, wechselt die Rollen.
 3. Plant Probe, Abnahme, letzte Datenübernahme und Umschaltung.
 4. Definiert mindestens sechs Tests sowie Rückfallkriterien und Entscheider.
 
-Danach stellt jede Gruppe ihren Plan in sieben Minuten vor.
+Danach stellt jede Gruppe ihren Plan vor.
 
 ---
 

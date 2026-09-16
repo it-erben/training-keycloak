@@ -9,8 +9,6 @@ Am Ende dieser Übung hast du:
 - Einen neuen Signaturschlüssel aktiviert und die `kid` alter und neuer Tokens verglichen
 - Den Unterschied zwischen einem passiven und einem deaktivierten Schlüssel sowie den JWKS-Cache beobachtet
 
-**Geschätzte Dauer:** 35-45 Minuten, ohne erstmalige Image-Downloads.
-
 ## Ausgangslage
 
 Der `sync-service` der Mustertech GmbH ruft eine geschützte API auf. Heute wechselst du
@@ -85,7 +83,7 @@ Ein HTTP-Status muss zur angegebenen Erwartung passen, sonst endet das Werkzeug 
 Die Erwartung ist standardmäßig `200`. Führe jeden Befehl einzeln aus und kläre Abweichungen,
 bevor du fortfährst. Die Rotationen nimmst du selbst in der Admin-Konsole vor.
 
-## Teil 1: Client-Secret wechseln (15-20 Minuten)
+## Teil 1: Client-Secret wechseln
 
 ### Schritt 1.1: Ausgangszustand prüfen
 
@@ -154,7 +152,7 @@ docker compose run --rm tools api before
 Die API prüft das vorgelegte Access Token anhand seiner Signatur und Claims.
 Dass Keycloak das alte Client-Secret inzwischen ablehnt, erfährt sie dabei nicht.
 
-## Teil 2: Signaturschlüssel wechseln (15-20 Minuten)
+## Teil 2: Signaturschlüssel wechseln
 
 ### Schritt 2.1: Alten Schlüssel zuordnen
 

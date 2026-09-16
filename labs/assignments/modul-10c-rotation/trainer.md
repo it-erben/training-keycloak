@@ -4,8 +4,6 @@
 
 10c startet mit einem eigenen Realm. Du kannst es deshalb direkt nach Modul 10 einsetzen
 oder nach Modul 12 anschließen, wenn die Teilnehmer ihre bisherige Umgebung bereits abgebaut haben.
-Plane 35-45 Minuten ein. Etwa 15 Minuten entfallen auf die Secrets, 20 auf die
-Signaturschlüssel; am Schluss bleiben fünf Minuten, um die beiden Entscheidungen zu besprechen.
 Lade die Images und baue die API vor Beginn, damit die Gruppe nicht auf Downloads warten muss.
 
 Alle bearbeiten denselben Ablauf mit vorgegebenen Prüfbefehlen. Erkläre vorab, wo die beiden

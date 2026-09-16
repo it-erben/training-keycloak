@@ -3,12 +3,12 @@
 Authorization Services mit **Time Policy** und **Aggregated Policy** zeigen, anders als
 die Übung, die reine Role-Policies für `urlaubsantrag`/`admin-bereich` nutzt.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Authorization Services aktivieren | 2 Min |
-| Demo 2 | Resource & Policies erstellen | 4 Min |
-| Demo 3 | Permission verknüpfen | 2 Min |
-| Demo 4 | Evaluate testen | 3 Min |
+| Demo   | Thema                             |
+| :----- | :-------------------------------- |
+| Demo 1 | Authorization Services aktivieren |
+| Demo 2 | Resource & Policies erstellen     |
+| Demo 3 | Permission verknüpfen             |
+| Demo 4 | Evaluate testen                   |
 
 ## Voraussetzungen
 

@@ -6,17 +6,16 @@ Nach der Übung soll die Gruppe erklären können, welche Grenze ein Realm setzt
 Zugriffsregeln die Anwendung selbst durchsetzen muss. Der Entwurf unten ist eine mögliche
 Lösung. Andere Architekturen sind ebenso brauchbar, wenn sie die Anforderungen des Falls erfüllen.
 
-| Minute | Moderation                                                                  |
-| ------ | --------------------------------------------------------------------------- |
-| 0-12   | Kurzfolien zeigen; Realm, Organization und Datenbereich unterscheiden       |
-| 12-35  | Gruppen arbeiten; nach 10 Minuten nach dem Zugriff auf Dokument 4711 fragen |
-| 35-49  | Jede Gruppe stellt sieben Minuten vor                                       |
-| 49-60  | Gegenbeispiele prüfen und Unterschiede der Entwürfe besprechen              |
+| Phase         | Moderation                                                                  |
+| ------------- | --------------------------------------------------------------------------- |
+| Einstieg      | Kurzfolien zeigen; Realm, Organization und Datenbereich unterscheiden       |
+| Gruppenarbeit | Gruppen arbeiten; bei der Planung nach dem Zugriff auf Dokument 4711 fragen |
+| Vorstellung   | Jede Gruppe stellt ihren Entwurf vor                                        |
+| Auswertung    | Gegenbeispiele prüfen und Unterschiede der Entwürfe besprechen              |
 
 Bitte die Gruppen, eigene Annahmen neben das Diagramm zu schreiben. So lässt sich später
-erkennen, ob zwei Entwürfe unterschiedliche Anforderungen lösen. Für die 23 Minuten
-Gruppenarbeit helfen 10 Minuten Architektur, 8 Minuten Zugriffstests und 5 Minuten Vorbereitung
-der Vorstellung. In der 45-Minuten-Variante genügen Stichpunkte zur Helpdesk-Administration.
+erkennen, ob zwei Entwürfe unterschiedliche Anforderungen lösen. Die Gruppen entwerfen zuerst
+die Architektur, prüfen dann die Zugriffstests und bereiten anschließend ihre Vorstellung vor.
 
 ## Beispiel: Gemeinsames Portal, getrennte Abrechnung
 
@@ -118,7 +117,7 @@ Partnerzugriff erklären kann. Bei einer offenen Produkteinstellung genügt ein 
 Prüfauftrag mit erwartetem Ergebnis. "Keycloak macht das" ist dafür zu wenig.
 
 Lass zum Schluss jede Gruppe eine geänderte Anforderung nennen, die ihren Entwurf
-unbrauchbar machen würde. Im 90-Minuten-Workshop dient dafür der zusätzliche Wunsch von Süd.
+unbrauchbar machen würde. Der Zusatzfall mit dem Wunsch von Süd gibt dafür ein Beispiel.
 
 ## Fachliche Quellen
 

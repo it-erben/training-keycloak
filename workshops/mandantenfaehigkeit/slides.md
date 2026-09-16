@@ -10,7 +10,7 @@ footer: "CC BY-NC-SA 4.0, Alexander Erben"
 
 ## Mandantenfähigkeit nach einer Fusion
 
-Architekturworkshop · Keycloak 26.5 · 60 Minuten
+Architekturworkshop · Keycloak 26.5
 
 ---
 
@@ -87,7 +87,7 @@ Das Aufgabenblatt beschreibt den vollständigen, erfundenen Fall.
 
 ---
 
-## 6. Gruppenauftrag · 23 Minuten
+## 6. Gruppenauftrag
 
 **Zwei Gruppen mit je drei Personen:** Zeichnen, Entscheidungen festhalten, Gegenbeispiele prüfen.
 
@@ -96,7 +96,7 @@ Das Aufgabenblatt beschreibt den vollständigen, erfundenen Fall.
 3. Legt die Bedeutung von `bereich` fest und prüft Annas Request auf Dokument 4711.
 4. Formuliert mindestens vier Tests, einschließlich verweigerter Zugriffe.
 
-Danach stellt jede Gruppe ihren Entwurf in sieben Minuten vor.
+Danach stellt jede Gruppe ihren Entwurf vor.
 
 ---
 

@@ -8,8 +8,6 @@ Am Ende dieser Übung hast du:
 - Anna im LDAP einer weiteren Gruppe zugeordnet und ihre geerbten Keycloak-Rollen geprüft
 - Die Gruppenänderung zurückgenommen und den Ausgangszustand wiederhergestellt
 
-**Dauer:** 15 Minuten nach dem vollständigen Lab 07c.
-
 ## Voraussetzungen
 
 Bearbeite zuerst [Lab 07c][lab], einschließlich Gruppen-Mapper und Zuordnung der Rollen.

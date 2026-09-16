@@ -6,11 +6,11 @@ HR-Rollen von Charlie und umgekehrt. Diese Demo zeigt, wie man mit scoped
 `oidc-usermodel-client-role-mapper` Mappern sicherstellt, dass jeder Client nur seine eigenen Rollen
 in einem flachen `roles`-Claim sieht.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Das Problem: Token enthält alle Client Roles | 3 Min |
-| Demo 2 | Die Lösung: Scoped Client Scopes | 4 Min |
-| Demo 3 | Token per CLI verifizieren | 3 Min |
+| Demo   | Thema                                        |
+| :----- | :------------------------------------------- |
+| Demo 1 | Das Problem: Token enthält alle Client Roles |
+| Demo 2 | Die Lösung: Scoped Client Scopes             |
+| Demo 3 | Token per CLI verifizieren                   |
 
 ## Voraussetzungen
 
@@ -44,7 +44,7 @@ werden vom Setup-Container erstellt.
 
 ---
 
-## Demo 1: Das Problem (~3 Min)
+## Demo 1: Das Problem
 
 Charlies Token von der CRM-App enthält auch seine HR-Rollen. Die CRM-App sieht Daten, die sie nichts angehen.
 
@@ -80,7 +80,7 @@ Suche den Claim `resource_access`:
 
 ---
 
-## Demo 2: Die Lösung (~4 Min)
+## Demo 2: Die Lösung
 
 Wir haben per Setup-Container für jeden Client einen eigenen Client Scope mit einem scoped Role Mapper erstellt.
 
@@ -135,7 +135,7 @@ Suche den neuen Claim `roles`:
 
 ---
 
-## Demo 3: Token per CLI (~3 Min)
+## Demo 3: Token per CLI
 
 Wir verifizieren die Isolation mit echten Tokens.
 

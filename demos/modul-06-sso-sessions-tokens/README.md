@@ -2,10 +2,10 @@
 
 Session-Timeouts und Revocation live zeigen, in kurzen Demos, die das Thema greifbar machen.
 
-| Demo | Thema | Dauer |
-| :--- | :--- | :--- |
-| Demo 1 | Session-Timeout testen | 4 Min |
-| Demo 2 | Revocation testen | 3 Min |
+| Demo   | Thema                  |
+| :----- | :--------------------- |
+| Demo 1 | Session-Timeout testen |
+| Demo 2 | Revocation testen      |
 
 ## Voraussetzungen
 

@@ -2,24 +2,24 @@
 
 Die LDAP-/AD-Inhalte gehören zum [Foliensatz von Modul 07][folien]. Dieses Verzeichnis
 enthält den Trainerleitfaden und die Gegenproben zum [OpenLDAP-Lab 07c][lab].
-Für den LDAP-/AD-Block sind 90 Minuten einschließlich Lab vorgesehen; der Einstieg und
-die anschließenden Brokering-Themen kommen im Modul hinzu.
+Der Block umfasst Erklärungen, Lab 07c und Gegenproben; der Einstieg und die anschließenden
+Brokering-Themen kommen im Modul hinzu.
 
 ## Ablauf
 
-| Minuten | Inhalt                                         | Durchführung                                     |
-| ------- | ---------------------------------------------- | ------------------------------------------------ |
-| 0-15    | Verzeichnisbaum, DN, Suchbasis, Filter         | Folien 6-8 (2.1-2.3); Suchergebnisse vorhersagen |
-| 15-30   | Bind, Login, lokale Daten und Synchronisierung | Folien 9-12 (2.4-2.7); Ablauf gemeinsam erklären |
-| 30-60   | LDAP anbinden und Gruppen auf Rollen mappen    | Folie 13 (2.8); Teilnehmer bearbeiten Lab 07c    |
-| 60-75   | Gegenproben zu Suche und Gruppenrechten        | Folie 14 (2.9); Zusatzaufgabe in Zweiergruppen   |
-| 75-90   | AD, TLS, Kerberos und Lebenszyklus             | Folien 15-20 (2.10-2.15); Fragen auswerten       |
+| Inhalt                                         | Durchführung                                     |
+| ---------------------------------------------- | ------------------------------------------------ |
+| Verzeichnisbaum, DN, Suchbasis, Filter         | Folien 6-8 (2.1-2.3); Suchergebnisse vorhersagen |
+| Bind, Login, lokale Daten und Synchronisierung | Folien 9-12 (2.4-2.7); Ablauf gemeinsam erklären |
+| LDAP anbinden und Gruppen auf Rollen mappen    | Folie 13 (2.8); Teilnehmer bearbeiten Lab 07c    |
+| Gegenproben zu Suche und Gruppenrechten        | Folie 14 (2.9); Zusatzaufgabe in Zweiergruppen   |
+| AD, TLS, Kerberos und Lebenszyklus             | Folien 15-20 (2.10-2.15); Fragen auswerten       |
 
 Der LDAP-Block beginnt nach dem Vergleich von Federation und Brokering. Ab Folie 21
 geht es im selben Deck mit dem Brokering-Flow, der IdP-Konfiguration, Entra ID,
 Social Login und First Broker Login weiter. Folie 28 enthält die Quellen.
 Kennt die Gruppe LDAP bereits, bleibt mehr Zeit für die Fehlersuche und die AD-Fragen.
-Die 15 Minuten für Gegenproben setzen ein fertig eingerichtetes Lab voraus.
+Die Gegenproben setzen ein fertig eingerichtetes Lab voraus.
 
 ## Bearbeitbare Unterlagen
 
