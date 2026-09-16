@@ -133,7 +133,7 @@ Die eigentlichen Rotationsschritte müssen zusätzlich gegen das laufende Lab ge
 Ein vollständiger Neustart für einen weiteren Durchlauf:
 
 ```bash
-docker compose down -v
+docker compose --profile tools down -v
 docker compose up -d --build --wait --wait-timeout 240
 docker compose run --rm setup
 ```

@@ -273,11 +273,11 @@ sie prüft auch den Issuer und die Laufzeit. Du brauchst keine öffentliche Deco
 Für einen vollständigen Neustart oder nach Abschluss:
 
 ```bash
-docker compose down -v
+docker compose --profile tools down -v
 ```
 
-Damit werden ausschließlich die Container und Volumes dieses Compose-Projekts entfernt,
-einschließlich gespeicherter Secrets und Tokens. Ein erneuter Start stellt den Importzustand her.
+Mit `--profile tools` wird auch das Volume mit den gespeicherten Secrets und Tokens entfernt.
+Der Befehl räumt die Container und Volumes dieses Compose-Projekts auf. Ein erneuter Start stellt den Importzustand her.
 
 ## Quellen und Trainerunterlage
 
