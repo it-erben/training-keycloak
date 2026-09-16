@@ -1,0 +1,15 @@
+#!/bin/sh
+# Wandelt ein Base64-kodiertes objectGUID (ldapsearch: "objectGUID:: ...") in die GUID-Schreibweise,
+# die Keycloak im Attribut LDAP_ID zeigt. AD speichert die ersten drei Bloecke in umgekehrter Byte-Reihenfolge.
+set -e
+b64="${1:-$(cat)}"
+hex=$(printf '%s' "$b64" | base64 -d | od -An -tx1 -v | tr -d ' \n')
+if [ ${#hex} -ne 32 ]; then
+  echo "kein 16-Byte-Wert: $b64" >&2
+  exit 1
+fi
+p() { printf '%s' "$hex" | cut -c"$1"; }
+printf '%s%s%s%s-%s%s-%s%s-%s-%s\n' \
+  "$(p 7-8)" "$(p 5-6)" "$(p 3-4)" "$(p 1-2)" \
+  "$(p 11-12)" "$(p 9-10)" "$(p 15-16)" "$(p 13-14)" \
+  "$(p 17-20)" "$(p 21-32)"

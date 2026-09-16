@@ -45,6 +45,8 @@ oder verwerfen: Die Kurs-Labs verwenden dieselben Namen und Ports.
 
 Die praktischen Versuche laufen in OpenLDAP. AD-Schema, Kerberos und TLS im Produktivbetrieb
 werden anhand von Fragen besprochen; ein AD-Server gehört nicht zu dieser Übungsumgebung.
+Wer an Tag 3 gegen ein echtes Active Directory arbeiten will, verwendet die
+[AD-Einheit auf GCP](../active-directory/README.md); dort steht auch, wann OpenLDAP der Ersatz bleibt.
 
 ## Folien ausgeben
 
