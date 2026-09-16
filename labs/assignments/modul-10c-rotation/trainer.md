@@ -2,14 +2,17 @@
 
 ## Durchführung
 
-Das Lab ergänzt Modul 10 oder folgt als Vertiefung auf Modul 12. Es benötigt keinen Zustand
-aus einem anderen Lab. Plane 35-45 Minuten: etwa 15 Minuten für Secrets, 20 Minuten für
-Signaturschlüssel und 5 Minuten Auswertung. Bei der Vorbereitung die Images laden und die API bauen.
+10c startet mit einem eigenen Realm. Du kannst es deshalb direkt nach Modul 10 einsetzen
+oder nach Modul 12 anschließen, wenn die Teilnehmer ihre bisherige Umgebung bereits abgebaut haben.
+Plane 35-45 Minuten ein. Etwa 15 Minuten entfallen auf die Secrets, 20 auf die
+Signaturschlüssel; am Schluss bleiben fünf Minuten für die Ergebnistabelle.
+Lade die Images und baue die API vor Beginn, damit die Gruppe nicht auf Downloads warten muss.
 
-Die Teilnehmer arbeiten alle denselben Ablauf durch. Zeige zuerst die beiden Vertrauensbeziehungen:
-Der Client authentifiziert sich mit seinem Secret an Keycloak. Die API prüft das anschließend
-vorgelegte Token mit dem öffentlichen Signaturschlüssel. Stelle vor jeder Änderung eine kurze
-Vorhersagefrage und lasse danach den angegebenen Befehl ausführen.
+Alle bearbeiten denselben Ablauf mit vorgegebenen Prüfbefehlen. Erkläre vorab, wo die beiden
+Geheimnisse verwendet werden: Das Client-Secret liegt beim Dienst und bei Keycloak. Der private
+Signaturschlüssel bleibt bei Keycloak; die API lädt nur den öffentlichen Schlüssel.
+Lass die Teilnehmer vor **Invalidate** kurz vorhersagen, ob `before` noch funktioniert.
+Nach dem API-Aufruf können sie ihre Vermutung am Ergebnis prüfen.
 
 ## Vorbereiteter Zustand
 
@@ -38,14 +41,13 @@ von `old` und `new` verändern; rotiere genau einmal.
 | Nach Rotation, Übergangszeit aktiv | 200                        | 200                  | 200                       |
 | Nach Invalidate des alten Secrets  | 401, `unauthorized_client` | 200                  | 200                       |
 
-Das alte Secret wird im Feld **Rotated secret** invalidiert, nicht durch erneute Rotation
-des aktuellen Secrets. `before` bleibt bis zu seinem Ablauf verwendbar, weil die API weder
-Client-Secret noch die aktuelle Credential-Version an Keycloak zurückfragt. Sie prüft
-Signatur, Issuer und Zeitangaben des vorgelegten JWT.
+Zum Entwerten dient **Invalidate** neben **Rotated secret**. `before` bleibt bis zu seinem
+Ablauf verwendbar: Die API prüft Signatur, Issuer und Zeitangaben des JWT. Ob sich das
+Client-Secret seit der Ausstellung geändert hat, fragt sie bei Keycloak nicht ab.
 
-Die `kid` bleibt in diesem Teil gleich. Die Secret-Rotation hat das Schlüsselpaar des Realms
-nicht verändert. Im Client-Credentials-Flow steht hinter dem Token der Service Account des
-Clients, kein angemeldeter menschlicher Benutzer.
+Die `kid` bleibt gleich, weil die Secret-Rotation das Schlüsselpaar des Realms nicht verändert.
+Die API-Ausgabe `service-account-sync-service` zeigt außerdem, wer hier zugreift: der Service
+Account des Clients. Für diesen Client-Credentials-Flow meldet sich kein Mensch an.
 
 ## Musterlösung: Signaturschlüssel
 
@@ -61,9 +63,10 @@ als `rsa-original` und signiert deshalb neue RS256-Tokens.
 | Enabled Off, Active Off              | Nein               | 401                       | 200                |
 | Wieder Enabled On, Active Off        | Ja                 | 200                       | 200                |
 
-Die zwei `kid`-Werte müssen verschieden sein. Die Schlüsselgröße oder der Algorithmus allein
-identifiziert keinen konkreten Schlüssel. Im JWKS können außerdem Schlüssel für andere Zwecke
-stehen; für den Versuch zählen RS256 und `use: sig`.
+Vergleiche die konkreten `kid`-Werte. Obwohl beide Schlüssel 2048 Bit haben und RS256
+verwenden, unterscheiden sie sich in ihrer `kid`, über die die API den passenden öffentlichen
+Schlüssel findet. Im JWKS können weitere Schlüssel stehen; für diesen Versuch zählen die
+Einträge mit RS256 und `use: sig`.
 
 ### Cache als Teil des Versuchs
 
@@ -72,25 +75,27 @@ vorherigen erfolgreichen Zugriff kann ein Token noch akzeptiert werden, obwohl K
 den betreffenden öffentlichen Schlüssel nicht mehr veröffentlicht. Vorhandene Cache-Einträge
 verschwinden dadurch nicht automatisch.
 
-Nach `docker compose restart api` und erfolgreichem Healthcheck hat der neue Prozess keinen
-alten JWKS-Cache. Erst jetzt ist die erwartete 401-Antwort mit `key-before` eindeutig auf
-den fehlenden Schlüssel zurückzuführen, sofern das Token noch nicht abgelaufen ist.
-Die weiterhin erfolgreiche Anfrage mit `key-after` dient als Gegenprobe.
+Nach `docker compose restart api` startet der Prozess mit leerem Cache. Wenn das noch gültige
+`key-before` jetzt eine 401-Antwort erhält, fehlt der API der passende öffentliche Schlüssel.
+Mit `key-after` klappt der Aufruf weiterhin. Diese Gegenprobe zeigt, dass die API erreichbar
+ist und Tokens mit dem neuen Schlüssel prüfen kann.
 
 Zum Abschluss `rsa-original` wieder auf **Enabled: On**, **Active: Off** stellen, die alte
 `kid` im JWKS nachweisen, den API-Prozess erneut starten und beide Tokens prüfen.
 Damit bleiben ältere Tokens prüfbar und neue Tokens verwenden `rsa-rotation`.
 
-Eine produktive Übergangszeit hängt von allen betroffenen Token-Arten und Verifikatoren ab,
-beispielsweise auch von ID Tokens, Offline Tokens und deren Verwendung. Eine Stunde ist
-hier nur eine Übungseinstellung. Der demonstrierte API-Neustart ist ein kontrollierter
-Cache-Reset; in Produktion braucht jede Anwendung eine passende Aktualisierungsstrategie.
+Für die Übergangszeit im Produktivbetrieb zählt, wie lange Anwendungen und Keycloak den alten
+Schlüssel noch brauchen. Dabei sind auch ID Tokens und Offline Tokens zu berücksichtigen.
+Die eine Stunde aus dem Lab lässt sich deshalb nicht pauschal übernehmen. Kläre außerdem,
+wie die beteiligten Anwendungen ihre Schlüssel-Caches erneuern. Der Neustart macht diesen
+Effekt hier sichtbar, ersetzt aber keine Planung für die laufenden Anwendungen.
 
 ## Typische Verständnisfragen
 
 **Warum funktioniert `before` trotz ungültigem Secret?**
-Das Secret wurde zur Ausstellung verwendet. Es steckt nicht als erneut zu prüfendes Passwort
-im Access Token. Ohne zusätzlichen Widerrufsmechanismus prüft die API das bereits ausgestellte JWT.
+Keycloak hat das Secret bei der Token-Anfrage geprüft und anschließend das Token signiert.
+Weil die API dieses JWT anhand der Signatur und Claims prüft, bräuchte sie einen zusätzlichen
+Mechanismus, um einen späteren Widerruf zu bemerken.
 
 **Warum wird ein passiver Schlüssel noch veröffentlicht?**
 Er muss zur Prüfung zuvor signierter Tokens verfügbar bleiben. Active steuert hier das Signieren
@@ -106,11 +111,12 @@ Aktualisierungsregeln verwenden. Deshalb trennt die Aufgabe JWKS-Beobachtung und
 
 ## Prüfwerkzeug und Tests
 
-Das Werkzeug verändert keine Keycloak-Konfiguration. Es sendet Client-Credentials-Anfragen,
-speichert die resultierenden Access Tokens und prüft sie an `/api/profile`. Erwartete HTTP-Fehler
-werden mit `--expect` angegeben. Ein abweichender Status führt zu Exitcode 1. Vor einer neuen
-Token-Anfrage wird eine gleichnamige alte Token-Datei entfernt, damit ein Fehlschlag nicht
-versehentlich einen früheren Erfolg vortäuscht.
+Die Änderungen an Keycloak erfolgen in der Admin-Konsole. Das Prüfwerkzeug fordert Tokens an,
+speichert sie und ruft damit `/api/profile` auf. `--expect 401` kennzeichnet einen beabsichtigten
+Fehler; bei einem anderen Status endet das Werkzeug mit Exitcode 1.
+
+Vor jeder Token-Anfrage löscht es eine vorhandene Token-Datei mit demselben Namen. Schlägt
+der Versuch fehl, kann der nächste API-Aufruf deshalb nicht versehentlich ein älteres Token verwenden.
 
 Unit-Tests, ohne laufendes Keycloak:
 
@@ -141,8 +147,8 @@ docker compose run --rm tools inspect key-before
 docker compose logs --tail 50 api keycloak
 ```
 
-Der lokale Health-Endpunkt der API belegt nur, dass der Prozess antwortet. Die fachliche Abnahme
-sind die Token-Anfragen und geschützten API-Aufrufe aus der Aufgabe.
+Wenn `/api/health` antwortet, läuft der API-Prozess. Ob Anmeldung und Token-Prüfung funktionieren,
+zeigen die Token-Anfragen und die Aufrufe von `/api/profile` aus der Aufgabe.
 
 ## Quellen
 
